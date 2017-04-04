@@ -8,6 +8,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.ToastUtil;
 
 public class QuizActivity extends AppCompatActivity {
@@ -16,6 +17,7 @@ public class QuizActivity extends AppCompatActivity {
     @BindView(R.id.btn_true) Button btnTrue;
     @BindView(R.id.btn_false) Button btnFalse;
     @BindView(R.id.btn_next) Button btnNext;
+    @BindView(R.id.btn_prev) Button btnPrev;
 
     private Question[] questions = new Question[] {
         new Question(R.string.question_1, true),
@@ -34,21 +36,83 @@ public class QuizActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setTitle(R.string.ssyijiu);
 
-        tvQuestion.setText(questions[questionIndex].text);
+        nextQuestion();
+
+        MLog.i("onCreate");
     }
 
-    @OnClick({ R.id.btn_true, R.id.btn_false,R.id.btn_next })
+
+    @Override protected void onStart() {
+        super.onStart();
+        MLog.i("onStart");
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        MLog.i("onResume");
+    }
+
+
+    @Override protected void onPause() {
+        super.onPause();
+        MLog.i("onPause");
+    }
+
+
+    @Override protected void onStop() {
+        super.onStop();
+        MLog.i("onStop");
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        MLog.i("onDestroy");
+    }
+
+
+    @OnClick({ R.id.btn_true, R.id.btn_false, R.id.btn_next, R.id.btn_prev,R.id.tv_question })
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.tv_question:
+                nextQuestion();
+                break;
             case R.id.btn_true:
-                ToastUtil.show(R.string.true_toast);
+                checkAnswer(true);
                 break;
             case R.id.btn_false:
-                ToastUtil.show(R.string.false_toast);
+                checkAnswer(false);
                 break;
             case R.id.btn_next:
-                ToastUtil.show(R.string.false_toast);
+                nextQuestion();
+                break;
+            case R.id.btn_prev:
+                prevQuestion();
                 break;
         }
     }
+
+
+    public void checkAnswer(boolean answer) {
+        if (answer == questions[questionIndex].answer) {
+            ToastUtil.show(R.string.true_toast);
+        } else {
+            ToastUtil.show(R.string.false_toast);
+        }
+    }
+
+
+    public void nextQuestion() {
+        questionIndex = (questionIndex + 1) % questions.length;
+        tvQuestion.setText(questions[questionIndex].text);
+    }
+
+    public void prevQuestion() {
+        questionIndex = questionIndex - 1;
+        if(questionIndex < 0) {
+            questionIndex = 0;
+        } else {
+            tvQuestion.setText(questions[questionIndex].text);
+        }
+    }
+
 }
