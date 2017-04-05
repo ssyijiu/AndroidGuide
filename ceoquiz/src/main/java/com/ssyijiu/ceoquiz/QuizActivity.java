@@ -1,17 +1,13 @@
 package com.ssyijiu.ceoquiz;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.ToastUtil;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends BaseActivity {
 
     @BindView(R.id.tv_question) TextView tvQuestion;
     @BindView(R.id.btn_true) Button btnTrue;
@@ -28,45 +24,13 @@ public class QuizActivity extends AppCompatActivity {
     };
     private int questionIndex = 0;
 
+    @Override protected int getLayoutResId() {
+        return R.layout.activity_quiz;
+    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz);
-        ButterKnife.bind(this);
-        setTitle(R.string.ssyijiu);
 
+    @Override protected void initViewAndData() {
         nextQuestion();
-
-        MLog.i("onCreate");
-    }
-
-
-    @Override protected void onStart() {
-        super.onStart();
-        MLog.i("onStart");
-    }
-
-    @Override protected void onResume() {
-        super.onResume();
-        MLog.i("onResume");
-    }
-
-
-    @Override protected void onPause() {
-        super.onPause();
-        MLog.i("onPause");
-    }
-
-
-    @Override protected void onStop() {
-        super.onStop();
-        MLog.i("onStop");
-    }
-
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        MLog.i("onDestroy");
     }
 
 
