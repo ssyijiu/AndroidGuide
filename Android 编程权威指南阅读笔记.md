@@ -11,7 +11,7 @@
 - Control + R：Run
 
 - Android 编译过程
-![](http://obe5pxv6t.bkt.clouddn.com/android%20%E6%89%93%E5%8C%85%E8%BF%87%E7%A8%8B.png)
+  ![](http://obe5pxv6t.bkt.clouddn.com/android%20%E6%89%93%E5%8C%85%E8%BF%87%E7%A8%8B.png)
 
         1、使用 aapt 打包资源文件，生成 R.java 文件。
         2、使用 aidl 工具处理 aidl 文件，生成相应  java 文件。
@@ -35,9 +35,9 @@
 
 - 思考：这种模型看起来非常不错，但是由于 xml 文件的功能太弱，自己无法独立承担视图层的任务，更多的时候需要 Activity/Fragment 的帮助来控制各个 View 的状态，于是 Activity/Fragment 的代码的会变得异常臃肿，导致后期维护及其困难。而 [MVP](https://github.com/googlesamples/android-architecture) 的出现大的缓解了这个问题。
 
-- TextView 及其子控件可以设置旁边的图片和间距。	
-    - android:drawableRight="@drawable/arrow_right"     
-    - android:drawablePadding="4dp"
+-  TextView 及其子控件可以设置旁边的图片和间距。
+   - android:drawableRight="@drawable/arrow_right"     
+   - android:drawablePadding="4dp"
 
 
 ## 第3章：Activity 的生命周期
@@ -70,13 +70,13 @@
 
 ### 设备旋转前保存数据
 -  在 onSaveInstanceState(Bundle outState) 保存数据，这个方法在 onPause() 和 onStop() 之间调用（Android 5.0），Activity 因内存不足被系统杀死时，这个方法也会被调用。
-- 在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
-- 暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
-- 系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
-- 暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
-- 模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
-- - - - --
-- e(String tag, String msg, Throwable tr) 与 e.printStackTrace() 相比仅仅是打印的时候多出了 tag 和 msg。
+-  在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
+-  暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
+-  系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
+-  暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
+-  模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
+-  - - - --
+-  e(String tag, String msg, Throwable tr) 与 e.printStackTrace() 相比仅仅是打印的时候多出了 tag 和 msg。
 
 ## 第4章：Android 应用的调试
 - 设置异常断点：Run -> View Breakpoints -> + -> Java Exception Breakpoints -> RuntimeException
@@ -84,10 +84,14 @@
 
 ## 第5章：第二个 Activity
 - 显示横屏预览 ![](http://obe5pxv6t.bkt.clouddn.com/landscape.png)  
-- 
 
-  ​		
-  ​	
+- startActivity(Intent) 实际上将请求发送给了操作系统的 ActivityManager。ActivityManager 负责创建 Activity 并调用其 onCreate 方法。![](http://obe5pxv6t.bkt.clouddn.com/startActivity.png)
+
+- Intent 是 Android 四大组件与操作系统通信的一种媒介。
+
+  ![](http://obe5pxv6t.bkt.clouddn.com/intent.png)
+
+- ​
 
   ​		
   ​	

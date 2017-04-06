@@ -1,10 +1,12 @@
 package com.ssyijiu.ceoquiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.ssyijiu.common.util.ToastUtil;
 
@@ -17,6 +19,7 @@ public class QuizActivity extends BaseActivity {
     @BindView(R.id.btn_prev) Button btnPrev;
 
     private final String QUESTION_INDEX = "currentQuestionIndex";
+    @BindView(R.id.btn_cheat) Button btnCheat;
 
     private Question[] questions = new Question[] {
         new Question(R.string.question_1, true),
@@ -29,6 +32,7 @@ public class QuizActivity extends BaseActivity {
     /** 当前问题索引 */
     private int currentQuestionIndex = 0;
 
+
     @Override protected int getContentView() {
         return R.layout.activity_quiz;
     }
@@ -37,7 +41,7 @@ public class QuizActivity extends BaseActivity {
     @Override protected void initViewAndData(Bundle savedInstanceState) {
 
         // 恢复问题的索引
-        if(null != savedInstanceState) {
+        if (null != savedInstanceState) {
             currentQuestionIndex = savedInstanceState.getInt(QUESTION_INDEX);
         }
         tvQuestion.setText(questions[currentQuestionIndex].text);
@@ -45,7 +49,8 @@ public class QuizActivity extends BaseActivity {
     }
 
 
-    @OnClick({ R.id.btn_true, R.id.btn_false, R.id.btn_next, R.id.btn_prev,R.id.tv_question })
+    @OnClick({ R.id.btn_true, R.id.btn_false, R.id.btn_next, R.id.btn_prev, R.id.tv_question,
+                 R.id.btn_cheat })
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_question:
@@ -63,7 +68,16 @@ public class QuizActivity extends BaseActivity {
             case R.id.btn_prev:
                 prevQuestion();
                 break;
+            case R.id.btn_cheat:
+                cheat();
+                break;
         }
+    }
+
+
+    /** 作弊 */
+    private void cheat() {
+        startActivity(new Intent(this, CheatActivity.class));
     }
 
 
@@ -72,6 +86,7 @@ public class QuizActivity extends BaseActivity {
         // 保存问题索引
         outState.putInt(QUESTION_INDEX, currentQuestionIndex);
     }
+
 
     /** 检查答案是否正确 */
     public void checkAnswer(boolean answer) {
@@ -82,16 +97,18 @@ public class QuizActivity extends BaseActivity {
         }
     }
 
+
     /** 显示下一个问题 */
     public void nextQuestion() {
         currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
         tvQuestion.setText(questions[currentQuestionIndex].text);
     }
 
+
     /** 显示上一个问题 */
     public void prevQuestion() {
         currentQuestionIndex = currentQuestionIndex - 1;
-        if(currentQuestionIndex < 0) {
+        if (currentQuestionIndex < 0) {
             currentQuestionIndex = 0;
         } else {
             tvQuestion.setText(questions[currentQuestionIndex].text);
