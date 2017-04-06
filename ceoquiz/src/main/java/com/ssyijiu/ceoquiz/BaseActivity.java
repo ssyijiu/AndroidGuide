@@ -18,20 +18,20 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutResId());
+        setContentView(getContentView());
 
         className = getClass().getSimpleName();
 
         MLog.i(className + ": onCreate");
 
         ButterKnife.bind(this);
-        initViewAndData();
+        initViewAndData(savedInstanceState);
     }
 
 
-    protected abstract int getLayoutResId();
+    protected abstract int getContentView();
 
-    protected abstract void initViewAndData();
+    protected abstract void initViewAndData(Bundle savedInstanceState);
 
 
     @Override protected void onStart() {

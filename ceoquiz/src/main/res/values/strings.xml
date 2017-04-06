@@ -17,5 +17,7 @@
     <string name="question_5">朝九晚五，浪迹天涯？</string>
     <string name="next">Next</string>
     <string name="prev">Prev</string>
+    <string name="show_answer">Show Answer</string>
+    <string name="are_you_sure_you_want_to_do_this">Are you sure you want to do this?</string>
 
 </resources>

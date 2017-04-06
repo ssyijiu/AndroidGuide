@@ -36,7 +36,7 @@ public class MLog {
 
     public static void v(Object obj) {
         if (MLev.lev <= LogLev.V.lev) {
-            printLog(TAG, LogLev.V, getMsg(obj));
+            printLog(TAG, LogLev.V, getMsg(obj), null);
         }
     }
 
@@ -44,14 +44,14 @@ public class MLog {
     public static void v(String tag, Object obj) {
 
         if (MLev.lev <= LogLev.V.lev) {
-            printLog(tag, LogLev.V, getMsg(obj));
+            printLog(tag, LogLev.V, getMsg(obj), null);
         }
     }
 
 
     public static void d(Object obj) {
         if (MLev.lev <= LogLev.D.lev) {
-            printLog(TAG, LogLev.D, getMsg(obj));
+            printLog(TAG, LogLev.D, getMsg(obj), null);
         }
     }
 
@@ -59,14 +59,14 @@ public class MLog {
     public static void d(String tag, Object obj) {
 
         if (MLev.lev <= LogLev.D.lev) {
-            printLog(tag, LogLev.D, getMsg(obj));
+            printLog(tag, LogLev.D, getMsg(obj), null);
         }
     }
 
 
     public static void i(Object obj) {
         if (MLev.lev <= LogLev.I.lev) {
-            printLog(TAG, LogLev.I, getMsg(obj));
+            printLog(TAG, LogLev.I, getMsg(obj), null);
         }
     }
 
@@ -74,14 +74,14 @@ public class MLog {
     public static void i(String tag, Object obj) {
 
         if (MLev.lev <= LogLev.I.lev) {
-            printLog(tag, LogLev.I, getMsg(obj));
+            printLog(tag, LogLev.I, getMsg(obj), null);
         }
     }
 
 
     public static void w(Object obj) {
         if (MLev.lev <= LogLev.W.lev) {
-            printLog(TAG, LogLev.W, getMsg(obj));
+            printLog(TAG, LogLev.W, getMsg(obj), null);
         }
     }
 
@@ -89,14 +89,14 @@ public class MLog {
     public static void w(String tag, Object obj) {
 
         if (MLev.lev <= LogLev.W.lev) {
-            printLog(tag, LogLev.W, getMsg(obj));
+            printLog(tag, LogLev.W, getMsg(obj), null);
         }
     }
 
 
     public static void e(Object obj) {
         if (MLev.lev <= LogLev.E.lev) {
-            printLog(TAG, LogLev.E, getMsg(obj));
+            printLog(TAG, LogLev.E, getMsg(obj), null);
         }
     }
 
@@ -104,7 +104,25 @@ public class MLog {
     public static void e(String tag, Object obj) {
 
         if (MLev.lev <= LogLev.E.lev) {
-            printLog(tag, LogLev.E, getMsg(obj));
+            printLog(tag, LogLev.E, getMsg(obj), null);
+        }
+    }
+
+
+    /**
+     * 避免和 e(String tag, Object obj) 冲突，捕捉异常时只能打印 String
+     */
+    public static void e(String str, Throwable tr) {
+        if (MLev.lev <= LogLev.E.lev) {
+            printLog(TAG, LogLev.E, getMsg(str), tr);
+        }
+    }
+
+
+    public static void e(String tag, Object obj, Throwable tr) {
+
+        if (MLev.lev <= LogLev.E.lev) {
+            printLog(tag, LogLev.E, getMsg(obj), tr);
         }
     }
 
@@ -115,7 +133,7 @@ public class MLog {
      * @param lev 级别
      * @param msg Message
      */
-    private static void printLog(String defaultTag, LogLev lev, String msg) {
+    private static void printLog(String defaultTag, LogLev lev, String msg, Throwable tr) {
 
         // 记录下全局 TAG
         String tmpTAG = TAG;
@@ -129,7 +147,7 @@ public class MLog {
         String methodName = stackTrace[index].getMethodName();
         int lineNumber = stackTrace[index].getLineNumber();
         String tag = "[%s.%s(%s:%d)]";
-        tag = String.format(Locale.getDefault(),tag, className, methodName, fileName, lineNumber);
+        tag = String.format(Locale.getDefault(), tag, className, methodName, fileName, lineNumber);
         tag = TextUtils.isEmpty(TAG) ? tag : TAG + ":" + tag;
 
         switch (lev) {
@@ -146,7 +164,12 @@ public class MLog {
                 Log.w(tag, msg);
                 break;
             case E:
-                Log.e(tag, msg);
+                if (tr == null) {
+                    Log.e(tag, msg);
+                } else {
+                    Log.e(tag, msg, tr);
+                }
+
                 break;
             case NO_LOG:
                 break;

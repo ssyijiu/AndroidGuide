@@ -36,9 +36,8 @@
 - 思考：这种模型看起来非常不错，但是由于 xml 文件的功能太弱，自己无法独立承担视图层的任务，更多的时候需要 Activity/Fragment 的帮助来控制各个 View 的状态，于是 Activity/Fragment 的代码的会变得异常臃肿，导致后期维护及其困难。而 [MVP](https://github.com/googlesamples/android-architecture) 的出现大的缓解了这个问题。
 
 - TextView 及其子控件可以设置旁边的图片和间距。	
-
- - android:drawableRight="@drawable/arrow_right"
- - android:drawablePadding="4dp"
+    - android:drawableRight="@drawable/arrow_right"     
+    - android:drawablePadding="4dp"
 
 
 ## 第3章：Activity 的生命周期
@@ -50,8 +49,8 @@
 - onPause：Activity 仍然可见，但是不能与用户交互，如：弹出 Dialog 的时候。
 
 - onStop：Activity 没有被销毁，但是不可见，如：按下 Home 键、打开一个新的 Activity。
-- 当用户完成当前 Activity 并按“返回”按钮时，系统会从堆栈中将其弹出（并销毁），然后恢复前一 Activity。
-- isFinishing()：判断当前 Activity 是否 finish，“返回键”出栈或者调用 finish() 方法会返回 true，横竖屏切换返回、当系统为了恢复内存而销毁某项 Activity 返回 false。
+- 当用户完成当前 Activity 并按“返回”按钮时，系统会从堆栈中将其弹出（并销毁），然后恢复前一个Activity。
+- isFinishing()：判断当前 Activity 是否 finish，“返回键”出栈或者调用 finish() 方法会返回 true，横竖屏切换返回、当系统为了恢复内存而销毁某个 Activity 返回 false。
 - LogCat 的 No Filters 选项控制只显示系统输出信息。
 ### 设备配置与备选资源
 > [提供备选资源](https://developer.android.google.cn//guide/topics/resources/providing-resources.html#AlternativeResources)
@@ -60,7 +59,7 @@
 - 通常，为了匹配不同的设备配置，应用会提供不同的备选资源，例如屏幕适配和字符串的国际化。   
 - 在应用运行时如果设备配置发生改变，可能会有更合适的资源来匹配新的设别配置，此时 Android 会自动发现并使用它。   
 - 为 Activity 提供横竖屏不同的布局：新建 layout-land 文件夹，在里面新建横屏布局 xml 文件，保证文件名与竖屏相同，在 Acitivty 中判断下横竖屏然后分别处理不同布局的 View。    
-- Android可以自动完成最佳匹配资源的调用，但前提是它必须过新建一个activity来实现。在应用?行中，只要设备配置发了改变，Android就会销毁当前的 Activity，然后再创建新的 Activity。因此在横竖屏切换时 默认会改变Activity的生命周期： 先销毁再重新创建。    
+- Android可以自动完成最佳匹配资源的调用，但前提是它必须过新建一个 Activity 来实现。在应用运行时，只要设备配置发了改变，Android就会销毁当前的 Activity，然后再创建新的 Activity。因此在横竖屏切换时 默认会改变Activity的生命周期： 先销毁再重新创建。    
 - 横竖屏切换时不改变 Activity 生命周期的办法：
     - 写死横竖屏
     - android:configChanges="orientation|keyboardHidden|screenSize"     
@@ -70,8 +69,22 @@
     - 注意：上面两种方法都会使设置横竖屏不同的布局无效。
 
 ### 设备旋转前保存数据
--  public void onSaveInstanceState(Bundle outState) 在 onPause 和 onStop 之间调用（Android 5.0）
+-  在 onSaveInstanceState(Bundle outState) 保存数据，这个方法在 onPause() 和 onStop() 之间调用（Android 5.0），Activity 因内存不足被系统杀死时，这个方法也会被调用。
+- 在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
+- 暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
+- 系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
+- 暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
+- 模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
+- - - - --
+- e(String tag, String msg, Throwable tr) 与 e.printStackTrace() 相比仅仅是打印的时候多出了 tag 和 msg。
 
+## 第4章：Android 应用的调试
+- 设置异常断点：Run -> View Breakpoints -> + -> Java Exception Breakpoints -> RuntimeException
+- Lint：Analyze -> Inspect Code
+
+## 第5章：第二个 Activity
+- 显示横屏预览 ![](http://obe5pxv6t.bkt.clouddn.com/landscape.png)  
+- 
 
   ​		
   ​	

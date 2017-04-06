@@ -1,5 +1,6 @@
 package com.ssyijiu.ceoquiz;
 
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,6 +16,8 @@ public class QuizActivity extends BaseActivity {
     @BindView(R.id.btn_next) Button btnNext;
     @BindView(R.id.btn_prev) Button btnPrev;
 
+    private final String QUESTION_INDEX = "currentQuestionIndex";
+
     private Question[] questions = new Question[] {
         new Question(R.string.question_1, true),
         new Question(R.string.question_2, false),
@@ -22,15 +25,23 @@ public class QuizActivity extends BaseActivity {
         new Question(R.string.question_4, false),
         new Question(R.string.question_5, true),
     };
-    private int questionIndex = 0;
 
-    @Override protected int getLayoutResId() {
+    /** 当前问题索引 */
+    private int currentQuestionIndex = 0;
+
+    @Override protected int getContentView() {
         return R.layout.activity_quiz;
     }
 
 
-    @Override protected void initViewAndData() {
-        nextQuestion();
+    @Override protected void initViewAndData(Bundle savedInstanceState) {
+
+        // 恢复问题的索引
+        if(null != savedInstanceState) {
+            currentQuestionIndex = savedInstanceState.getInt(QUESTION_INDEX);
+        }
+        tvQuestion.setText(questions[currentQuestionIndex].text);
+
     }
 
 
@@ -56,26 +67,34 @@ public class QuizActivity extends BaseActivity {
     }
 
 
+    @Override public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // 保存问题索引
+        outState.putInt(QUESTION_INDEX, currentQuestionIndex);
+    }
+
+    /** 检查答案是否正确 */
     public void checkAnswer(boolean answer) {
-        if (answer == questions[questionIndex].answer) {
+        if (answer == questions[currentQuestionIndex].answer) {
             ToastUtil.show(R.string.true_toast);
         } else {
             ToastUtil.show(R.string.false_toast);
         }
     }
 
-
+    /** 显示下一个问题 */
     public void nextQuestion() {
-        questionIndex = (questionIndex + 1) % questions.length;
-        tvQuestion.setText(questions[questionIndex].text);
+        currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+        tvQuestion.setText(questions[currentQuestionIndex].text);
     }
 
+    /** 显示上一个问题 */
     public void prevQuestion() {
-        questionIndex = questionIndex - 1;
-        if(questionIndex < 0) {
-            questionIndex = 0;
+        currentQuestionIndex = currentQuestionIndex - 1;
+        if(currentQuestionIndex < 0) {
+            currentQuestionIndex = 0;
         } else {
-            tvQuestion.setText(questions[questionIndex].text);
+            tvQuestion.setText(questions[currentQuestionIndex].text);
         }
     }
 
