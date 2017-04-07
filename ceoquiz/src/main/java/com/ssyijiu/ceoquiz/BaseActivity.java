@@ -1,5 +1,7 @@
 package com.ssyijiu.ceoquiz;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -16,17 +18,27 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     String className;
 
+    protected Context context;
+
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getContentView());
 
+        context = this;
         className = getClass().getSimpleName();
 
         MLog.i(className + ": onCreate");
 
         ButterKnife.bind(this);
+
+        if(getIntent() != null) {
+            parseIntent(getIntent());
+        }
         initViewAndData(savedInstanceState);
     }
+
+
+    protected void parseIntent(Intent intent) {}
 
 
     protected abstract int getContentView();

@@ -85,13 +85,57 @@
 ## 第5章：第二个 Activity
 - 显示横屏预览 ![](http://obe5pxv6t.bkt.clouddn.com/landscape.png)  
 
-- startActivity(Intent) 实际上将请求发送给了操作系统的 ActivityManager。ActivityManager 负责创建 Activity 并调用其 onCreate 方法。![](http://obe5pxv6t.bkt.clouddn.com/startActivity.png)
+- startActivity(Intent) 实际上将请求发送给了操作系统的 ActivityManager。在启动 Activity 前，ActivityManager 会检查指定的 Class 是否在清单文件中配置，如果配置则创建 Activity 并调用其 onCreate 方法，未配置则抛出 ActivityNotFoundException。
+![](http://obe5pxv6t.bkt.clouddn.com/startActivity.png)
 
 - Intent 是 Android 四大组件与操作系统通信的一种媒介。
 
   ![](http://obe5pxv6t.bkt.clouddn.com/intent.png)
 
-- ​
+- ​Intent.putExtra(...) 返回 Intent 本身，可以进行链式调用。
+- startActivityForResult() 在子 Activity 中直接点击返回键，父 Activity 的 onActivityResult 中的 resultCode 值为 RESULT_CANCELED = 0，子 Activity 可以使用 setResult() 来改变父 Activity 的 onActivityResult 中的 resultCode 值和向父 Activity 传递数据。
+- startActivityForResult 最佳实践：
+    ```java
+    // 1. 子 Activity 声明 newIntent 方法
+    public static Intent newIntent(Context context, boolean answer) {
+            Intent intent = new Intent(context, CheatActivity.class);
+            intent.putExtra(EXTRA_ANSWER_IS_TRUE, answer);
+            return intent;
+    }
+    
+    // 2. 父 Activity startActivityForResult
+    boolean answer = questions[currentQuestionIndex].answer;
+    Intent intent = CheatActivity.newIntent(context, answer);
+    startActivityForResult(intent, REQUEST_CODE_CHEAT);
+    
+    // 3. 子 Activity 解析数据、设置返回数据、提供返回数据解析
+    // (1) 解析数据   
+    answer = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
+    // (2) 设置返回数据    
+    setResult(RESULT_OK, new Intent().putExtra(EXTRA_ANSWER_SHOW, isAnswerShow));
+    // (3) 提供返回数据解析    
+    public static boolean wasAnswerShown(Intent result) {
+        return result.getBooleanExtra(EXTRA_ANSWER_SHOW, false);
+    }
+    // 4. 父 Activity 的 onActivityResult
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) return;
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data != null) {
+                isCheat = CheatActivity.wasAnswerShown(data);
+            }
+        }
+    }
+    ----------------------------------------------------------------
+    // 1、2 步可以改为
+    public static void startForResult(Activity context, int requestCode, boolean answer) {
+        Intent intent = new Intent(context, CheatActivity.class);
+        intent.putExtra(EXTRA_ANSWER_IS_TRUE, answer);
+        context.startActivityForResult(intent, requestCode);
+    }
+    CheatActivity.startForResult(this, REQUEST_CODE_CHEAT, answer);    
+    ```
 
   ​		
   ​	

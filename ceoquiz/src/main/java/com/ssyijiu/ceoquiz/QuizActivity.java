@@ -6,12 +6,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.ssyijiu.common.util.ToastUtil;
 
 public class QuizActivity extends BaseActivity {
 
+    private static final int REQUEST_CODE_CHEAT = 0x01;
     @BindView(R.id.tv_question) TextView tvQuestion;
     @BindView(R.id.btn_true) Button btnTrue;
     @BindView(R.id.btn_false) Button btnFalse;
@@ -31,6 +31,7 @@ public class QuizActivity extends BaseActivity {
 
     /** 当前问题索引 */
     private int currentQuestionIndex = 0;
+    private boolean isCheat = false;
 
 
     @Override protected int getContentView() {
@@ -69,15 +70,31 @@ public class QuizActivity extends BaseActivity {
                 prevQuestion();
                 break;
             case R.id.btn_cheat:
-                cheat();
+                goCheat();
                 break;
         }
     }
 
 
     /** 作弊 */
-    private void cheat() {
-        startActivity(new Intent(this, CheatActivity.class));
+    private void goCheat() {
+        boolean answer = questions[currentQuestionIndex].answer;
+        // Intent intent = CheatActivity.newIntent(context, answer);
+        // startActivityForResult(intent, REQUEST_CODE_CHEAT);
+
+        CheatActivity.startForResult(this, REQUEST_CODE_CHEAT, answer);
+    }
+
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) return;
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data != null) {
+                isCheat = CheatActivity.wasAnswerShown(data);
+            }
+        }
+
     }
 
 
@@ -90,16 +107,23 @@ public class QuizActivity extends BaseActivity {
 
     /** 检查答案是否正确 */
     public void checkAnswer(boolean answer) {
-        if (answer == questions[currentQuestionIndex].answer) {
-            ToastUtil.show(R.string.true_toast);
+
+        int messageResId;
+        if (isCheat) {
+            messageResId = R.string.cheat_toast;
+        } else if (answer == questions[currentQuestionIndex].answer) {
+            messageResId = R.string.true_toast;
         } else {
-            ToastUtil.show(R.string.false_toast);
+            messageResId = R.string.false_toast;
         }
+
+        ToastUtil.show(messageResId);
     }
 
 
     /** 显示下一个问题 */
     public void nextQuestion() {
+        isCheat = false;
         currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
         tvQuestion.setText(questions[currentQuestionIndex].text);
     }
@@ -107,6 +131,7 @@ public class QuizActivity extends BaseActivity {
 
     /** 显示上一个问题 */
     public void prevQuestion() {
+        isCheat = false;
         currentQuestionIndex = currentQuestionIndex - 1;
         if (currentQuestionIndex < 0) {
             currentQuestionIndex = 0;
