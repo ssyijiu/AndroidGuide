@@ -12,13 +12,15 @@ import com.ssyijiu.common.util.ToastUtil;
 public class QuizActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_CHEAT = 0x01;
+    private static final String QUESTION_INDEX = "currentQuestionIndex";
+    private static final String IS_CHEAT = "ischeat";
+
     @BindView(R.id.tv_question) TextView tvQuestion;
     @BindView(R.id.btn_true) Button btnTrue;
     @BindView(R.id.btn_false) Button btnFalse;
     @BindView(R.id.btn_next) Button btnNext;
-    @BindView(R.id.btn_prev) Button btnPrev;
 
-    private final String QUESTION_INDEX = "currentQuestionIndex";
+    @BindView(R.id.btn_prev) Button btnPrev;
     @BindView(R.id.btn_cheat) Button btnCheat;
 
     private Question[] questions = new Question[] {
@@ -41,9 +43,12 @@ public class QuizActivity extends BaseActivity {
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
 
-        // 恢复问题的索引
         if (null != savedInstanceState) {
+            // 恢复问题索引
             currentQuestionIndex = savedInstanceState.getInt(QUESTION_INDEX);
+            // 恢复是否作弊
+            isCheat = savedInstanceState.getBoolean(IS_CHEAT);
+            questions[currentQuestionIndex].isCheat = isCheat;
         }
         tvQuestion.setText(questions[currentQuestionIndex].text);
 
@@ -92,6 +97,7 @@ public class QuizActivity extends BaseActivity {
         if (requestCode == REQUEST_CODE_CHEAT) {
             if (data != null) {
                 isCheat = CheatActivity.wasAnswerShown(data);
+                questions[currentQuestionIndex].isCheat = isCheat;
             }
         }
 
@@ -102,6 +108,8 @@ public class QuizActivity extends BaseActivity {
         super.onSaveInstanceState(outState);
         // 保存问题索引
         outState.putInt(QUESTION_INDEX, currentQuestionIndex);
+        // 保存是否作弊
+        outState.putBoolean(IS_CHEAT, isCheat);
     }
 
 
@@ -109,7 +117,7 @@ public class QuizActivity extends BaseActivity {
     public void checkAnswer(boolean answer) {
 
         int messageResId;
-        if (isCheat) {
+        if (questions[currentQuestionIndex].isCheat) {
             messageResId = R.string.cheat_toast;
         } else if (answer == questions[currentQuestionIndex].answer) {
             messageResId = R.string.true_toast;

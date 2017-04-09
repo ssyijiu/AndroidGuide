@@ -35,7 +35,7 @@
 
 - 思考：这种模型看起来非常不错，但是由于 xml 文件的功能太弱，自己无法独立承担视图层的任务，更多的时候需要 Activity/Fragment 的帮助来控制各个 View 的状态，于是 Activity/Fragment 的代码的会变得异常臃肿，导致后期维护及其困难。而 [MVP](https://github.com/googlesamples/android-architecture) 的出现大的缓解了这个问题。
 
--  TextView 及其子控件可以设置旁边的图片和间距。
+- TextView 及其子控件可以设置旁边的图片和间距。
    - android:drawableRight="@drawable/arrow_right"     
    - android:drawablePadding="4dp"
 
@@ -71,6 +71,7 @@
 ### 设备旋转前保存数据
 -  在 onSaveInstanceState(Bundle outState) 保存数据，这个方法在 onPause() 和 onStop() 之间调用（Android 5.0），Activity 因内存不足被系统杀死时，这个方法也会被调用。
 -  在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
+-  也可以在 onRestoreInstanceState 中恢复数据，这个方法在 onStart 和 onResume 之间调用。
 -  暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
 -  系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
 -  暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
@@ -86,14 +87,16 @@
 - 显示横屏预览 ![](http://obe5pxv6t.bkt.clouddn.com/landscape.png)  
 
 - startActivity(Intent) 实际上将请求发送给了操作系统的 ActivityManager。在启动 Activity 前，ActivityManager 会检查指定的 Class 是否在清单文件中配置，如果配置则创建 Activity 并调用其 onCreate 方法，未配置则抛出 ActivityNotFoundException。
-![](http://obe5pxv6t.bkt.clouddn.com/startActivity.png)
+    ![](http://obe5pxv6t.bkt.clouddn.com/startActivity.png)
 
 - Intent 是 Android 四大组件与操作系统通信的一种媒介。
 
   ![](http://obe5pxv6t.bkt.clouddn.com/intent.png)
 
 - ​Intent.putExtra(...) 返回 Intent 本身，可以进行链式调用。
+
 - startActivityForResult() 在子 Activity 中直接点击返回键，父 Activity 的 onActivityResult 中的 resultCode 值为 RESULT_CANCELED = 0，子 Activity 可以使用 setResult() 来改变父 Activity 的 onActivityResult 中的 resultCode 值和向父 Activity 传递数据。
+
 - startActivityForResult 最佳实践：
     ```java
     // 1. 子 Activity 声明 newIntent 方法
@@ -102,12 +105,12 @@
             intent.putExtra(EXTRA_ANSWER_IS_TRUE, answer);
             return intent;
     }
-    
+
     // 2. 父 Activity startActivityForResult
     boolean answer = questions[currentQuestionIndex].answer;
     Intent intent = CheatActivity.newIntent(context, answer);
     startActivityForResult(intent, REQUEST_CODE_CHEAT);
-    
+
     // 3. 子 Activity 解析数据、设置返回数据、提供返回数据解析
     // (1) 解析数据   
     answer = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
@@ -127,15 +130,23 @@
             }
         }
     }
-    ----------------------------------------------------------------
+    -------------------------------------------------------
     // 1、2 步可以改为
     public static void startForResult(Activity context, int requestCode, boolean answer) {
         Intent intent = new Intent(context, CheatActivity.class);
         intent.putExtra(EXTRA_ANSWER_IS_TRUE, answer);
         context.startActivityForResult(intent, requestCode);
     }
-    CheatActivity.startForResult(this, REQUEST_CODE_CHEAT, answer);    
+    CheatActivity.startForResult(this, REQUEST_CODE_CHEAT, answer);   
     ```
 
-  ​		
-  ​	
+- 从桌面点击应用图标时，并不是启动整个应用，仅仅是启动 Launcher Activity。
+
+- ActivityManager 维护着一个非特定应用独享的回退栈，所有 Activity 共享这个回退栈。
+
+
+
+## 第6章：Android SDK 版本与兼容
+
+- 以最低版本设置值为标准，系统会拒绝将应用安装在低于标准版本的设备上。
+- 版本适配：if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {}

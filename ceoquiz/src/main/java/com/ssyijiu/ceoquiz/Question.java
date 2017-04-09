@@ -9,6 +9,7 @@ package com.ssyijiu.ceoquiz;
 public class Question {
     public int text;
     public boolean answer;
+    public boolean isCheat;
 
 
     public Question() {
@@ -18,5 +19,6 @@ public class Question {
     public Question(int text, boolean answer) {
         this.text = text;
         this.answer = answer;
+        this.isCheat = false;
     }
 }

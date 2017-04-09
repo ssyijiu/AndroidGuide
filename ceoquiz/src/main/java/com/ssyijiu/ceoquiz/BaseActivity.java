@@ -64,6 +64,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
+    @Override protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        MLog.i(className + ": onRestoreInstanceState");
+    }
+
+
     @Override protected void onPause() {
         super.onPause();
         MLog.i(className + ": onPause");
