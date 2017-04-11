@@ -70,14 +70,24 @@
 
 ### 设备旋转前保存数据
 -  在 onSaveInstanceState(Bundle outState) 保存数据，这个方法在 onPause() 和 onStop() 之间调用（Android 5.0），Activity 因内存不足被系统杀死时，这个方法也会被调用。
--  在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
--  也可以在 onRestoreInstanceState 中恢复数据，这个方法在 onStart 和 onResume 之间调用。
--  暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
--  系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
--  暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
--  模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
--  - - - --
--  e(String tag, String msg, Throwable tr) 与 e.printStackTrace() 相比仅仅是打印的时候多出了 tag 和 msg。
+
+- 在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
+
+- 也可以在 onRestoreInstanceState 中恢复数据，这个方法在 onStart 和 onResume 之间调用。
+
+- 暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
+
+- 系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
+
+- 暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
+
+- 模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
+
+  ---
+
+  ​
+
+- e(String tag, String msg, Throwable tr) 与 e.printStackTrace() 相比仅仅是打印的时候多出了 tag 和 msg。
 
 ## 第4章：Android 应用的调试
 - 设置异常断点：Run -> View Breakpoints -> + -> Java Exception Breakpoints -> RuntimeException
