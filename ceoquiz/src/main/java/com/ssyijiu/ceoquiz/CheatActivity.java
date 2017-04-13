@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -18,6 +19,7 @@ public class CheatActivity extends BaseActivity {
     @BindView(R.id.tv_tip) TextView tvTip;
     @BindView(R.id.btn_show_answer) Button btnShowAnswer;
     @BindView(R.id.tv_answer) TextView tvAnswer;
+    @BindView(R.id.tv_build_version) TextView tvBuildVersion;
 
     private static final String EXTRA_ANSWER_IS_TRUE = "extra_answer_is_true";
     private static final String EXTRA_ANSWER_SHOW = "extra_answer_show";
@@ -43,6 +45,8 @@ public class CheatActivity extends BaseActivity {
             isCheat = savedInstanceState.getBoolean(IS_CHEAT);
             setCheatResult(isCheat);
         }
+
+        tvBuildVersion.setText(Build.MODEL + ": Android " + Build.VERSION.RELEASE + " API " + Build.VERSION.SDK_INT);
     }
 
 

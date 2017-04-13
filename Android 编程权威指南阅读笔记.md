@@ -46,7 +46,7 @@
 ![](http://obe5pxv6t.bkt.clouddn.com/android-lifecycle.png)
 - 覆盖 Activity 的生命周期时，先调用超类的实现方法，然后再调用其他方法。
 
-- onPause：Activity 仍然可见，但是不能与用户交互，如：弹出 Dialog 的时候。
+- onPause：Activity 仍然可见，但是不能与用户交互，如：打开一个 Dialog 主题的 Activity 的时候。
 
 - onStop：Activity 没有被销毁，但是不可见，如：按下 Home 键、打开一个新的 Activity。
 - 当用户完成当前 Activity 并按“返回”按钮时，系统会从堆栈中将其弹出（并销毁），然后恢复前一个Activity。
@@ -160,3 +160,8 @@
 
 - 以最低版本设置值为标准，系统会拒绝将应用安装在低于标准版本的设备上。
 - 版本适配：if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {}
+- Build.MODEL：手机型号
+- Build.VERSION.RELEASE：Android 版本号
+- Build.VERSION.SDK_INT：API 级别
+
+## 第7章：UI fragment 和 fragment 管理器
