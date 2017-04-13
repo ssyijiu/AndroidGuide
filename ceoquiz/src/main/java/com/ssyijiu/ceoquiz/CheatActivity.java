@@ -54,21 +54,6 @@ public class CheatActivity extends BaseActivity {
         tvAnswer.setText(String.valueOf(answer));
         isCheat = true;
         setCheatResult(isCheat);
-
-
-        int cx = tvAnswer.getWidth() / 2;
-        int cy = tvAnswer.getHeight() / 2;
-        float radius = tvAnswer.getWidth();
-        Animator anim = ViewAnimationUtils
-            .createCircularReveal(tvAnswer, cx, cy, radius, 0);
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                tvAnswer.setVisibility(View.INVISIBLE);
-            }
-        });
-        anim.start();
     }
 
 

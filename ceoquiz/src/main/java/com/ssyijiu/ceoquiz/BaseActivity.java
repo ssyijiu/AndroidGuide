@@ -82,6 +82,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
+    @Override protected void onRestart() {
+        super.onRestart();
+        MLog.i(className + ": onRestart");
+    }
+
+
     @Override public void finish() {
         MLog.i(className + ": finish");
         super.finish();
