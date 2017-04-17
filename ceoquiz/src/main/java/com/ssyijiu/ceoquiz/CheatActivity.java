@@ -1,14 +1,10 @@
 package com.ssyijiu.ceoquiz;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
@@ -46,6 +42,7 @@ public class CheatActivity extends BaseActivity {
             setCheatResult(isCheat);
         }
 
+        // 手机型号、Android 版本、API 级别
         tvBuildVersion.setText(Build.MODEL + ": Android " + Build.VERSION.RELEASE + " API " + Build.VERSION.SDK_INT);
     }
 
@@ -53,7 +50,7 @@ public class CheatActivity extends BaseActivity {
     @OnClick(R.id.btn_show_answer) public void onClick() {
         tvAnswer.setText(String.valueOf(answer));
         isCheat = true;
-        setCheatResult(isCheat);
+        setCheatResult(true);
     }
 
 

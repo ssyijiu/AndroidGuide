@@ -33,7 +33,6 @@ public class QuizActivity extends BaseActivity {
 
     /** 当前问题索引 */
     private int currentQuestionIndex = 0;
-    private boolean isCheat = false;
 
 
     @Override protected int getContentView() {
@@ -47,11 +46,11 @@ public class QuizActivity extends BaseActivity {
             // 恢复问题索引
             currentQuestionIndex = savedInstanceState.getInt(QUESTION_INDEX);
             // 恢复是否作弊
-            isCheat = savedInstanceState.getBoolean(IS_CHEAT);
-            questions[currentQuestionIndex].isCheat = isCheat;
+            questions = (Question[]) savedInstanceState.getSerializable(IS_CHEAT);
         }
-        tvQuestion.setText(questions[currentQuestionIndex].text);
-
+        if(questions != null) {
+            tvQuestion.setText(questions[currentQuestionIndex].text);
+        }
     }
 
 
@@ -96,8 +95,7 @@ public class QuizActivity extends BaseActivity {
         if (resultCode != RESULT_OK) return;
         if (requestCode == REQUEST_CODE_CHEAT) {
             if (data != null) {
-                isCheat = CheatActivity.wasAnswerShown(data);
-                questions[currentQuestionIndex].isCheat = isCheat;
+                questions[currentQuestionIndex].isCheat = CheatActivity.wasAnswerShown(data);
             }
         }
 
@@ -109,7 +107,7 @@ public class QuizActivity extends BaseActivity {
         // 保存问题索引
         outState.putInt(QUESTION_INDEX, currentQuestionIndex);
         // 保存是否作弊
-        outState.putBoolean(IS_CHEAT, isCheat);
+        outState.putSerializable(IS_CHEAT, questions);
     }
 
 
@@ -131,7 +129,6 @@ public class QuizActivity extends BaseActivity {
 
     /** 显示下一个问题 */
     public void nextQuestion() {
-        isCheat = false;
         currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
         tvQuestion.setText(questions[currentQuestionIndex].text);
     }
@@ -139,7 +136,6 @@ public class QuizActivity extends BaseActivity {
 
     /** 显示上一个问题 */
     public void prevQuestion() {
-        isCheat = false;
         currentQuestionIndex = currentQuestionIndex - 1;
         if (currentQuestionIndex < 0) {
             currentQuestionIndex = 0;

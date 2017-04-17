@@ -165,3 +165,13 @@
 - Build.VERSION.SDK_INT：API 级别
 
 ## 第7章：UI fragment 和 fragment 管理器
+- Fragement 的引入使 Adnroid UI 设计更加灵活。
+- Fragment 并不具备在屏幕上显示视图的能力，只有将它放在 Activity 的视图层级结构中，Fragment 才能显示在屏幕上。 
+- id 的类型使用 UUID
+- Fragment 的生命周期有托管它的 Activity 调用。
+- ![](http://obe5pxv6t.bkt.clouddn.com/complete_android_fragment_lifecycle.png)
+- Activity 添加 Fragment 的两种方式
+    - 在布局中写死（不够灵活，不推荐使用）
+    - 使用代码动态添加
+- 使用 FrameLayout 作为 Fragment 的容器视图。
+- ​
