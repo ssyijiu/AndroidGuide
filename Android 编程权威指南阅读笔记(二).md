@@ -56,3 +56,24 @@
 
 
 - 为什么使用 v4 包的 fragment：Google 在 Android 4.2 的时候支持 fragment 嵌套，如果使用 app 的 fragment，这个特性就无法在 4.0 实现，可能还有一些其他这样的例子。
+
+
+
+## 第8章：使用布局与组件创建用户界面
+
+- Button setEnabled(false) 后，外观也会发生变化，变成灰色。
+
+- CheckBox extends CompoundButton 
+
+- ```java
+  CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                  // buttonView CheckBox 所在的背景 Button
+                  // 选中 isChecked 是 true，未选中 false 
+              }
+          });
+  ```
+
+- CompoundButton ![](http://obe5pxv6t.bkt.clouddn.com/CompoundButton.png)
+
+##  

@@ -46,7 +46,6 @@ public class CheatActivity extends BaseActivity {
         tvBuildVersion.setText(Build.MODEL + ": Android " + Build.VERSION.RELEASE + " API " + Build.VERSION.SDK_INT);
     }
 
-
     @OnClick(R.id.btn_show_answer) public void onClick() {
         tvAnswer.setText(String.valueOf(answer));
         isCheat = true;

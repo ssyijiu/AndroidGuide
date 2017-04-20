@@ -2,7 +2,7 @@
 
 ## 第1章：Android 开发初体验 
 
-- 根元素，也有父视图(View)——Android提供该父视图来容纳应用的整个视图层级结构。
+- 根元素也有父视图(View)——Android提供该父视图来容纳应用的整个视图层级结构。
 
 - setTitle(String/ResID) 设置 Activity 的标题
 
@@ -70,22 +70,45 @@
 
 ### 设备旋转前保存数据
 -  在 onSaveInstanceState(Bundle outState) 保存数据，这个方法在 onPause() 和 onStop() 之间调用（Android 5.0），Activity 因内存不足被系统杀死时，这个方法也会被调用。
+-  在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
+-  也可以在 onRestoreInstanceState 中恢复数据，这个方法在 onStart 和 onResume 之间调用。
+-  暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
+-  系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
+-  暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
+-  模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
 
-- 在 onCreate 中恢复数据，if(null != savedInstanceState) {} 。
+### 几个常见的生命周期变化
 
-- 也可以在 onRestoreInstanceState 中恢复数据，这个方法在 onStart 和 onResume 之间调用。
+- Activity_A -> Activity_B 生命周期：
 
-- 暂存 Activity：当 Activity 因为内存不足被系统杀死，这个过程可能不会调用 onStop() 和 onDestroy()，此时该 Activity 进入暂存状态，我们需要在 onSaveInstanceState() 保存用户数据，在 onPause() 处理一些其他事情。另外 onPause() 不应该做太多事情，这会妨碍向下一个 Activity 的跳转并拖慢用户体验。
+  -  先打开 A
+  -  A：onCreate -> onStart -> onResume 
+  -  再打开 B
+  -  A：onPause
+  -  B：onCreate -> onStart -> onResume
+  -  A：onSaveInstanceState -> onStop
+  -  再次点击返回，回到 A
+  -  B：onPause
+  -  A：onRestart -> onStart -> onResume
+  -  B：onStop -> onDestroy
 
-- 系统不会杀死前台 Activity ，所以 Activity 在进入暂存状态之前一定会调用 onPause() 方法。
+- 横竖屏切换生命周期：
 
-- 暂存 Activity 可以保存多久：系统重启或者长时间不用这个 Activity，暂存 Activity 会被清除。
+   -  打开 Activity：onCreate -> onStart -> onResume
+   -  横竖屏切换：onPause -> **onSaveInstanceState** -> onStop -> onDestroy -> onCreate -> onStart -> onRestoreInstanceState -> onResume
 
-- 模拟 Actiivty 被后台强杀：设置 -> 开发者选项 -> 开启不保留活动，点击 Home 键回到桌面，当前 Activity 被后台强杀。
+- Activity_A -> Activity_B，然后切换横竖屏：
 
-  ---
+   -  先走 Activity_A -> Activity_B 生命周期
+   -  然后走 B 横竖屏切换的生命周期，此时 A 的生命周期不改变
+   -  现在 A 处于 onStop，B 处于 onResume，B 处于 A 的上方，此时点击返回
+   -  B：onPause
+   -  A：onDestroy -> onCreate -> onStart -> **onRestoreInstanceState** -> onResume
+   -  B：onStop -> onDestroy
 
-  ​
+   ----------
+
+   ​
 
 - e(String tag, String msg, Throwable tr) 与 e.printStackTrace() 相比仅仅是打印的时候多出了 tag 和 msg。
 
@@ -163,15 +186,3 @@
 - Build.MODEL：手机型号
 - Build.VERSION.RELEASE：Android 版本号
 - Build.VERSION.SDK_INT：API 级别
-
-## 第7章：UI fragment 和 fragment 管理器
-- Fragement 的引入使 Adnroid UI 设计更加灵活。
-- Fragment 并不具备在屏幕上显示视图的能力，只有将它放在 Activity 的视图层级结构中，Fragment 才能显示在屏幕上。 
-- id 的类型使用 UUID
-- Fragment 的生命周期有托管它的 Activity 调用。
-- ![](http://obe5pxv6t.bkt.clouddn.com/complete_android_fragment_lifecycle.png)
-- Activity 添加 Fragment 的两种方式
-    - 在布局中写死（不够灵活，不推荐使用）
-    - 使用代码动态添加
-- 使用 FrameLayout 作为 Fragment 的容器视图。
-- ​
