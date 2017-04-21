@@ -129,3 +129,85 @@
   ```
 
 - 顾名思义，RecyclerView所做的就是回收再利用，循环往复。
+
+- ViewHolder 只做一件事：容纳 View 视图。
+
+- RecyclerView.setAdapter() 
+
+  - getItemCount 获取要显示的列表数量。
+  - onCreateViewHolder 创建 ViewHolder 及其要显示的视图。
+  - onBindViewHolder 将内容显示到视图上。
+
+- RecyclerView 点击事件，在 ViewHolder 的构造方法中：itemView.setOnClickListener(this);
+
+- adapter.notifyItemMoved(0,5); 将 5 位置的 View 覆盖到 0，有动画效果，数据不变，notifyDataSetChanged 后恢复原样。
+
+- RecyclerView 最简单代码：
+
+  ```java
+  	// Adapter
+  	private class CrimeAdapter extends RecyclerView.Adapter<CrimeViewHolder> {
+          List<Crime> crimeList;
+          CrimeAdapter(List<Crime> crimeList) {
+              this.crimeList = crimeList;
+          }
+
+          @Override
+          public CrimeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+              LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+              View view = layoutInflater
+                  .inflate(R.layout.item_crime, parent, false);
+
+              return new CrimeViewHolder(view);
+          }
+
+          @Override public void onBindViewHolder(CrimeViewHolder holder, int position) {
+              holder.bindCrime(crimeList.get(position));
+          }
+
+          @Override public int getItemCount() {
+              return crimeList.size();
+          }
+      }
+
+
+  	// ViewHolder
+  	class CrimeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+          @BindView(R.id.item_crime_tv_title) TextView tvTitle;
+          @BindView(R.id.item_crime_cb_solved) CheckBox cbSolved;
+          @BindView(R.id.item_crime_tv_date) TextView tvDate;
+
+          private Crime crime;
+
+          CrimeViewHolder(View itemView) {
+              super(itemView);
+              ButterKnife.bind(this, itemView);
+              itemView.setOnClickListener(this);
+          }
+
+          void bindCrime(Crime crime) {
+              this.crime = crime;
+              tvTitle.setText(crime.title);
+              cbSolved.setChecked(crime.solved);
+              tvDate.setText(crime.date.toString());
+          }
+          
+          @Override public void onClick(View v) {
+              ToastUtil.show(crime.title + " clicked!");
+          }
+      }
+
+  	// 使用
+      crimeRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+      adapter = new CrimeAdapter(CrimeLab.get().getCrimeList());
+      crimeRecycler.setAdapter(adapter);
+  ```
+
+
+
+## 第10章：使用 fragment argument
+
+- fragment 获取 Activity Intent 中数据的两种方法
+  - 直接获取 getActivity,getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID); 
+    - 优点：简单方便
+    - 缺点：强耦合，这个 Fragment 只能用于 CrimeActivity，失去了 Fragment 的复用性。
