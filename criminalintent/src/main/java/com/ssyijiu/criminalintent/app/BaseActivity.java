@@ -1,4 +1,4 @@
-package com.ssyijiu.criminalintent;
+package com.ssyijiu.criminalintent.app;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if(getIntent() != null) {
             parseIntent(getIntent());
         }
+        initFragment();
         initViewAndData(savedInstanceState);
     }
 
@@ -43,8 +44,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected abstract int getContentView();
 
-    protected abstract void initViewAndData(Bundle savedInstanceState);
+    protected abstract void initFragment();
 
+    protected abstract void initViewAndData(Bundle savedInstanceState);
 
     @Override protected void onStart() {
         super.onStart();

@@ -76,4 +76,56 @@
 
 - CompoundButton ![](http://obe5pxv6t.bkt.clouddn.com/CompoundButton.png)
 
-##  
+- style 是 XML  资源文件，含有描述组件行为和外观的定义，可以自己定义。
+
+- Theme 是 style 的一种。
+
+- style="?android:listSeparatorTextViewStyle" 在 TextView 下方加一个分割线，在不同的主题中样式可能有不同。
+
+- 不以 layout 开头的属性作用于组件。
+
+- 以 layout 开头的属性作用于组件的父组件，它们会告诉父布局如何安排自己的子元素。
+
+- 创建水平布局 ![](http://obe5pxv6t.bkt.clouddn.com/create_land_layout.png)
+
+- layout_weight 将 layout_width(layout_height) 分配后的剩余空间按照比例分配。
+
+- ```java
+  // 判断横竖屏
+  public static boolean isScreenPortrait() {
+          return Common.getAppResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+      }
+  ```
+
+
+
+## 第9章：使用 RecyclerView 显示列表 
+
+- 应用在内存里存多久，单例久存多久。
+
+- 抽象 SingleFragmentActivity
+
+  ```java
+  // 其他一个 Activity 如果只放一个 fragment 的话继续这个类就好了
+  public abstract class SingleFragmentActivity extends FragmentActivity { 
+      protected abstract Fragment createFragment();
+
+      @Override 
+      public void onCreate(Bundle savedInstanceState) { 
+          super.onCreate(savedInstanceState); 
+          setContentView(R.layout.activity_fragment); 
+   
+          FragmentManager fm = getSupportFragmentManager(); 
+          Fragment fragment = fm.findFragmentById(R.id.fragment_container); 
+   
+          if (fragment == null) { 
+              fragment = createFragment(); 
+              fm.beginTransaction() 
+                  .add(R.id.fragment_container, fragment) 
+                  .commit(); 
+          } 
+      } 
+  } 
+  ```
+
+- 顾名思义，RecyclerView所做的就是回收再利用，循环往复。

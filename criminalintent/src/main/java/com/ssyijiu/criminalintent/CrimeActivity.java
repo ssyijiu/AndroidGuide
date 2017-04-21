@@ -1,28 +1,29 @@
 package com.ssyijiu.criminalintent;
 
-
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import com.ssyijiu.criminalintent.app.SimpleFragmentActivity;
+import java.util.UUID;
 
-public class CrimeActivity extends BaseActivity {
+public class CrimeActivity extends SimpleFragmentActivity {
 
-    @Override protected int getContentView() {
-        return R.layout.activity_crime;
-    }
+    public static final String EXTRA_CRIME_ID = "extra_crime_id";
 
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-        FragmentManager fm = getSupportFragmentManager();
 
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-
-        if(fragment == null) {
-            fragment = new CrimeFragment();
-            fm.beginTransaction()
-                .add(R.id.fragment_container,fragment)
-                .commit();
-        }
     }
 
+
+    @Override protected Fragment createFragment() {
+        return new CrimeFragment();
+    }
+
+    public static void start(Context context, UUID crimeId) {
+        Intent intent = new Intent(context,CrimeActivity.class);
+        intent.putExtra(EXTRA_CRIME_ID,crimeId);
+        context.startActivity(intent);
+    }
 }

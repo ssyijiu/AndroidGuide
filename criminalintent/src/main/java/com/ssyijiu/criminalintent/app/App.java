@@ -1,4 +1,4 @@
-package com.ssyijiu.criminalintent;
+package com.ssyijiu.criminalintent.app;
 
 import android.app.Application;
 import com.ssyijiu.common.Common;

@@ -1,6 +1,5 @@
 package com.ssyijiu.criminalintent;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,7 +11,14 @@ import android.widget.EditText;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.ToastUtil;
+import com.ssyijiu.criminalintent.app.BaseFragment;
+import com.ssyijiu.criminalintent.bean.Crime;
+import com.ssyijiu.criminalintent.bean.CrimeLab;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.UUID;
 
 public class CrimeFragment extends BaseFragment {
 
@@ -21,18 +27,17 @@ public class CrimeFragment extends BaseFragment {
     @BindView(R.id.cb_crime_solved) CheckBox cbCrimeSolved;
 
     private Crime crime;
-    private Unbinder unbinder;
 
-
-    public CrimeFragment() {
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        crime = new Crime();
+        // 强耦合，CrimeFragment 只能用于 CrimeActivity，失去了 Fragment 的复用性。
+        UUID id = (UUID) context.getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
+        crime = CrimeLab.get().getCrime(id);
     }
+
 
     @Override protected int getFragLayoutId() {
         return R.layout.fragment_crime;
@@ -40,17 +45,24 @@ public class CrimeFragment extends BaseFragment {
 
 
     @Override protected void initViewAndData(View rootView, Bundle savedInstanceState) {
-        unbinder = ButterKnife.bind(this, rootView);
+
         etCrimeTitle.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             }
+
+
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        btnCrimeDate.setText(crime.date.toString());
+        etCrimeTitle.setText(crime.title);
+
+        btnCrimeDate.setText(DateUtil.date2String(crime.date,
+            new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault())));
         btnCrimeDate.setEnabled(false);
 
         cbCrimeSolved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -59,12 +71,8 @@ public class CrimeFragment extends BaseFragment {
                 ToastUtil.show(String.valueOf(isChecked));
             }
         });
-    }
+        cbCrimeSolved.setChecked(crime.solved);
 
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
 }

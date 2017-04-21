@@ -1,4 +1,4 @@
-package com.ssyijiu.criminalintent;
+package com.ssyijiu.criminalintent.bean;
 
 import java.util.Date;
 import java.util.UUID;

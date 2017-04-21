@@ -1,6 +1,7 @@
-package com.ssyijiu.criminalintent;
+package com.ssyijiu.criminalintent.app;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.ssyijiu.common.log.MLog;
 
 /**
@@ -19,15 +22,16 @@ import com.ssyijiu.common.log.MLog;
 public abstract class BaseFragment extends Fragment {
     String className;
 
+    private Unbinder unbinder;
+    protected Activity context;
 
 
-    @Override public void onAttach(Context context) {
-        super.onAttach(context);
-        MLog.TAG = "ssyijiu";
+    @Override public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        context = activity;
         className = getClass().getSimpleName();
         MLog.i(className + ": onAttach");
     }
-
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +44,7 @@ public abstract class BaseFragment extends Fragment {
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
         MLog.i(className + ": onCreateView");
         View rootView = inflater.inflate(getFragLayoutId(), container, false);
+        unbinder = ButterKnife.bind(this, rootView);
         initViewAndData(rootView, savedInstanceState);
         return rootView;
     }
@@ -90,6 +95,7 @@ public abstract class BaseFragment extends Fragment {
     @Override public void onDestroyView() {
         super.onDestroyView();
         MLog.i(className + ": onDestroyView");
+        unbinder.unbind();
     }
 
 

@@ -1,5 +1,7 @@
 package com.ssyijiu.common.util;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import com.ssyijiu.common.Common;
 
 /**
@@ -65,5 +67,9 @@ public class DensityUtil {
             scaledDensity = Common.getAppResources().getDisplayMetrics().scaledDensity;
         }
         return scaledDensity;
+    }
+
+    public static boolean isScreenPortrait() {
+        return Common.getAppResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 }
