@@ -44,7 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected abstract int getContentView();
 
-    protected abstract void initFragment();
+    protected void initFragment(){}
 
     protected abstract void initViewAndData(Bundle savedInstanceState);
 

@@ -169,22 +169,21 @@
               return crimeList.size();
           }
       }
-
-
+      
   	// ViewHolder
   	class CrimeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
           @BindView(R.id.item_crime_tv_title) TextView tvTitle;
           @BindView(R.id.item_crime_cb_solved) CheckBox cbSolved;
           @BindView(R.id.item_crime_tv_date) TextView tvDate;
-
+    
           private Crime crime;
-
+    
           CrimeViewHolder(View itemView) {
               super(itemView);
               ButterKnife.bind(this, itemView);
               itemView.setOnClickListener(this);
           }
-
+    
           void bindCrime(Crime crime) {
               this.crime = crime;
               tvTitle.setText(crime.title);
@@ -197,17 +196,81 @@
           }
       }
 
-  	// 使用
+  	  // 使用
       crimeRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
       adapter = new CrimeAdapter(CrimeLab.get().getCrimeList());
       crimeRecycler.setAdapter(adapter);
   ```
 
-
-
 ## 第10章：使用 fragment argument
 
 - fragment 获取 Activity Intent 中数据的两种方法
-  - 直接获取 getActivity,getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID); 
+  - 直接获取 getActivity.getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID); 
     - 优点：简单方便
     - 缺点：强耦合，这个 Fragment 只能用于 CrimeActivity，失去了 Fragment 的复用性。
+
+  - 使用 fragment argument
+
+    - ```java
+      // 1. 修改 fragment 的创建方法
+      public static Fragment newInstance(UUID id) {
+              Bundle args = new Bundle();
+              args.putSerializable(ARG_CRIME_ID,id);
+              CrimeFragment fragment = new CrimeFragment();
+              fragment.setArguments(args);
+              return fragment;
+      }
+
+      // 2. Activity 创建 fragment 时传入 id
+      CrimeFragment fragment = CrimeFragment.newInstance(crimeId);
+
+      // 3. 在 fragment 中获取 id
+      UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+      ```
+
+    - 这种方法使用稍微复杂，但是保证了 fragment 的通用性。
+
+    - 为什么不使用一些变量保存数据呢？内存重启是变量保存的数据被清空。
+
+  - fragment 的生命周期会与托管其的 Activity 的生命周期保持一致，比如当 Activity 调用 onResume 的时候，它托管的 fragment 也会调用这个方法。
+
+  - fragment 拥有 startActivityForResult、onActivityResult 但是没有 setResult 方法，需要调用 getActivity.setResult 
+
+  - fragment 向另一个 fragment 传递数据并获取返回值流程：
+
+    ```java
+    // 1. startActivityForResult
+    Intent intent = CrimeActivity.newIntent(context, crime.id, positon);
+    startActivityForResult(intent,REQUEST_CODE_CRIME);
+
+    // 2. 在 Activity 中解析 Intent 中的数据
+    crimePosition = intent.getIntExtra(EXTRA_CRIME_POSITION, 0);
+
+    // 3. 使用 argument 传递给 fragment
+    return CrimeFragment.newInstance(crimeId, crimePosition);
+
+    // 4. 在 fragment 中解析出数据
+    int crimePosition = arguments.getInt(ARG_CRIME_POSITION);
+
+    // 5. 使用 Activity setResult
+    context.setResult(RESULT_CODE_CRIME_POSITION,
+                new Intent().putExtra(RESULT_CRIME_POSITION, crimePosition));
+    // 6. 在 fragment 中提供一个解析数据的方法
+    public static int resultPosition(Intent intent) {
+        if (intent != null) {
+          return intent.getIntExtra(RESULT_CRIME_POSITION, 0);
+        }
+        return 0;
+    }
+
+    // 7. 在上一级 fragment 中解析出数据
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_CRIME
+           && resultCode == CrimeFragment.RESULT_CODE_CRIME_POSITION) {
+          int position = CrimeFragment.resultPosition(data);
+          updateUiItem(position);
+
+        }
+    }
+    ```
+

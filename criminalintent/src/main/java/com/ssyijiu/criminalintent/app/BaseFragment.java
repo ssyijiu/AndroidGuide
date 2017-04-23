@@ -35,8 +35,16 @@ public abstract class BaseFragment extends Fragment {
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getArguments() != null) {
+            parseArguments(getArguments());
+        }
+
         MLog.i(className + ": onCreate");
     }
+
+
+    protected void parseArguments(Bundle arguments) {}
 
 
     @Nullable @Override
