@@ -1,6 +1,9 @@
 package com.ssyijiu.criminalintent.bean;
 
+import com.ssyijiu.common.util.DateUtil;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -18,5 +21,10 @@ public class Crime {
     public Crime() {
         id = UUID.randomUUID();
         date = new Date();
+    }
+
+    public String getDate() {
+        return DateUtil.date2String(date,
+            new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault()));
     }
 }

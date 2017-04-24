@@ -12,6 +12,7 @@
                	Crime crime = crimeList.get(position);
                	return CrimeFragment.newInstance(crime.id,position);
              }
+   ```
 
 
              @Override public int getCount() {
@@ -62,7 +63,7 @@
           	container.removeView((View) object);
         }
     }
-    ```
+   ```
 
 - FragmentStatePagerAdapter 和 FragmentPagerAdapter  都继承了 PageAdapter  并重写了 isViewFromObject 、insubstantial 、destroyItem 方法。它们的 getItem 方法都会在 insubstantial  中调用，在 destroyItem 一个使用 FragmentTransaction 的 remove ，一个使用 FragmentTransaction 的 detach。
 
@@ -115,5 +116,9 @@
 - 自定义 AlertDialog 布局，使用 AlertDialog.Builder#setView
 
 - 设备配置改变时，具有 id 属性的视图可以保存运行状态，在本例中为 DatePicker 添加 id ，选中一个日期，旋转屏幕后会恢复你选中的日期，去掉 id 后则不会有这个效果。
+
+- 同一个 Activity 托管的两个 fragment 之间传递数据
+
+  - ![](http://obe5pxv6t.bkt.clouddn.com/fragment_data_fragment.png)
 
   ​

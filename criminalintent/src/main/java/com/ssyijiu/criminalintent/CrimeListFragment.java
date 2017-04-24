@@ -111,7 +111,7 @@ public class CrimeListFragment extends BaseFragment {
             this.position = position;
             tvTitle.setText(crime.title);
             cbSolved.setChecked(crime.solved);
-            tvDate.setText(crime.date.toString());
+            tvDate.setText(crime.getDate());
         }
 
 

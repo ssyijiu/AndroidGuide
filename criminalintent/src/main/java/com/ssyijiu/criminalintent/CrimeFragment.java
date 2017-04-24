@@ -113,7 +113,6 @@ public class CrimeFragment extends BaseFragment {
 
 
     private void updateDate() {
-        btnCrimeDate.setText(DateUtil.date2String(crime.date,
-            new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault())));
+        btnCrimeDate.setText(crime.getDate());
     }
 }
