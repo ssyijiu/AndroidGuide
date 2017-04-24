@@ -3,23 +3,21 @@ package com.ssyijiu.criminalintent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import com.ssyijiu.common.util.DateUtil;
-import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
 import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -30,6 +28,7 @@ public class CrimeFragment extends BaseFragment {
     private static final String RESULT_CRIME_POSITION = "result_crime_position";
 
     public static final int RESULT_CODE_CRIME_POSITION = 1001;
+    private static final int REQUEST_CRIME_DATE = 2001;
 
     @BindView(R.id.et_crime_title) EditText etCrimeTitle;
     @BindView(R.id.btn_crime_date) Button btnCrimeDate;
@@ -76,10 +75,16 @@ public class CrimeFragment extends BaseFragment {
 
         // init view
         etCrimeTitle.setText(crime.title);
-        btnCrimeDate.setText(DateUtil.date2String(crime.date,
-            new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault())));
-        btnCrimeDate.setEnabled(false);
         cbCrimeSolved.setChecked(crime.solved);
+        btnCrimeDate.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
+                dialog.show(manager, dialog.getClass().getSimpleName());
+            }
+        });
+        updateDate();
 
         // update view
         etCrimeTitle.addTextChangedListener(new AfterTextWatcher() {
@@ -96,4 +101,19 @@ public class CrimeFragment extends BaseFragment {
 
     }
 
+
+    @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CRIME_DATE
+            && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
+            Date date = DatePickerFragment.resultDate(data);
+            crime.date = date;
+            updateDate();
+        }
+    }
+
+
+    private void updateDate() {
+        btnCrimeDate.setText(DateUtil.date2String(crime.date,
+            new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault())));
+    }
 }
