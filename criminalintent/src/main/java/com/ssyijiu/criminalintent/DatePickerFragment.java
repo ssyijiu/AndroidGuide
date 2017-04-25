@@ -1,15 +1,15 @@
 package com.ssyijiu.criminalintent;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -20,13 +20,14 @@ import java.util.GregorianCalendar;
  * E-mail: lxmyijiu@163.com
  */
 
-public class DatePickerFragment extends DialogFragment {
+public class DatePickerFragment extends DialogFragment implements View.OnClickListener {
 
     private static final String ARGS_CRIME_DATE = "args_crime_date";
     private static final String EXTRA_CRIME_DATE = "extra_crime_date";
 
     public static final int REQUEST_CRIME_DATE = 10;
     private Activity context;
+    private DatePicker datePicker;
 
 
     @Override public void onAttach(Activity activity) {
@@ -35,7 +36,32 @@ public class DatePickerFragment extends DialogFragment {
     }
 
 
-    @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @Nullable @Override
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 1. 获取 Date
+        Date date = (Date) getArguments().getSerializable(ARGS_CRIME_DATE);
+
+        // 2. 将 Date 转换成年月日
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // 3. 初始化 DatePicker
+        final View rootView = View.inflate(context, R.layout.fragment_datepicker,
+            null);
+        datePicker = (DatePicker) rootView.findViewById(R.id.fragment_datepicker);
+        datePicker.init(year, month, day, null);
+
+        TextView tvOk = (TextView) rootView.findViewById(R.id.fragment_datepicker_ok);
+        tvOk.setOnClickListener(this);
+
+        return rootView;
+    }
+
+    /*@NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         // 1. 获取 Date
         Date date = (Date) getArguments().getSerializable(ARGS_CRIME_DATE);
@@ -68,7 +94,7 @@ public class DatePickerFragment extends DialogFragment {
             .setNegativeButton(android.R.string.cancel, null)
             .setView(datePicker);
         return builder.create();
-    }
+    }*/
 
 
     public static DatePickerFragment newInstance(Date date) {
@@ -88,15 +114,30 @@ public class DatePickerFragment extends DialogFragment {
         }
     }
 
+
     public static Date resultDate(Intent intent) {
         Date date = null;
-        if(intent != null) {
+        if (intent != null) {
             date = (Date) intent.getSerializableExtra(EXTRA_CRIME_DATE);
         }
 
-        if(date != null) {
+        if (date != null) {
             return date;
         }
         return new Date();
+    }
+
+
+    @Override public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_datepicker_ok:
+                int year = datePicker.getYear();
+                int month = datePicker.getMonth();
+                int day = datePicker.getDayOfMonth();
+                Date date = new GregorianCalendar(year, month, day).getTime();
+                setResult(REQUEST_CRIME_DATE, date);
+                dismiss();
+                break;
+        }
     }
 }

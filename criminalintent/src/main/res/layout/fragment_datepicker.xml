@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <DatePicker
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragment_datepicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </DatePicker>
+
+    <TextView
+        android:textSize="12sp"
+        android:id="@+id/fragment_datepicker_ok"
+        android:textColor="@color/colorAccent"
+        android:paddingRight="25dp"
+        android:paddingBottom="15dp"
+        android:layout_gravity="right"
+        android:text="@android:string/ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

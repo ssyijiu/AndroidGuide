@@ -23,14 +23,6 @@ public class CrimeLab {
 
     private CrimeLab() {
         crimeList = new ArrayList<>();
-
-        // 模拟数据
-        for (int i = 0; i < 100; i++) {
-            Crime crime = new Crime();
-            crime.title = "Crime #" + i;
-            crime.solved = i % 2 == 0; // Every other one
-            crimeList.add(crime);
-        }
     }
 
     public List<Crime> getCrimeList() {

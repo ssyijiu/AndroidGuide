@@ -80,6 +80,7 @@ public class CrimeFragment extends BaseFragment {
             @Override public void onClick(View v) {
                 FragmentManager manager = getFragmentManager();
                 DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
+                // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
                 dialog.show(manager, dialog.getClass().getSimpleName());
             }
@@ -105,8 +106,7 @@ public class CrimeFragment extends BaseFragment {
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_CRIME_DATE
             && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
-            Date date = DatePickerFragment.resultDate(data);
-            crime.date = date;
+            crime.date = DatePickerFragment.resultDate(data);
             updateDate();
         }
     }
