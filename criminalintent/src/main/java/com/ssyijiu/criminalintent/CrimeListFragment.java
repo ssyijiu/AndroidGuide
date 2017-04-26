@@ -18,6 +18,7 @@ import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
 import com.ssyijiu.criminalintent.recycleradapter.CrimeAdapter;
+import io.realm.Realm;
 import java.util.Iterator;
 
 /**
@@ -78,6 +79,9 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             }
         }
 
+        updateDatabase();
+
+
         // 是否显示 Empty 视图
         if(CrimeLab.get().getCrimeList().isEmpty()) {
             stubEmpty.setVisibility(View.VISIBLE);
@@ -94,6 +98,16 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
         updateSubtitle();
 
+    }
+
+
+    private void updateDatabase() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        realm.copyToRealmOrUpdate(CrimeLab.get().getCrimeList());
+
+        realm.commitTransaction();
     }
 
 
