@@ -26,7 +26,7 @@
 
     - FragmentStatePagerAdapter 会销毁不需要的 fragment ，事务提交后，FragmentManager 中的 fragment 会被彻底移除（调用 FragmentTransaction 的 remove 方法）。
     - FragmentPagerAdapter 对于不需要的 fragment 会调用 FragmentTransaction 的 detach 方法，只是销毁了 fragment 的视图，fragment 的实例还保存在 FragmentManager 中，FragmentPagerAdapter 创建 fragment 永远保存在内存中，不会被销毁。
-    - FragmentStatePagerAdapter 更省内存，FragmentPagerAdapter 使用与展示少量而固定的 fragment。
+    - FragmentStatePagerAdapter 更省内存，FragmentPagerAdapter 适用于展示少量而固定的 fragment。
 
 - 使用 Dump Java Heap 检测 CrimeFragment 的数量，在 ViewPager 中滑动 20 次，点击 GC 之后
 
@@ -212,11 +212,11 @@
   - ifRoom 空间够的话则显示，不够隐藏
   - ifRoom|withText 空间够的话优先显示图标，其次显示文字描述
 
-- 在 fragment 中使用 OptionsMenus （也可以自己在布局写 Toolbar，然后使用 Toolbar）
+- 在工具栏中使用 OptionsMenus 
 
   ```java
 
-  // 1. 创建 OptionsMenu
+  // 1. 创建 OptionsMenus
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     	super.onCreateOptionsMenu(menu, inflater);
     	inflater.inflate(R.menu.fragment_crime_list,menu);
@@ -274,20 +274,148 @@
     If D calls startActivity() with an Intent that resolves to the component
     of activity B, then C and D will be finished and B receive the given
     Intent, resulting in the stack now being: A, B.
+
     ```
 
-  - 获取 xml 中字符串，并设置占位符
 
-    - ```html
-      <string name="hello">%1$s hello %2$s</string>
-      // %1$s 表示是 getString(resId,formatArgs) formatArgs 可变参数中的第一个参数
-      ```
+- 获取 xml 中字符串，并设置占位符
 
-    - ```java
-      public final String getString(@StringRes int resId, Object... formatArgs)
-      ```
+  - ```xml
+    <string name="hello">%1$s hello %2$s</string>
+    // %1$s 表示是 getString(resId,formatArgs) formatArgs 可变参数中的第一个参数
+    ```
 
-    - ```java
-      String str = getString(R.string.hello, "Android", "world");
-      // str 的结果为：Android hello world
-      ```
+  - ```java
+    public final String getString(@StringRes int resId, Object... formatArgs)
+    ```
+
+  - ```java
+    String str = getString(R.string.hello, "Android", "world");
+    // str 的结果为：Android hello world
+    ```
+
+- 使用复数字符串
+
+  - ```xml
+    <plurals name="subtitle_plural">
+      	<item quantity="one">%1$s crime</item>
+      	<item quantity="other">%1$s crimes</item>
+    </plurals>
+    ```
+
+  - ```java
+    String subtitle = getResources()
+                .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
+    // crimeSize == 1 时 subtitle:1 crime
+    // crimeSize != 1 时 subtitle:n crimes
+    ```
+
+  - 等等，你说没效果？把手机语言设置为英语，谷歌这样说的：
+
+    ```xml
+    but it's important to note that some languages (such as Chinese) don't make these grammatical distinctions at all, so you'll always get the other string.
+
+    // 注意，一些语言（如中文）不会完全符合这些语法区别，所以你总会得到 other 的字符串。
+    // 也是，总不能说："1个猴子" , "2个猴子们" 这种话吧。
+    ```
+
+    ​
+
+  - quantity 取值及描述
+
+    | 值     | 描述                                       |
+    | ----- | ---------------------------------------- |
+    | zero  | 语言需要对数字0进行特殊处理。（比如阿拉伯语）                  |
+    | one   | 语言需要对类似1的数字进行特殊处理。（比如英语和其它大多数语言里的1；在俄语里，任何以1结尾但不以11结尾的数也属于此类型。） |
+    | two   | 语言需要对类似2的数字进行特殊处理。（比如威尔士语）               |
+    | few   | 语言需要对较小数字进行特殊处理（比如捷克语里的2、3、4；或者波兰语里以2、3、4结尾但不是12、13、14的数。） |
+    | many  | 语言需要对较大数字进行特殊处理（比如马耳他语里以11-99结尾的数        |
+    | other | 语言不需要对数字进行特殊处理。                          |
+
+- 为工具栏设置副标题
+
+  ```java
+  AppCompatActivity activity = (AppCompatActivity) context;
+  ActionBar actionBar = activity.getSupportActionBar();
+  if(actionBar != null) {
+    	// 如果 subtitle == null，副标题将会隐藏
+  	actionBar.setSubtitle(subtitle);
+  }
+  ```
+
+
+- 初始化 OptionsMenus 中的 MenuItem 
+
+  ```java
+  @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+      super.onCreateOptionsMenu(menu, inflater);
+      inflater.inflate(R.menu.fragment_crime_list,menu);
+
+      MenuItem subtitleItem = menu.findItem(R.id.menu_item_show_subtitle);
+      if (subtitleVisible) {
+        	subtitleItem.setTitle(R.string.hide_subtitle);
+      } else {
+        	subtitleItem.setTitle(R.string.show_subtitle);
+      }
+  }
+  ```
+
+
+- 重新加载 OptionsMenus ：Activity#invalidateOptionsMenu
+
+- ViewStub 使用：懒加载，布局优化
+
+  ```xml
+  // xml 布局
+  <ViewStub
+          android:layout_gravity="center"
+          android:id="@+id/stub_empty"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:layout="@layout/recycler_empty"/>
+
+  // recycler_empty.xml
+  <?xml version="1.0" encoding="utf-8"?>
+  <ImageView
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/recycler_empty"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:src="@drawable/ic_empty">
+  </ImageView>
+  ```
+
+  ```java
+  // 1. 找到控件
+  @BindView(R.id.stub_empty) ViewStub stubEmpty;
+
+  // 2. 填充完成后设置点击事件
+  stubEmpty.setOnInflateListener(new ViewStub.OnInflateListener() {
+      @Override public void onInflate(ViewStub stub, View inflated) {
+        // inflated 是 android:layout="@layout/recycler_empty" inflate 后的 View
+        inflated.setOnClickListener(CrimeListFragment.this);
+      }
+  });
+
+  @Override public void onClick(View v) {
+      switch (v.getId()) {
+          case R.id.recycler_empty:
+            	newCrime();
+            	break;
+          default:
+      }
+  }
+
+  // 3. 使用
+  if(CrimeLab.get().getCrimeList().isEmpty()) {
+    	stubEmpty.setVisibility(View.VISIBLE);
+  } else {
+    	stubEmpty.setVisibility(View.INVISIBLE);
+  }
+  ```
+
+- ViewStub 注意：
+
+  - setVisibility 方法判断是否 inflate 过，inflate 过直接显示 inflate 后的 View ，没有 inflate 过会调用 inflate 方法。
+  - inflate 方法调用后，ViewStub 会把自己从父 View 中 remove，然后将 inflate 出来的 View 放在自己的位置，这个方法不能调用两次，setVisibility 可以调用两次。
+  - 综上，推荐使用 setVisibility 而不是 inflate。

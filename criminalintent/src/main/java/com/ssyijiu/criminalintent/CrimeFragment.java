@@ -2,9 +2,13 @@ package com.ssyijiu.criminalintent;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -36,6 +40,12 @@ public class CrimeFragment extends BaseFragment {
 
     private Crime crime;
     public UUID id;
+
+
+    @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
 
     @Override protected void parseArguments(Bundle arguments) {
@@ -109,6 +119,29 @@ public class CrimeFragment extends BaseFragment {
             crime.date = DatePickerFragment.resultDate(data);
             updateDate();
         }
+    }
+
+
+    @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime_delete,menu);
+    }
+
+
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_del_crime:
+                deleteCrime(crime);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    private void deleteCrime(Crime crime) {
+        CrimeLab.get().getCrimeList().remove(crime);
+        context.finish();
     }
 
 

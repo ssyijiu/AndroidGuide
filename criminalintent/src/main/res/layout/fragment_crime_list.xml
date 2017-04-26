@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView
-    android:id="@+id/rv_crime"
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
-</android.support.v7.widget.RecyclerView>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_crime"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_crime"
+        >
+    </android.support.v7.widget.RecyclerView>
+
+    <ViewStub
+        android:layout_gravity="center"
+        android:id="@+id/stub_empty"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout="@layout/recycler_empty"/>
+
+</FrameLayout>
+

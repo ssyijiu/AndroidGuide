@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewStub;
 import butterknife.BindView;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
@@ -25,10 +26,15 @@ import java.util.Iterator;
  * E-mail: lxmyijiu@163.com
  */
 
-public class CrimeListFragment extends BaseFragment {
+public class CrimeListFragment extends BaseFragment implements View.OnClickListener {
 
     public static final int REQUEST_CODE_CRIME = 0;
-    @BindView(R.id.rv_crime) RecyclerView crimeRecycler;
+    private static final String SAVED_SUBTITLE_VISIBLE = "saved_subtitle_visible";
+
+    @BindView(R.id.rv_crime) RecyclerView recyclerCrime;
+    @BindView(R.id.stub_empty) ViewStub stubEmpty;
+
+
     private CrimeAdapter adapter;
     private boolean subtitleVisible;
 
@@ -45,7 +51,18 @@ public class CrimeListFragment extends BaseFragment {
 
 
     @Override protected void initViewAndData(View rootView, Bundle savedInstanceState) {
-        crimeRecycler.setLayoutManager(new LinearLayoutManager(context));
+        if(savedInstanceState != null) {
+            subtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+        }
+
+        recyclerCrime.setLayoutManager(new LinearLayoutManager(context));
+
+        // ViewStub 点击事件
+        stubEmpty.setOnInflateListener(new ViewStub.OnInflateListener() {
+            @Override public void onInflate(ViewStub stub, View inflated) {
+                inflated.setOnClickListener(CrimeListFragment.this);
+            }
+        });
         updateUI();
     }
 
@@ -61,9 +78,16 @@ public class CrimeListFragment extends BaseFragment {
             }
         }
 
+        // 是否显示 Empty 视图
+        if(CrimeLab.get().getCrimeList().isEmpty()) {
+            stubEmpty.setVisibility(View.VISIBLE);
+        } else {
+            stubEmpty.setVisibility(View.INVISIBLE);
+        }
+
         if (adapter == null) {
             adapter = new CrimeAdapter(CrimeLab.get().getCrimeList(),this);
-            crimeRecycler.setAdapter(adapter);
+            recyclerCrime.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
         }
@@ -71,6 +95,13 @@ public class CrimeListFragment extends BaseFragment {
         updateSubtitle();
 
     }
+
+
+    @Override public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_SUBTITLE_VISIBLE,subtitleVisible);
+    }
+
 
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_CODE_CRIME
@@ -98,10 +129,7 @@ public class CrimeListFragment extends BaseFragment {
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_crime:
-                Crime crime = new Crime();
-                addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(context,crime.id,indexOfCrime(crime));
-                startActivityForResult(intent,REQUEST_CODE_CRIME);
+                newCrime();
                 return true;
             case R.id.menu_item_show_subtitle:
                 subtitleVisible = !subtitleVisible;
@@ -115,11 +143,22 @@ public class CrimeListFragment extends BaseFragment {
 
     }
 
+
+    private void newCrime() {Crime crime = new Crime();
+        addCrime(crime);
+        Intent intent = CrimePagerActivity.newIntent(context,crime.id,indexOfCrime(crime));
+        startActivityForResult(intent,REQUEST_CODE_CRIME);
+    }
+
+
     /** 更新子标题 */
     private void updateSubtitle() {
 
-        int crimeCount = CrimeLab.get().getCrimeList().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        int crimeSize = CrimeLab.get().getCrimeList().size();
+
+        String subtitle = getResources()
+            .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
+
         AppCompatActivity activity = (AppCompatActivity) context;
         ActionBar actionBar = activity.getSupportActionBar();
 
@@ -138,5 +177,15 @@ public class CrimeListFragment extends BaseFragment {
 
     private int indexOfCrime(Crime crime) {
         return CrimeLab.get().getCrimeList().indexOf(crime);
+    }
+
+
+    @Override public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.recycler_empty:
+                newCrime();
+                break;
+            default:
+        }
     }
 }
