@@ -5,6 +5,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -16,7 +17,7 @@ import java.util.UUID;
  * E-mail: lxmyijiu@163.com
  */
 
-public class Crime extends RealmObject {
+public class Crime extends RealmObject implements Serializable{
 
     @PrimaryKey public String id;
 

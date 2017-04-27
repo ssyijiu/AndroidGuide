@@ -1,10 +1,14 @@
 package com.ssyijiu.criminalintent;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +43,7 @@ public class DatePickerFragment extends DialogFragment implements View.OnClickLi
     @Nullable @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         // 1. 获取 Date
         Date date = (Date) getArguments().getSerializable(ARGS_CRIME_DATE);
 
@@ -61,40 +66,40 @@ public class DatePickerFragment extends DialogFragment implements View.OnClickLi
         return rootView;
     }
 
-    /*@NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-        // 1. 获取 Date
-        Date date = (Date) getArguments().getSerializable(ARGS_CRIME_DATE);
-
-        // 2. 将 Date 转换成年月日
-        Calendar calendar = Calendar.getRealm();
-        calendar.setTime(date);
-        int year = calendar.instance(Calendar.YEAR);
-        int month = calendar.instance(Calendar.MONTH);
-        int day = calendar.instance(Calendar.DAY_OF_MONTH);
-
-        // 3. 初始化 DatePicker
-        final DatePicker datePicker = (DatePicker) View.inflate(context, R.layout.dialog_datepicker,
-            null);
-        datePicker.init(year, month, day, null);
-
-        // 4. 创建 AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder
-            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override public void onClick(DialogInterface dialog, int which) {
-
-                    int year = datePicker.getYear();
-                    int month = datePicker.getMonth();
-                    int day = datePicker.getDayOfMonth();
-                    Date date = new GregorianCalendar(year, month, day).getTime();
-                    setResult(REQUEST_CRIME_DATE, date);
-                }
-            })
-            .setNegativeButton(android.R.string.cancel, null)
-            .setView(datePicker);
-        return builder.create();
-    }*/
+    // @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+    //
+    //     // 1. 获取 Date
+    //     Date date = (Date) getArguments().getSerializable(ARGS_CRIME_DATE);
+    //
+    //     // 2. 将 Date 转换成年月日
+    //     Calendar calendar = Calendar.getInstance();
+    //     calendar.setTime(date);
+    //     int year = calendar.get(Calendar.YEAR);
+    //     int month = calendar.get(Calendar.MONTH);
+    //     int day = calendar.get(Calendar.DAY_OF_MONTH);
+    //
+    //     // 3. 初始化 DatePicker
+    //     final DatePicker datePicker = (DatePicker) View.inflate(context, R.layout.dialog_datepicker,
+    //         null);
+    //     datePicker.init(year, month, day, null);
+    //
+    //     // 4. 创建 AlertDialog
+    //     AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    //     builder
+    //         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+    //             @Override public void onClick(DialogInterface dialog, int which) {
+    //
+    //                 int year = datePicker.getYear();
+    //                 int month = datePicker.getMonth();
+    //                 int day = datePicker.getDayOfMonth();
+    //                 Date date = new GregorianCalendar(year, month, day).getTime();
+    //                 setResult(REQUEST_CRIME_DATE, date);
+    //             }
+    //         })
+    //         .setNegativeButton(android.R.string.cancel, null)
+    //         .setView(datePicker);
+    //     return builder.create();
+    // }
 
 
     public static DatePickerFragment newInstance(Date date) {

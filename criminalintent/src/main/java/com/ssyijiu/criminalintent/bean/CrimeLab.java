@@ -33,7 +33,7 @@ public class CrimeLab {
      * 查询所有
      */
     public RealmResults<Crime> getAllCrimes() {
-        return realm.where(Crime.class).findAllAsync();
+        return realm.where(Crime.class).findAll();
     }
 
 
