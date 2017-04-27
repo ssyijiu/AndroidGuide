@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import butterknife.ButterKnife;
 import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.criminalintent.util.RealmUtil;
 
 /**
  * Created by ssyijiu on 2017/4/5.

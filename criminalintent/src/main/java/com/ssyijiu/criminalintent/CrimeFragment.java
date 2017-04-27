@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,15 +16,16 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import butterknife.BindView;
-import com.ssyijiu.common.util.DateUtil;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
 import com.ssyijiu.criminalintent.util.AfterTextWatcher;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import com.ssyijiu.criminalintent.util.RealmUtil;
+import io.realm.Realm;
 import java.util.UUID;
+
+import static android.R.attr.id;
 
 public class CrimeFragment extends BaseFragment {
 
@@ -39,7 +41,6 @@ public class CrimeFragment extends BaseFragment {
     @BindView(R.id.cb_crime_solved) CheckBox cbCrimeSolved;
 
     private Crime crime;
-    public UUID id;
 
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,19 +50,19 @@ public class CrimeFragment extends BaseFragment {
 
 
     @Override protected void parseArguments(Bundle arguments) {
-        UUID crimeId = (UUID) arguments.getSerializable(ARG_CRIME_ID);
+        String crimeId = arguments.getString(ARG_CRIME_ID);
         int crimePosition = arguments.getInt(ARG_CRIME_POSITION);
 
-        crime = CrimeLab.get().getCrime(crimeId);
+        crime = CrimeLab.instance().getCrime(crimeId);
         context.setResult(RESULT_CODE_CRIME_POSITION,
             new Intent().putExtra(RESULT_CRIME_POSITION, crimePosition));
     }
 
 
-    public static Fragment newInstance(UUID id, int position) {
+    public static Fragment newInstance(String id, int position) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_CRIME_ID, id);
-        args.putSerializable(ARG_CRIME_POSITION, position);
+        args.putString(ARG_CRIME_ID, id);
+        args.putInt(ARG_CRIME_POSITION, position);
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
         return fragment;
@@ -99,24 +100,45 @@ public class CrimeFragment extends BaseFragment {
 
         // update view
         etCrimeTitle.addTextChangedListener(new AfterTextWatcher() {
-            @Override public void afterTextChanged(Editable s) {
-                crime.title = s.toString();
+            @Override public void afterTextChanged(final Editable s) {
+                RealmUtil.transaction(new Realm.Transaction() {
+                    @Override public void execute(Realm realm) {
+                        crime.title = s.toString();
+                    }
+                });
             }
         });
 
         cbCrimeSolved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                crime.solved = isChecked;
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                RealmUtil.transaction(new Realm.Transaction() {
+                    @Override public void execute(Realm realm) {
+                        crime.solved = isChecked;
+                    }
+                });
             }
         });
 
     }
 
 
-    @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == REQUEST_CRIME_DATE
+    @Override public void onPause() {
+        super.onPause();
+        if (TextUtils.isEmpty(crime.title)) {
+            CrimeLab.instance().deleteCrime(crime);
+        }
+    }
+
+
+    @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        if (requestCode == REQUEST_CRIME_DATE
             && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
-            crime.date = DatePickerFragment.resultDate(data);
+            RealmUtil.transaction(new Realm.Transaction() {
+                @Override public void execute(Realm realm) {
+                    crime.date = DatePickerFragment.resultDate(data);
+                }
+            });
             updateDate();
         }
     }
@@ -124,14 +146,20 @@ public class CrimeFragment extends BaseFragment {
 
     @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_crime_delete,menu);
+        inflater.inflate(R.menu.fragment_crime_delete, menu);
     }
 
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_del_crime:
-                deleteCrime(crime);
+                RealmUtil.transaction(new Realm.Transaction() {
+                    @Override public void execute(Realm realm) {
+                        crime.title = null;
+                        // if title is null , crime will be delete
+                    }
+                });
+                context.finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -139,13 +167,8 @@ public class CrimeFragment extends BaseFragment {
     }
 
 
-    private void deleteCrime(Crime crime) {
-        CrimeLab.get().getCrimeList().remove(crime);
-        context.finish();
-    }
-
-
     private void updateDate() {
         btnCrimeDate.setText(crime.getDate());
     }
+
 }

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.criminalintent.util.RealmUtil;
 
 /**
  * Created by ssyijiu on 2017/4/20.

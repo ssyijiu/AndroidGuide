@@ -20,6 +20,11 @@
         <activity
             android:parentActivityName=".CrimeListActivity"
             android:name=".CrimePagerActivity"/>
+
+        <activity
+            android:name="com.exyui.android.debugbottle.components.DTDrawerActivity"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:label="调试助手"/>
     </application>
 
 </manifest>

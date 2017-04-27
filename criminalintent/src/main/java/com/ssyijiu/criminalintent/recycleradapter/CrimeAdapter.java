@@ -1,6 +1,5 @@
 package com.ssyijiu.criminalintent.recycleradapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
@@ -13,9 +12,12 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.ssyijiu.common.util.ResUtil;
 import com.ssyijiu.criminalintent.CrimePagerActivity;
 import com.ssyijiu.criminalintent.R;
 import com.ssyijiu.criminalintent.bean.Crime;
+import com.ssyijiu.criminalintent.util.RealmUtil;
+import io.realm.Realm;
 import java.util.List;
 
 import static com.ssyijiu.criminalintent.CrimeListFragment.REQUEST_CODE_CRIME;
@@ -91,8 +93,12 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
         }
 
 
-        @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            crime.solved = isChecked;
+        @Override public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+            RealmUtil.transaction(new Realm.Transaction() {
+                @Override public void execute(Realm realm) {
+                    crime.solved = isChecked;
+                }
+            });
         }
     }
 }

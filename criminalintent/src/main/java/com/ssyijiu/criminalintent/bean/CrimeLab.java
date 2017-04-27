@@ -1,8 +1,10 @@
 package com.ssyijiu.criminalintent.bean;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.common.util.ToastUtil;
+import com.ssyijiu.criminalintent.util.RealmUtil;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * Created by ssyijiu on 2017/4/21.
@@ -12,29 +14,84 @@ import java.util.UUID;
 
 public class CrimeLab {
 
-    private List<Crime> crimeList;
-
     private static final CrimeLab INSTANCE = new CrimeLab();
 
-    public  static CrimeLab get() {
+    private Realm realm;
+
+
+    public static CrimeLab instance() {
         return INSTANCE;
     }
 
 
     private CrimeLab() {
-        crimeList = new ArrayList<>();
+        realm = RealmUtil.getRealm();
     }
 
-    public List<Crime> getCrimeList() {
-        return crimeList;
+
+    /**
+     * 查询所有
+     */
+    public RealmResults<Crime> getAllCrimes() {
+        return realm.where(Crime.class).findAllAsync();
     }
 
-    public Crime getCrime(UUID id) {
-        for (Crime crime : crimeList) {
-            if(crime.id.equals(id)) {
-                return crime;
+
+    /**
+     * 根据 id 查询 Item
+     */
+    public Crime getCrime(String id) {
+        return realm.where(Crime.class).equalTo("id", id).findFirst();
+    }
+
+
+    /**
+     * 插入 or 更新
+     */
+    public void insertOrUpdateCrime(final Crime crime) {
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(crime);
             }
+        });
+    }
+
+
+    /**
+     * 删除 crime
+     */
+    public void deleteCrime(final Crime crime) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                RealmResults<Crime> allCrimes = getAllCrimes();
+                int index = allCrimes.indexOf(crime);
+                allCrimes.deleteFromRealm(index);
+            }
+        });
+    }
+
+
+    public int size() {
+        return getAllCrimes().size();
+    }
+
+    private class RealmAsyncSuccess implements Realm.Transaction.OnSuccess {
+        String message;
+        RealmAsyncSuccess(String message) {
+            this.message = message;
         }
-        return null;
+
+        @Override public void onSuccess() {
+            ToastUtil.show(this.message);
+        }
+    }
+
+
+    private class RealmAsyncError implements Realm.Transaction.OnError {
+        @Override public void onError(Throwable error) {
+            MLog.e("delete error!",error);
+            ToastUtil.show(error.getMessage());
+        }
     }
 }

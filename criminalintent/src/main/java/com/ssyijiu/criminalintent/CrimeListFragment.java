@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,8 +17,8 @@ import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
 import com.ssyijiu.criminalintent.recycleradapter.CrimeAdapter;
-import io.realm.Realm;
-import java.util.Iterator;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 /**
  * Created by ssyijiu on 2017/4/21.
@@ -38,6 +37,7 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     private CrimeAdapter adapter;
     private boolean subtitleVisible;
+    private RealmResults<Crime> mDatas;
 
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,52 +64,54 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
                 inflated.setOnClickListener(CrimeListFragment.this);
             }
         });
-        updateUI();
+
+        CrimeLab.instance().getAllCrimes().addChangeListener(
+            new RealmChangeListener<RealmResults<Crime>>() {
+                @Override public void onChange(RealmResults<Crime> element) {
+                    mDatas = element;
+                    updateUI();
+                }
+            });
+
+
     }
 
 
     private void updateUI() {
 
-        // 删除没有 title 的元素
-        // 集合在遍历时删除只能使用 迭代器的方式
-        for(Iterator<Crime> it = CrimeLab.get().getCrimeList().listIterator(); it.hasNext();) {
-            Crime crime = it.next();
-            if(TextUtils.isEmpty(crime.title)) {
-                it.remove();
-            }
-        }
 
-        updateDatabase();
-
-
-        // 是否显示 Empty 视图
-        if(CrimeLab.get().getCrimeList().isEmpty()) {
+        if(mDatas.isEmpty()) {
             stubEmpty.setVisibility(View.VISIBLE);
         } else {
-            stubEmpty.setVisibility(View.INVISIBLE);
+            stubEmpty.setVisibility(View.GONE);
         }
 
         if (adapter == null) {
-            adapter = new CrimeAdapter(CrimeLab.get().getCrimeList(),this);
+            adapter = new CrimeAdapter(mDatas,CrimeListFragment.this);
             recyclerCrime.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
         }
 
-        updateSubtitle();
+        updateSubtitle(mDatas.size());
+
+        // 是否显示 Empty 视图
+        // if(CrimeLab.instance().getAllCrimes().isEmpty()) {
+        //     stubEmpty.setVisibility(View.VISIBLE);
+        // } else {
+        //     stubEmpty.setVisibility(View.GONE);
+        // }
+        //
+        // if (adapter == null) {
+        //     adapter = new CrimeAdapter(CrimeLab.instance().getAllCrimes(),this);
+        //     recyclerCrime.setAdapter(adapter);
+        // } else {
+        //     adapter.notifyDataSetChanged();
+        // }
+        //
+        // updateSubtitle();
 
     }
-
-
-    private void updateDatabase() {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-
-        realm.copyToRealmOrUpdate(CrimeLab.get().getCrimeList());
-
-        realm.commitTransaction();
-    }
-
 
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -148,27 +150,27 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             case R.id.menu_item_show_subtitle:
                 subtitleVisible = !subtitleVisible;
                 context.invalidateOptionsMenu();
-                updateSubtitle();
+                updateSubtitle(mDatas.size());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-
-
     }
 
 
-    private void newCrime() {Crime crime = new Crime();
-        addCrime(crime);
-        Intent intent = CrimePagerActivity.newIntent(context,crime.id,indexOfCrime(crime));
+    private void newCrime() {
+        Crime crime = new Crime();
+        CrimeLab.instance().insertOrUpdateCrime(crime);
+        int position = CrimeLab.instance().size() - 1;
+        Intent intent = CrimePagerActivity.newIntent(context,crime.id,position);
         startActivityForResult(intent,REQUEST_CODE_CRIME);
     }
 
 
     /** 更新子标题 */
-    private void updateSubtitle() {
+    private void updateSubtitle(int crimeSize) {
 
-        int crimeSize = CrimeLab.get().getCrimeList().size();
+        // int crimeSize = CrimeLab.instance().getAllCrimes().size();
 
         String subtitle = getResources()
             .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
@@ -183,14 +185,6 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         if(actionBar != null) {
             actionBar.setSubtitle(subtitle);
         }
-    }
-
-    private void addCrime(Crime crime) {
-        CrimeLab.get().getCrimeList().add(crime);
-    }
-
-    private int indexOfCrime(Crime crime) {
-        return CrimeLab.get().getCrimeList().indexOf(crime);
     }
 
 

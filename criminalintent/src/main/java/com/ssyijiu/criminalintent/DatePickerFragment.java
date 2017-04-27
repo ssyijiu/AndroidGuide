@@ -67,11 +67,11 @@ public class DatePickerFragment extends DialogFragment implements View.OnClickLi
         Date date = (Date) getArguments().getSerializable(ARGS_CRIME_DATE);
 
         // 2. 将 Date 转换成年月日
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getRealm();
         calendar.setTime(date);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int year = calendar.instance(Calendar.YEAR);
+        int month = calendar.instance(Calendar.MONTH);
+        int day = calendar.instance(Calendar.DAY_OF_MONTH);
 
         // 3. 初始化 DatePicker
         final DatePicker datePicker = (DatePicker) View.inflate(context, R.layout.dialog_datepicker,

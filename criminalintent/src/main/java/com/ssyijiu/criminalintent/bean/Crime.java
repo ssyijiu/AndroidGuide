@@ -4,6 +4,7 @@ import com.ssyijiu.common.util.DateUtil;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -17,18 +18,15 @@ import java.util.UUID;
 
 public class Crime extends RealmObject {
 
-    @Ignore public UUID id;
-
-    @PrimaryKey private String _id;
+    @PrimaryKey public String id;
 
     public String title;
-    public Date date;
+    @Required public Date date;
     public boolean solved;
 
 
     public Crime() {
-        id = UUID.randomUUID();
-        _id = id.toString();
+        id = UUID.randomUUID().toString();
         date = new Date();
     }
 
