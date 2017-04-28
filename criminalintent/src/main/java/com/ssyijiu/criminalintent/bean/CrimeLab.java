@@ -5,6 +5,7 @@ import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import java.util.UUID;
 
 /**
  * Created by ssyijiu on 2017/4/21.
@@ -26,14 +27,22 @@ public class CrimeLab {
 
     private CrimeLab() {
         realm = RealmUtil.getRealm();
+        Crime crime = new Crime();
+        crime.title = "crime";
+        insertOrUpdateCrime(crime);
     }
 
 
     /**
      * 查询所有
      */
-    public RealmResults<Crime> getAllCrimes() {
+    public RealmResults<Crime> queryAllCrimes() {
         return realm.where(Crime.class).findAll();
+    }
+
+
+    public RealmResults<Crime> queryAllCrimesAsync() {
+        return realm.where(Crime.class).findAllAsync();
     }
 
 
@@ -49,12 +58,20 @@ public class CrimeLab {
      * 插入 or 更新
      */
     public void insertOrUpdateCrime(final Crime crime) {
-
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
                 realm.copyToRealmOrUpdate(crime);
             }
         });
+    }
+
+
+    public void insertOrUpdateCrimeAsync(final Crime crime, Realm.Transaction.OnSuccess onSuccess) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(crime);
+            }
+        }, onSuccess);
     }
 
 
@@ -64,7 +81,9 @@ public class CrimeLab {
     public void deleteCrime(final String id) {
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
-                getCrime(id).deleteFromRealm();
+                RealmResults<Crime> crimes = queryAllCrimes();
+                int indexOf = crimes.indexOf(getCrime(id));
+                crimes.deleteFromRealm(indexOf);
             }
         });
     }
@@ -73,9 +92,9 @@ public class CrimeLab {
     public void gc() {
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
-                RealmResults<Crime> allCrimes = getAllCrimes();
+                RealmResults<Crime> allCrimes = queryAllCrimes();
                 for (Crime crime : allCrimes.createSnapshot()) {
-                    if(crime.couldDelete()) {
+                    if (crime.couldDelete()) {
                         getCrime(crime.id).deleteFromRealm();
                     }
                 }
@@ -85,14 +104,18 @@ public class CrimeLab {
 
 
     public int size() {
-        return getAllCrimes().size();
+        return queryAllCrimes().size();
     }
+
 
     private class RealmAsyncSuccess implements Realm.Transaction.OnSuccess {
         String message;
+
+
         RealmAsyncSuccess(String message) {
             this.message = message;
         }
+
 
         @Override public void onSuccess() {
             ToastUtil.show(this.message);
@@ -102,7 +125,7 @@ public class CrimeLab {
 
     private class RealmAsyncError implements Realm.Transaction.OnError {
         @Override public void onError(Throwable error) {
-            MLog.e("delete error!",error);
+            MLog.e("delete error!", error);
             ToastUtil.show(error.getMessage());
         }
     }

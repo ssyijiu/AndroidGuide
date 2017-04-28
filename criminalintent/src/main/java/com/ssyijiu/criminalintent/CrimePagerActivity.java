@@ -46,7 +46,7 @@ public class CrimePagerActivity extends BaseActivity {
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mDatas = CrimeLab.instance().getAllCrimes();
+        mDatas = CrimeLab.instance().queryAllCrimes();
 
         viewPagerRoot.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override public Fragment getItem(int position) {
