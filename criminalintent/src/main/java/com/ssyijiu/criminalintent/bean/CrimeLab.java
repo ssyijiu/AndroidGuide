@@ -61,12 +61,24 @@ public class CrimeLab {
     /**
      * 删除 crime
      */
-    public void deleteCrime(final Crime crime) {
+    public void deleteCrime(final String id) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                getCrime(id).deleteFromRealm();
+            }
+        });
+    }
+
+
+    public void gc() {
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
                 RealmResults<Crime> allCrimes = getAllCrimes();
-                int index = allCrimes.indexOf(crime);
-                allCrimes.deleteFromRealm(index);
+                for (Crime crime : allCrimes.createSnapshot()) {
+                    if(crime.couldDelete()) {
+                        getCrime(crime.id).deleteFromRealm();
+                    }
+                }
             }
         });
     }

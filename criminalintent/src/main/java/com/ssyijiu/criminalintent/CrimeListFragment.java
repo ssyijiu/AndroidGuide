@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,7 +27,6 @@ import io.realm.RealmResults;
 
 public class CrimeListFragment extends BaseFragment implements View.OnClickListener {
 
-    public static final int REQUEST_CODE_CRIME = 0;
     private static final String SAVED_SUBTITLE_VISIBLE = "saved_subtitle_visible";
 
     @BindView(R.id.rv_crime) RecyclerView recyclerCrime;
@@ -64,38 +62,18 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
                 inflated.setOnClickListener(CrimeListFragment.this);
             }
         });
+    }
 
-        // CrimeLab.instance().getAllCrimes().addChangeListener(
-        //     new RealmChangeListener<RealmResults<Crime>>() {
-        //         @Override public void onChange(RealmResults<Crime> element) {
-        //             mDatas = element;
-        //             updateUI();
-        //         }
-        //     });
 
+    @Override public void onResume() {
+        super.onResume();
         updateUI();
-
-
     }
 
 
     private void updateUI() {
 
-
-        // if(mDatas.isEmpty()) {
-        //     stubEmpty.setVisibility(View.VISIBLE);
-        // } else {
-        //     stubEmpty.setVisibility(View.GONE);
-        // }
-        //
-        // if (adapter == null) {
-        //     adapter = new CrimeAdapter(mDatas,CrimeListFragment.this);
-        //     recyclerCrime.setAdapter(adapter);
-        // } else {
-        //     adapter.notifyDataSetChanged();
-        // }
-        //
-        // updateSubtitle(mDatas.size());
+        CrimeLab.instance().gc();
 
         // 是否显示 Empty 视图
         if(CrimeLab.instance().getAllCrimes().isEmpty()) {
@@ -120,20 +98,6 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE,subtitleVisible);
     }
 
-
-    @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == REQUEST_CODE_CRIME
-            && resultCode == CrimeFragment.RESULT_CODE_CRIME) {
-            Crime crime = CrimeFragment.resultPosition(data);
-
-            if(TextUtils.isEmpty(crime.title)) {
-                CrimeLab.instance().deleteCrime(crime);
-            }
-
-            updateUI();
-
-        }
-    }
 
 
     @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -170,7 +134,7 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         CrimeLab.instance().insertOrUpdateCrime(crime);
         int position = CrimeLab.instance().size() - 1;
         Intent intent = CrimePagerActivity.newIntent(context,crime.id,position);
-        startActivityForResult(intent,REQUEST_CODE_CRIME);
+        startActivity(intent);
     }
 
 

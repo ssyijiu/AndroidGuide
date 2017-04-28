@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.DeviceUtil;
 import com.ssyijiu.criminalintent.app.SimpleFragmentActivity;
 
@@ -23,5 +24,4 @@ public class CrimeListActivity extends SimpleFragmentActivity {
     @Override protected void initViewAndData(Bundle savedInstanceState) {
         MLog.i(DeviceUtil.getUniqueId());
     }
-
 }

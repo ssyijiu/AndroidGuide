@@ -12,15 +12,12 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.ssyijiu.common.util.ResUtil;
 import com.ssyijiu.criminalintent.CrimePagerActivity;
 import com.ssyijiu.criminalintent.R;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import java.util.List;
-
-import static com.ssyijiu.criminalintent.CrimeListFragment.REQUEST_CODE_CRIME;
 
 /**
  * Created by ssyijiu on 2017/4/25.
@@ -89,7 +86,7 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
 
         @Override public void onClick(View v) {
             Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
-            fragment.startActivityForResult(intent,REQUEST_CODE_CRIME);
+            fragment.startActivity(intent);
         }
 
 

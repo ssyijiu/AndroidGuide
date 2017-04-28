@@ -15,7 +15,6 @@ import com.ssyijiu.criminalintent.app.BaseActivity;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by ssyijiu on 2017/4/23.
@@ -27,7 +26,7 @@ public class CrimePagerActivity extends BaseActivity {
 
     @BindView(R.id.crime_pager_root) ViewPager viewPagerRoot;
 
-    private List<Crime> crimeList;
+    private List<Crime> mDatas;
 
     private static final String EXTRA_CRIME_ID = "extra_crime_id";
     private static final String EXTRA_CRIME_POSITION = "extra_crime_position";
@@ -47,18 +46,18 @@ public class CrimePagerActivity extends BaseActivity {
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        crimeList = CrimeLab.instance().getAllCrimes();
+        mDatas = CrimeLab.instance().getAllCrimes();
 
         viewPagerRoot.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override public Fragment getItem(int position) {
 
-                Crime crime = crimeList.get(position);
+                Crime crime = mDatas.get(position);
                 return CrimeFragment.newInstance(crime.id,position);
             }
 
 
             @Override public int getCount() {
-                return crimeList.size();
+                return mDatas.size();
             }
         });
         viewPagerRoot.setCurrentItem(currentPosition);

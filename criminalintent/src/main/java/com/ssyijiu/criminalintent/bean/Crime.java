@@ -1,5 +1,6 @@
 package com.ssyijiu.criminalintent.bean;
 
+import android.text.TextUtils;
 import com.ssyijiu.common.util.DateUtil;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -35,5 +36,9 @@ public class Crime extends RealmObject implements Serializable{
     public String getDate() {
         return DateUtil.date2String(date,
             new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault()));
+    }
+
+    public boolean couldDelete() {
+        return TextUtils.isEmpty(title);
     }
 }

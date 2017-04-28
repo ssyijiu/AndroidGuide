@@ -26,9 +26,7 @@ public class CrimeFragment extends BaseFragment {
 
     private static final String ARG_CRIME_ID = "arg_crime_id";
     private static final String ARG_CRIME_POSITION = "arg_crime_position";
-    private static final String RESULT_CRIME = "result_crime_position";
 
-    public static final int RESULT_CODE_CRIME = 1001;
     private static final int REQUEST_CRIME_DATE = 2001;
 
     @BindView(R.id.et_crime_title) EditText etCrimeTitle;
@@ -46,11 +44,7 @@ public class CrimeFragment extends BaseFragment {
 
     @Override protected void parseArguments(Bundle arguments) {
         String crimeId = arguments.getString(ARG_CRIME_ID);
-        int crimePosition = arguments.getInt(ARG_CRIME_POSITION);
-
         crime = CrimeLab.instance().getCrime(crimeId);
-        context.setResult(RESULT_CODE_CRIME,
-            new Intent().putExtra(RESULT_CRIME, crime));
     }
 
 
@@ -61,14 +55,6 @@ public class CrimeFragment extends BaseFragment {
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-
-    public static Crime resultPosition(Intent intent) {
-        if (intent != null) {
-            return (Crime) intent.getSerializableExtra(RESULT_CRIME);
-        }
-        return null;
     }
 
 
@@ -139,7 +125,7 @@ public class CrimeFragment extends BaseFragment {
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_del_crime:
-                CrimeLab.instance().deleteCrime(crime);
+                CrimeLab.instance().deleteCrime(crime.id);
                 context.finish();
                 return true;
             default:
