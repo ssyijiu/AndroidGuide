@@ -5,7 +5,6 @@ import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import java.util.UUID;
 
 /**
  * Created by ssyijiu on 2017/4/21.
@@ -41,6 +40,9 @@ public class CrimeLab {
     }
 
 
+    /**
+     * 异步查询所有
+     */
     public RealmResults<Crime> queryAllCrimesAsync() {
         return realm.where(Crime.class).findAllAsync();
     }
@@ -63,15 +65,6 @@ public class CrimeLab {
                 realm.copyToRealmOrUpdate(crime);
             }
         });
-    }
-
-
-    public void insertOrUpdateCrimeAsync(final Crime crime, Realm.Transaction.OnSuccess onSuccess) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override public void execute(Realm realm) {
-                realm.copyToRealmOrUpdate(crime);
-            }
-        }, onSuccess);
     }
 
 

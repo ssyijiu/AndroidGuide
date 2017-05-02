@@ -71,68 +71,68 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         });
 
 
-        CrimeLab.instance().queryAllCrimesAsync().addChangeListener(
-            new RealmChangeListener<RealmResults<Crime>>() {
-                @Override public void onChange(RealmResults<Crime> element) {
-                    mDatas.clear();
-                    mDatas.addAll(element);
-                    MLog.i("realm","queryAllCrimesAsync");
-                }
-            });
+        // CrimeLab.instance().queryAllCrimesAsync().addChangeListener(
+        //     new RealmChangeListener<RealmResults<Crime>>() {
+        //         @Override public void onChange(RealmResults<Crime> element) {
+        //             mDatas.clear();
+        //             mDatas.addAll(element);
+        //             MLog.i("realm","queryAllCrimesAsync");
+        //         }
+        //     });
     }
 
     @Override public void onResume() {
         super.onResume();
-        // updateUI();
-        updateUIAsync();
+        updateUI();
+        // updateUIAsync();
 
     }
 
 
-    private void updateUIAsync() {
-
-        CrimeLab.instance().gc();
-
-        // 是否显示 Empty 视图
-        if (mDatas.isEmpty()) {
-            stubEmpty.setVisibility(View.VISIBLE);
-        } else {
-            stubEmpty.setVisibility(View.GONE);
-        }
-
-        if (adapter == null) {
-            adapter = new CrimeAdapter(mDatas, this);
-            recyclerCrime.setAdapter(adapter);
-        } else {
-            adapter.notifyDataSetChanged();
-        }
-
-        updateSubtitleAsync();
-
-    }
-
-
-    // private void updateUI() {
+    // private void updateUIAsync() {
     //
     //     CrimeLab.instance().gc();
     //
     //     // 是否显示 Empty 视图
-    //     if (CrimeLab.instance().queryAllCrimes().isEmpty()) {
+    //     if (mDatas.isEmpty()) {
     //         stubEmpty.setVisibility(View.VISIBLE);
     //     } else {
     //         stubEmpty.setVisibility(View.GONE);
     //     }
     //
     //     if (adapter == null) {
-    //         adapter = new CrimeAdapter(CrimeLab.instance().queryAllCrimes(), this);
+    //         adapter = new CrimeAdapter(mDatas, this);
     //         recyclerCrime.setAdapter(adapter);
     //     } else {
     //         adapter.notifyDataSetChanged();
     //     }
     //
-    //     updateSubtitle();
+    //     updateSubtitleAsync();
     //
     // }
+
+
+    private void updateUI() {
+
+        CrimeLab.instance().gc();
+
+        // 是否显示 Empty 视图
+        if (CrimeLab.instance().queryAllCrimes().isEmpty()) {
+            stubEmpty.setVisibility(View.VISIBLE);
+        } else {
+            stubEmpty.setVisibility(View.GONE);
+        }
+
+        if (adapter == null) {
+            adapter = new CrimeAdapter(CrimeLab.instance().queryAllCrimes(), this);
+            recyclerCrime.setAdapter(adapter);
+        } else {
+            adapter.notifyDataSetChanged();
+        }
+
+        updateSubtitle();
+
+    }
 
 
     @Override public void onSaveInstanceState(Bundle outState) {
@@ -162,8 +162,8 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             case R.id.menu_item_show_subtitle:
                 subtitleVisible = !subtitleVisible;
                 context.invalidateOptionsMenu();
-                updateSubtitleAsync();
-                // updateSubtitle();
+                // updateSubtitleAsync();
+                updateSubtitle();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -174,38 +174,17 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     private void newCrime() {
         final Crime crime = new Crime();
         CrimeLab.instance().insertOrUpdateCrime(crime);
-        int position = mDatas.size() - 1;
+        // 刚刚插入了一条数据，-1
+        int position = CrimeLab.instance().size() - 1;
         Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
         startActivity(intent);
-
-
     }
 
 
     /** 更新子标题 */
-    private void updateSubtitleAsync() {
-
-        int crimeSize = mDatas.size();
-
-        String subtitle = getResources()
-            .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
-
-        AppCompatActivity activity = (AppCompatActivity) context;
-        ActionBar actionBar = activity.getSupportActionBar();
-
-        if (!subtitleVisible) {
-            subtitle = null;
-        }
-
-        if (actionBar != null) {
-            actionBar.setSubtitle(subtitle);
-        }
-    }
-
-    /** 更新子标题 */
-    // private void updateSubtitle() {
+    // private void updateSubtitleAsync() {
     //
-    //     int crimeSize = CrimeLab.instance().queryAllCrimes().size();
+    //     int crimeSize = mDatas.size();
     //
     //     String subtitle = getResources()
     //         .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
@@ -221,6 +200,26 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     //         actionBar.setSubtitle(subtitle);
     //     }
     // }
+
+    /** 更新子标题 */
+    private void updateSubtitle() {
+
+        int crimeSize = CrimeLab.instance().queryAllCrimes().size();
+
+        String subtitle = getResources()
+            .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
+
+        AppCompatActivity activity = (AppCompatActivity) context;
+        ActionBar actionBar = activity.getSupportActionBar();
+
+        if (!subtitleVisible) {
+            subtitle = null;
+        }
+
+        if (actionBar != null) {
+            actionBar.setSubtitle(subtitle);
+        }
+    }
 
 
     @Override public void onClick(View v) {
