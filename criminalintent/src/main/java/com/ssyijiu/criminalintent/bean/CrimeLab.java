@@ -69,18 +69,30 @@ public class CrimeLab {
 
 
     /**
+     * 异步事物 插入 or 更新
+     */
+    public void insertOrUpdateCrimeAsync(final Crime crime, Realm.Transaction.OnSuccess onSuccess) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(crime);
+            }
+        }, onSuccess);
+    }
+
+
+    /**
      * 删除 crime
      */
     public void deleteCrime(final String id) {
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
+                MLog.i(Thread.currentThread().getName());
                 RealmResults<Crime> crimes = queryAllCrimes();
                 int indexOf = crimes.indexOf(getCrime(id));
                 crimes.deleteFromRealm(indexOf);
             }
         });
     }
-
 
     public void gc() {
         realm.executeTransaction(new Realm.Transaction() {

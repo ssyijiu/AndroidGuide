@@ -8,12 +8,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.ssyijiu.criminalintent.app.BaseActivity;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,9 +48,20 @@ public class CrimePagerActivity extends BaseActivity {
         return R.layout.activity_crime_pager;
     }
 
+
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
+
+
+        // 同步查询
         mDatas = CrimeLab.instance().queryAllCrimes();
+        setViewPager();
+
+    }
+
+
+    private void setViewPager() {
+
+        final FragmentManager fragmentManager = getSupportFragmentManager();
 
         viewPagerRoot.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override public Fragment getItem(int position) {
@@ -55,13 +70,25 @@ public class CrimePagerActivity extends BaseActivity {
                 return CrimeFragment.newInstance(crime.id,position);
             }
 
-
             @Override public int getCount() {
                 return mDatas.size();
+            }
+
+
+            // fix bug : android.os.Handler android.support.v4.app.FragmentHostCallback.getHandler()' on a null object reference
+            // v4' bug
+            // http://blog.csdn.net/shineflowers/article/details/64125260
+            @Override
+            public void finishUpdate(ViewGroup container) {
+                try{
+                    super.finishUpdate(container);
+                } catch (NullPointerException ignored){
+                }
             }
         });
         viewPagerRoot.setCurrentItem(currentPosition);
     }
+
 
     public static Intent newIntent(Context context, String crimeId, int position) {
         Intent intent = new Intent(context, CrimePagerActivity.class);
@@ -69,6 +96,7 @@ public class CrimePagerActivity extends BaseActivity {
         intent.putExtra(EXTRA_CRIME_POSITION, position);
         return intent;
     }
+
 
     class ViewPagerAdapter extends PagerAdapter {
 

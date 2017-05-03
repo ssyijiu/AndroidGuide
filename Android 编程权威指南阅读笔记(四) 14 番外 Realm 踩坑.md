@@ -91,22 +91,89 @@ for (User user : users) {
 }
 ```
 
+### 异步查询
+
+```java
+// 1. 创建异步查询
+public RealmResults<Crime> queryAllCrimesAsync() {
+  	// 请注意，这里的调用并不会阻塞，而是立即返回一个 RealmResults<User>
+    // 查询将会在后台线程中被执行，当其完成时，之前返回的 RealmResults 实例会被更新。
+  	// 虽然这个方法不会阻塞，但是获取的 RealmResults 不能立刻使用 ..
+  	return realm.where(Crime.class).findAllAsync();
+}
+
+// 2. 注册异步查询回调
+List<Crime> mDatas = new ArrayList<>();
+listener = new RealmChangeListener<RealmResults<Crime>>() {
+  
+    // 这个函数在 插入、删除、修改后改变了查询结果 都会调用
+    @Override public void onChange(RealmResults<Crime> element) {
+        mDatas.clear();
+        mDatas.addAll(element);
+        updateUI();  // 更新 UI
+    }
+};
+queryAllCrimesAsync().addChangeListener(listener);
+
+// 3. 移除回调
+@Override public void onDestroy() {
+  	super.onDestroy();
+  	realm.removeAllChangeListeners();
+}
+
+```
 
 
-- ```java
-  CrimeLab.instance().queryAllCrimesAsync().addChangeListener(
-              new RealmChangeListener<RealmResults<Crime>>() {
-                  @Override public void onChange(RealmResults<Crime> element) {
-                      
-                    	// 这个方法之间查询的数据变了（增、删、修改改变了查询结果）就会回调
-                    	mDatas.clear();
-                      mDatas.addAll(element);
-                      updateUIAsync();
-                      MLog.i("realm","queryAllCrimesAsync");
-                  }
-              });
-              
-              
-  ```
 
-- ​
+### 增删改查​的代码
+
+```java
+   /**
+     * 查询所有
+     */
+    public RealmResults<Crime> queryAllCrimes() {
+        return realm.where(Crime.class).findAll();
+    }
+
+
+    /**
+     * 异步查询所有
+     */
+    public RealmResults<Crime> queryAllCrimesAsync() {
+        return realm.where(Crime.class).findAllAsync();
+    }
+
+
+    /**
+     * 根据 id 查询 Item
+     */
+    public Crime getCrime(String id) {
+        return realm.where(Crime.class).equalTo("id", id).findFirst();
+    }
+
+
+    /**
+     * 插入 or 更新
+     */
+    public void insertOrUpdateCrime(final Crime crime) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(crime);
+            }
+        });
+    }
+
+    /**
+     * 删除
+     */
+    public void deleteCrime(final String id) {
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                RealmResults<Crime> crimes = queryAllCrimes();
+                int indexOf = crimes.indexOf(getCrime(id));
+                crimes.deleteFromRealm(indexOf);
+            }
+        });
+    }
+```
+

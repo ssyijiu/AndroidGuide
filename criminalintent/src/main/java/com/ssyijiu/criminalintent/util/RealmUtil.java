@@ -13,6 +13,9 @@ public class RealmUtil {
     private static Realm realm = Realm.getDefaultInstance();
 
     public static Realm getRealm() {
+        if (realm.isClosed()) {
+            realm = Realm.getDefaultInstance();
+        }
         return realm;
     }
 

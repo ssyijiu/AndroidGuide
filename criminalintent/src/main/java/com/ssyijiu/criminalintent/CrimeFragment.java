@@ -22,7 +22,7 @@ import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 
-public class CrimeFragment extends BaseFragment {
+public class CrimeFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String ARG_CRIME_ID = "arg_crime_id";
     private static final String ARG_CRIME_POSITION = "arg_crime_position";
@@ -32,6 +32,8 @@ public class CrimeFragment extends BaseFragment {
     @BindView(R.id.et_crime_title) EditText etCrimeTitle;
     @BindView(R.id.btn_crime_date) Button btnCrimeDate;
     @BindView(R.id.cb_crime_solved) CheckBox cbCrimeSolved;
+    @BindView(R.id.btn_choose_suspect) Button btnChooseSuspect;
+    @BindView(R.id.btn_crime_report) Button btnCrimeReport;
 
     private Crime crime;
 
@@ -47,17 +49,6 @@ public class CrimeFragment extends BaseFragment {
         crime = CrimeLab.instance().getCrime(crimeId);
     }
 
-
-    public static Fragment newInstance(String id, int position) {
-        Bundle args = new Bundle();
-        args.putString(ARG_CRIME_ID, id);
-        args.putInt(ARG_CRIME_POSITION, position);
-        CrimeFragment fragment = new CrimeFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
     @Override protected int getFragLayoutId() {
         return R.layout.fragment_crime;
     }
@@ -68,15 +59,11 @@ public class CrimeFragment extends BaseFragment {
         // init view
         etCrimeTitle.setText(crime.title);
         cbCrimeSolved.setChecked(crime.solved);
-        btnCrimeDate.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                FragmentManager manager = getFragmentManager();
-                DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
-                // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
-                dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
-                dialog.show(manager, dialog.getClass().getSimpleName());
-            }
-        });
+
+        btnCrimeDate.setOnClickListener(this);
+        btnChooseSuspect.setOnClickListener(this);
+        btnCrimeReport.setOnClickListener(this);
+
         updateDate();
 
         // update view
@@ -137,4 +124,35 @@ public class CrimeFragment extends BaseFragment {
         btnCrimeDate.setText(crime.getDate());
     }
 
+    public static Fragment newInstance(String id, int position) {
+        Bundle args = new Bundle();
+        args.putString(ARG_CRIME_ID, id);
+        args.putInt(ARG_CRIME_POSITION, position);
+        CrimeFragment fragment = new CrimeFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+    @Override public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_crime_date:
+                showDateDialog();
+                break;
+            case R.id.btn_choose_suspect:
+                break;
+            case R.id.btn_crime_report:
+                break;
+            default:
+        }
+    }
+
+
+    private void showDateDialog() {
+        FragmentManager manager = getFragmentManager();
+        DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
+        // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
+        dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
+        dialog.show(manager, dialog.getClass().getSimpleName());
+    }
 }

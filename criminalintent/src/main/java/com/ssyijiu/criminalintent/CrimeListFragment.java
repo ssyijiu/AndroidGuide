@@ -69,47 +69,52 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
                 inflated.setOnClickListener(CrimeListFragment.this);
             }
         });
-
-
-        // CrimeLab.instance().queryAllCrimesAsync().addChangeListener(
-        //     new RealmChangeListener<RealmResults<Crime>>() {
-        //         @Override public void onChange(RealmResults<Crime> element) {
-        //             mDatas.clear();
-        //             mDatas.addAll(element);
-        //             MLog.i("realm","queryAllCrimesAsync");
-        //         }
-        //     });
     }
 
     @Override public void onResume() {
         super.onResume();
-        updateUI();
-        // updateUIAsync();
-
+        updateData();
     }
 
 
-    // private void updateUIAsync() {
-    //
-    //     CrimeLab.instance().gc();
-    //
-    //     // 是否显示 Empty 视图
-    //     if (mDatas.isEmpty()) {
-    //         stubEmpty.setVisibility(View.VISIBLE);
-    //     } else {
-    //         stubEmpty.setVisibility(View.GONE);
-    //     }
-    //
-    //     if (adapter == null) {
-    //         adapter = new CrimeAdapter(mDatas, this);
-    //         recyclerCrime.setAdapter(adapter);
-    //     } else {
-    //         adapter.notifyDataSetChanged();
-    //     }
-    //
-    //     updateSubtitleAsync();
-    //
-    // }
+    private void updateData() {
+
+        // 1. 删除空数据
+        CrimeLab.instance().gc();
+
+        // 2. 异步查询
+        CrimeLab.instance().queryAllCrimesAsync().addChangeListener(
+            new RealmChangeListener<RealmResults<Crime>>() {
+                @Override public void onChange(RealmResults<Crime> element) {
+                    mDatas.clear();
+                    mDatas.addAll(element);
+                    updateUIAsync();
+                }
+            });
+    }
+
+
+    private void updateUIAsync() {
+
+        // 是否显示 Empty 视图
+        if (mDatas.isEmpty()) {
+            stubEmpty.setVisibility(View.VISIBLE);
+        } else {
+            stubEmpty.setVisibility(View.GONE);
+        }
+
+        if (adapter == null) {
+            adapter = new CrimeAdapter(mDatas, this);
+            recyclerCrime.setAdapter(adapter);
+        } else {
+            if(recyclerCrime.isComputingLayout()) {
+                adapter.notifyDataSetChanged();
+            }
+        }
+
+        updateSubtitleAsync();
+
+    }
 
 
     private void updateUI() {
@@ -171,40 +176,41 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     }
 
 
-    private void newCrime() {
-        final Crime crime = new Crime();
-        CrimeLab.instance().insertOrUpdateCrime(crime);
-        // 刚刚插入了一条数据，-1
-        int position = CrimeLab.instance().size() - 1;
-        Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
-        startActivity(intent);
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RealmUtil.getRealm().removeAllChangeListeners();
+
+        // 由于数据使用了单例管理，关闭 Realm 后由于单例还保存在空进程的内存中
+        // 会导致下次从空进程启动 app crash
+        // RealmUtil.getRealm().close();
     }
 
 
-    /** 更新子标题 */
-    // private void updateSubtitleAsync() {
-    //
-    //     int crimeSize = mDatas.size();
-    //
-    //     String subtitle = getResources()
-    //         .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
-    //
-    //     AppCompatActivity activity = (AppCompatActivity) context;
-    //     ActionBar actionBar = activity.getSupportActionBar();
-    //
-    //     if (!subtitleVisible) {
-    //         subtitle = null;
-    //     }
-    //
-    //     if (actionBar != null) {
-    //         actionBar.setSubtitle(subtitle);
-    //     }
-    // }
+    /** 异步更新子标题 */
+    private void updateSubtitleAsync() {
+
+        int crimeSize = mDatas.size();
+
+        String subtitle = getResources()
+            .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
+
+        AppCompatActivity activity = (AppCompatActivity) context;
+        ActionBar actionBar = activity.getSupportActionBar();
+
+        if (!subtitleVisible) {
+            subtitle = null;
+        }
+
+        if (actionBar != null) {
+            actionBar.setSubtitle(subtitle);
+        }
+    }
 
     /** 更新子标题 */
     private void updateSubtitle() {
 
-        int crimeSize = CrimeLab.instance().queryAllCrimes().size();
+        // int crimeSize = CrimeLab.instance().queryAllCrimes().size();
+        int crimeSize = mDatas.size();
 
         String subtitle = getResources()
             .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
@@ -230,4 +236,19 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             default:
         }
     }
+
+    private void newCrime() {
+        final Crime crime = new Crime();
+        CrimeLab.instance().insertOrUpdateCrimeAsync(crime, new Realm.Transaction.OnSuccess() {
+            @Override public void onSuccess() {
+                // 刚刚插入了一条数据，-1
+                // int position = CrimeLab.instance().size() - 1;
+                int position = mDatas.size() - 1;
+                Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
+                startActivity(intent);
+            }
+        });
+
+    }
+
 }
