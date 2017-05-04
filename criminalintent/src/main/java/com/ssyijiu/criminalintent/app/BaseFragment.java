@@ -23,6 +23,7 @@ public abstract class BaseFragment extends Fragment {
 
     private Unbinder unbinder;
     protected Activity context;
+    private View rootView;
 
 
     @Override public void onAttach(Activity activity) {
@@ -50,9 +51,12 @@ public abstract class BaseFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
         MLog.i(className + ": onCreateView");
-        View rootView = inflater.inflate(getFragLayoutId(), container, false);
-        unbinder = ButterKnife.bind(this, rootView);
-        initViewAndData(rootView, savedInstanceState);
+
+        if(rootView == null) {
+            rootView = inflater.inflate(getFragLayoutId(), container, false);
+            unbinder = ButterKnife.bind(this, rootView);
+            initViewAndData(rootView, savedInstanceState);
+        }
         return rootView;
     }
 

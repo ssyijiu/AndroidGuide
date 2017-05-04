@@ -23,8 +23,9 @@ public class Crime extends RealmObject implements Serializable{
     @PrimaryKey public String id;
 
     public String title;
-    @Required public Date date;
+    public Date date;
     public boolean solved;
+    public String suspect;
 
 
     public Crime() {

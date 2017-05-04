@@ -2,6 +2,7 @@ package com.ssyijiu.criminalintent;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +43,8 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     private CrimeAdapter adapter;
     private boolean subtitleVisible;
     private List<Crime> mDatas = new ArrayList<>();
+
+    private Handler handler = new Handler();
 
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,9 +110,20 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             adapter = new CrimeAdapter(mDatas, this);
             recyclerCrime.setAdapter(adapter);
         } else {
+
+            // fix bug : Cannot call this method while RecyclerView is computing a layout or scrolling
+            // 在 OnBindViewHolder 中调用 notifyDataSetChanged 触发
             if(recyclerCrime.isComputingLayout()) {
+               handler.post(new Runnable() {
+                   @Override public void run() {
+                       adapter.notifyDataSetChanged();
+                   }
+               });
+            } else {
                 adapter.notifyDataSetChanged();
             }
+
+
         }
 
         updateSubtitleAsync();

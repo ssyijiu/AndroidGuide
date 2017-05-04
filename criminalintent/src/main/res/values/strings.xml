@@ -22,4 +22,14 @@
         <item quantity="other">%1$s crimes</item>
     </plurals>
 
+    <string name="crime_report_detailed">%1$s!
+    The crime was discovered on %2$s. %3$s, and %4$s
+  </string>
+    <string name="crime_report_solved">The case is solved</string>
+    <string name="crime_report_unsolved">The case is not solved</string>
+    <string name="crime_report_no_suspect">there is no suspect.</string>
+    <string name="crime_report_suspect">the suspect is %s.</string>
+    <string name="crime_report_subject">CriminalIntent Crime Report</string>
+    <string name="send_report">Send crime report via</string>
+
 </resources>

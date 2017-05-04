@@ -1,11 +1,14 @@
 package com.ssyijiu.criminalintent;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,12 +18,15 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import butterknife.BindView;
+import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
 import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class CrimeFragment extends BaseFragment implements View.OnClickListener {
 
@@ -48,6 +54,7 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         String crimeId = arguments.getString(ARG_CRIME_ID);
         crime = CrimeLab.instance().getCrime(crimeId);
     }
+
 
     @Override protected int getFragLayoutId() {
         return R.layout.fragment_crime;
@@ -90,6 +97,7 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
 
     }
 
+
     @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (requestCode == REQUEST_CRIME_DATE
             && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
@@ -120,9 +128,37 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         }
     }
 
+
     private void updateDate() {
         btnCrimeDate.setText(crime.getDate());
     }
+
+
+    private String getCrimeReport() {
+        String solvedString;
+        if (crime.solved) {
+            solvedString = getString(R.string.crime_report_solved);
+        } else {
+            solvedString = getString(R.string.crime_report_unsolved);
+
+        }
+
+        String date = DateUtil.date2String(crime.date, new SimpleDateFormat("EEE, MMM dd",
+            Locale.getDefault()));
+
+        String suspect = crime.suspect;
+        if (TextUtils.isEmpty(suspect)) {
+            suspect = getString(R.string.crime_report_no_suspect);
+        } else {
+            suspect = getString(R.string.crime_report_suspect, suspect);
+        }
+
+        String report = getString(R.string.crime_report_detailed,
+            crime.title, date, solvedString, suspect);
+
+        return report;
+    }
+
 
     public static Fragment newInstance(String id, int position) {
         Bundle args = new Bundle();
@@ -142,9 +178,19 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
             case R.id.btn_choose_suspect:
                 break;
             case R.id.btn_crime_report:
+                report();
                 break;
             default:
         }
+    }
+
+
+    private void report() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+        startActivity(Intent.createChooser(intent, getString(R.string.send_report)));
     }
 
 
