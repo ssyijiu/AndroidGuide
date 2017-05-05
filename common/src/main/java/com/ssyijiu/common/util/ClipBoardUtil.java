@@ -3,7 +3,6 @@ package com.ssyijiu.common.util;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-
 import com.ssyijiu.common.Common;
 
 /**

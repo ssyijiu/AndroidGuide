@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
-
 import com.ssyijiu.common.Common;
 
 /**
@@ -247,6 +246,7 @@ public class NetUtil {
     };
 
     private static OnNetChangedListener mNetChangedListener;
+
 
     public static boolean isRegister() {
         return mNetChangedListener != null;

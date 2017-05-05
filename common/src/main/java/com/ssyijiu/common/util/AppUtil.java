@@ -2,7 +2,6 @@ package com.ssyijiu.common.util;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-
 import com.ssyijiu.common.Common;
 
 /**

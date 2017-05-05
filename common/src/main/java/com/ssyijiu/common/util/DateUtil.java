@@ -5,8 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.R.attr.format;
-
 /**
  * Created by ssyijiu on 2016/9/29.
  * Github: ssyijiu
@@ -62,12 +60,11 @@ public class DateUtil {
     }
 
 
-
-
     public static String milliseconds2String(long milliseconds) {
 
         return milliseconds2String(milliseconds, DEFAULT_SDF);
     }
+
 
     /**
      * 时间戳装换为字符串, format 为空, 使用默认格式: {@link DateUtil#DEFAULT_SDF}

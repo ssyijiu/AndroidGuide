@@ -1,14 +1,17 @@
 package com.ssyijiu.criminalintent;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
-import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +22,9 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import butterknife.BindView;
 import com.ssyijiu.common.util.DateUtil;
+import com.ssyijiu.common.util.IOUtil;
+import com.ssyijiu.common.util.IntentUtil;
+import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.bean.CrimeLab;
@@ -27,19 +33,23 @@ import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
 
+@RuntimePermissions
 public class CrimeFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String ARG_CRIME_ID = "arg_crime_id";
     private static final String ARG_CRIME_POSITION = "arg_crime_position";
 
     private static final int REQUEST_CRIME_DATE = 2001;
+    private static final int REQUEST_CONTACT = 2002;
 
-    @BindView(R.id.et_crime_title) EditText etCrimeTitle;
-    @BindView(R.id.btn_crime_date) Button btnCrimeDate;
-    @BindView(R.id.cb_crime_solved) CheckBox cbCrimeSolved;
-    @BindView(R.id.btn_choose_suspect) Button btnChooseSuspect;
-    @BindView(R.id.btn_crime_report) Button btnCrimeReport;
+    @BindView(R2.id.et_crime_title) EditText etCrimeTitle;
+    @BindView(R2.id.btn_crime_date) Button btnCrimeDate;
+    @BindView(R2.id.cb_crime_solved) CheckBox cbCrimeSolved;
+    @BindView(R2.id.btn_choose_suspect) Button btnChooseSuspect;
+    @BindView(R2.id.btn_crime_report) Button btnCrimeReport;
 
     private Crime crime;
 
@@ -71,6 +81,10 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         btnChooseSuspect.setOnClickListener(this);
         btnCrimeReport.setOnClickListener(this);
 
+        if (crime.isHasSuspect()) {
+            btnChooseSuspect.setText(crime.suspect);
+        }
+
         updateDate();
 
         // update view
@@ -99,6 +113,8 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
 
 
     @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+
+        // 去选择日期
         if (requestCode == REQUEST_CRIME_DATE
             && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
             RealmUtil.transaction(new Realm.Transaction() {
@@ -107,6 +123,39 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
                 }
             });
             updateDate();
+
+        } else if (requestCode == REQUEST_CONTACT && data != null) { // 选择联系人
+            Uri contactUri = data.getData();
+            // Specify which fields you want your query to return
+            // values for.
+            String[] queryFields = new String[] {
+                ContactsContract.Contacts.DISPLAY_NAME
+            };
+            // Perform your query - the contactUri is like a "where"
+            // clause here
+            Cursor cursor = context.getContentResolver()
+                .query(contactUri, queryFields, null, null, null);
+
+            try {
+                // Double-check that you actually got results
+                if (cursor == null || cursor.getCount() == 0) {
+                    return;
+                }
+
+                // Pull out the first column of the first row of data -
+                // that is your suspect's name.
+                cursor.moveToFirst();
+                final String suspect = cursor.getString(0);
+
+                RealmUtil.transaction(new Realm.Transaction() {
+                    @Override public void execute(Realm realm) {
+                        crime.suspect = suspect;
+                    }
+                });
+                btnChooseSuspect.setText(suspect);
+            } finally {
+                IOUtil.close(cursor);
+            }
         }
     }
 
@@ -146,17 +195,15 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         String date = DateUtil.date2String(crime.date, new SimpleDateFormat("EEE, MMM dd",
             Locale.getDefault()));
 
-        String suspect = crime.suspect;
-        if (TextUtils.isEmpty(suspect)) {
+        String suspect;
+        if (crime.isHasSuspect()) {
             suspect = getString(R.string.crime_report_no_suspect);
         } else {
-            suspect = getString(R.string.crime_report_suspect, suspect);
+            suspect = getString(R.string.crime_report_suspect, crime.suspect);
         }
 
-        String report = getString(R.string.crime_report_detailed,
+        return getString(R.string.crime_report_detailed,
             crime.title, date, solvedString, suspect);
-
-        return report;
     }
 
 
@@ -176,6 +223,7 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
                 showDateDialog();
                 break;
             case R.id.btn_choose_suspect:
+                CrimeFragmentPermissionsDispatcher.chooseSuspectWithCheck(this);
                 break;
             case R.id.btn_crime_report:
                 report();
@@ -185,12 +233,17 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
     }
 
 
+    @NeedsPermission(Manifest.permission.READ_CONTACTS)
+    public void chooseSuspect() {
+        final Intent pickContact = new Intent(Intent.ACTION_PICK,
+            ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(pickContact, REQUEST_CONTACT);
+    }
+
+
     private void report() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
-        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
-        startActivity(Intent.createChooser(intent, getString(R.string.send_report)));
+        IntentUtil.shareText(context, getCrimeReport(), getString(R.string.crime_report_subject),
+            getString(R.string.send_report));
     }
 
 
@@ -200,5 +253,16 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
         dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
         dialog.show(manager, dialog.getClass().getSimpleName());
+
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        CrimeFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode,
+            grantResults);
     }
 }

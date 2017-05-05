@@ -29,3 +29,56 @@
 
   ![](http://obe5pxv6t.bkt.clouddn.com/send_intent.jpg)
 
+
+
+
+
+
+- 读取联系人
+
+  ```java
+  // 1. startActivityForResult
+  final Intent pickContact = new Intent(Intent.ACTION_PICK,
+              ContactsContract.Contacts.CONTENT_URI);
+  startActivityForResult(pickContact, REQUEST_CONTACT);
+
+  // 2. onActivityResult
+  @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+
+         if (requestCode == REQUEST_CONTACT && data != null) {
+              Uri contactUri = data.getData();
+              // Specify which fields you want your query to return
+              // values for.
+              String[] queryFields = new String[] {
+                  ContactsContract.Contacts.DISPLAY_NAME
+              };
+              // Perform your query - the contactUri is like a "where"
+              // clause here
+              Cursor cursor = context.getContentResolver()
+                  .query(contactUri, queryFields, null, null, null);
+
+              try {
+                  // Double-check that you actually got results
+                  if (cursor == null || cursor.getCount() == 0) {
+                      return;
+                  }
+
+                  // Pull out the first column of the first row of data -
+                  // that is your suspect's name.
+                  cursor.moveToFirst();
+                  final String suspect = cursor.getString(0);
+
+                  RealmUtil.transaction(new Realm.Transaction() {
+                      @Override public void execute(Realm realm) {
+                          crime.suspect = suspect;
+                      }
+                  });
+                  btnChooseSuspect.setText(suspect);
+              } finally {
+                  IOUtil.close(cursor);
+              }
+          }
+      }
+  ```
+
+  ​

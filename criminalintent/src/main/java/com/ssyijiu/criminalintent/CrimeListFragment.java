@@ -37,7 +37,7 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     private static final String SAVED_SUBTITLE_VISIBLE = "saved_subtitle_visible";
 
-    @BindView(R.id.rv_crime) RecyclerView recyclerCrime;
+    @BindView(R2.id.rv_crime) RecyclerView recyclerCrime;
     ViewStub stubEmpty;
 
     private CrimeAdapter adapter;

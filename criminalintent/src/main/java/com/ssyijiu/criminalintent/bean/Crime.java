@@ -42,4 +42,8 @@ public class Crime extends RealmObject implements Serializable{
     public boolean couldDelete() {
         return TextUtils.isEmpty(title);
     }
+
+    public boolean isHasSuspect() {
+        return !TextUtils.isEmpty(suspect);
+    }
 }

@@ -3,7 +3,6 @@ package com.ssyijiu.common.util;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.Toast;
-
 import com.ssyijiu.common.Common;
 
 public class ToastUtil {

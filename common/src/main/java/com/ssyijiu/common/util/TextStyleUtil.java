@@ -30,7 +30,6 @@ import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
-
 import com.ssyijiu.common.Common;
 
 import static android.graphics.BlurMaskFilter.Blur;

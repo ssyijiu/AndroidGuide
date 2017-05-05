@@ -28,7 +28,7 @@ import java.util.List;
 
 public class CrimePagerActivity extends BaseActivity {
 
-    @BindView(R.id.crime_pager_root) ViewPager viewPagerRoot;
+    @BindView(R2.id.crime_pager_root) ViewPager viewPagerRoot;
 
     private List<Crime> mDatas;
 

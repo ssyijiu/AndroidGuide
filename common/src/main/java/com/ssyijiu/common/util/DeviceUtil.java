@@ -3,21 +3,11 @@ package com.ssyijiu.common.util;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import com.ssyijiu.common.Common;
-import com.ssyijiu.common.log.MLog;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.UUID;
-
-import static com.ssyijiu.common.util.MD5Util.getMD5;
 
 /**
  * Created by ssyijiu on 2017/2/20.
@@ -29,7 +19,7 @@ public class DeviceUtil {
 
     private DeviceUtil() {
         /* cannot be instantiated */
-        throw new UnsupportedOperationException("NetUtil cannot be instantiated !");
+        throw new UnsupportedOperationException("DeviceUtil cannot be instantiated !");
     }
 
 
@@ -54,7 +44,7 @@ public class DeviceUtil {
 
         // deviceId
         if (tm != null) {
-            if(CommonUtil.checkPermission(Manifest.permission.READ_PHONE_STATE)) {
+            if (CommonUtil.checkPermission(Manifest.permission.READ_PHONE_STATE)) {
                 uniqueId.append(tm.getDeviceId());
             }
         }
@@ -66,7 +56,7 @@ public class DeviceUtil {
         uniqueId.append(PhoneUtil.getSimNum());
 
         // SERIAL
-        uniqueId.append(android.os.Build.SERIAL);
+        uniqueId.append(Build.SERIAL);
 
         String id = MD5Util.getMD5(uniqueId.toString());
         id = id.substring(0, 16);
@@ -83,8 +73,4 @@ public class DeviceUtil {
         }
         return uniqueId;
     }
-
-
-
-
 }

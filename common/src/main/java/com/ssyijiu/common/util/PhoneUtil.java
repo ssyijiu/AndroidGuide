@@ -25,19 +25,21 @@ public class PhoneUtil {
         return (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     }
 
+
     /**
      * 判断SIM卡是否可用
      * <br/> 权限: < uses-permission android:name = "android.permission.READ_PHONE_STATE" />
      */
     public static boolean isSimAvailable() {
 
-        if(CommonUtil.checkPermission(Manifest.permission.READ_PHONE_STATE)) {
+        if (CommonUtil.checkPermission(Manifest.permission.READ_PHONE_STATE)) {
             return getTelephonyManager(Common.getContext()).getSimSerialNumber() != null;
         }
 
         return false;
 
     }
+
 
     /**
      * 获取SIM卡序列号

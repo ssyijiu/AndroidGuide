@@ -15,12 +15,15 @@ import java.security.NoSuchAlgorithmException;
  */
 public class MD5Util {
 
-    private final static char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    private final static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+        'b', 'c', 'd', 'e', 'f' };
+
 
     private MD5Util() {
         /* cannot be instantiated */
         throw new UnsupportedOperationException("MD5Util cannot be instantiated !");
     }
+
 
     /**
      * MD5加密
@@ -31,6 +34,7 @@ public class MD5Util {
     public static String getMD5(String data) {
         return getMD5(data.getBytes());
     }
+
 
     /**
      * MD5加密
@@ -55,6 +59,7 @@ public class MD5Util {
         return bytes2Hex(digest);
     }
 
+
     /**
      * MD5加密,获取后10密文
      *
@@ -64,6 +69,7 @@ public class MD5Util {
     public static String getMD5_10(String data) {
         return getMD5_10(data.getBytes());
     }
+
 
     /**
      * MD5加密,获取后10密文

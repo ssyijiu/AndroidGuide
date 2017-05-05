@@ -27,6 +27,7 @@ public class CommonUtil {
         }
     }
 
+
     public static boolean checkPermission(String permission) {
         boolean result = false;
         if (Build.VERSION.SDK_INT >= 23) {
@@ -40,7 +41,8 @@ public class CommonUtil {
             }
         } else {
             PackageManager pm = Common.getContext().getPackageManager();
-            if (pm.checkPermission(permission, Common.getContext().getPackageName()) == PackageManager.PERMISSION_GRANTED) {
+            if (pm.checkPermission(permission, Common.getContext().getPackageName()) ==
+                PackageManager.PERMISSION_GRANTED) {
                 result = true;
             }
         }
