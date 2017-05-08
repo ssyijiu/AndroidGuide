@@ -8,16 +8,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.ssyijiu.criminalintent.app.BaseActivity;
 import com.ssyijiu.criminalintent.bean.Crime;
-import com.ssyijiu.criminalintent.bean.CrimeLab;
-import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
-import java.util.ArrayList;
+import com.ssyijiu.criminalintent.db.CrimeDao;
 import java.util.List;
 
 /**
@@ -53,7 +49,7 @@ public class CrimePagerActivity extends BaseActivity {
 
 
         // 同步查询
-        mDatas = CrimeLab.instance().queryAllCrimes();
+        mDatas = CrimeDao.instance().queryAllCrimes();
         setViewPager();
 
     }

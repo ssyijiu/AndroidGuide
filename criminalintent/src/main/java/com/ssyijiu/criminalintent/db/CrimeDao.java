@@ -1,10 +1,14 @@
-package com.ssyijiu.criminalintent.bean;
+package com.ssyijiu.criminalintent.db;
 
+import android.os.Environment;
 import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.ToastUtil;
+import com.ssyijiu.criminalintent.app.App;
+import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import java.io.File;
 
 /**
  * Created by ssyijiu on 2017/4/21.
@@ -12,19 +16,19 @@ import io.realm.RealmResults;
  * E-mail: lxmyijiu@163.com
  */
 
-public class CrimeLab {
+public class CrimeDao {
 
-    private static final CrimeLab INSTANCE = new CrimeLab();
+    private static final CrimeDao INSTANCE = new CrimeDao();
 
     private Realm realm;
 
 
-    public static CrimeLab instance() {
+    public static CrimeDao instance() {
         return INSTANCE;
     }
 
 
-    private CrimeLab() {
+    private CrimeDao() {
         realm = RealmUtil.getRealm();
         Crime crime = new Crime();
         crime.title = "crime";
@@ -133,5 +137,16 @@ public class CrimeLab {
             MLog.e("delete error!", error);
             ToastUtil.show(error.getMessage());
         }
+    }
+
+    public File getPhotoFile(Crime crime) {
+        File externalFilesDir = App.getContext()
+            .getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        if (externalFilesDir == null) {
+            return null;
+        }
+
+        return new File(externalFilesDir, crime.getPhotoFilename());
     }
 }

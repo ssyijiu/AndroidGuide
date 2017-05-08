@@ -14,11 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import butterknife.BindView;
-import com.ssyijiu.common.log.MLog;
-import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
-import com.ssyijiu.criminalintent.bean.CrimeLab;
+import com.ssyijiu.criminalintent.db.CrimeDao;
 import com.ssyijiu.criminalintent.recycleradapter.CrimeAdapter;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
@@ -83,10 +81,10 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     private void updateData() {
 
         // 1. 删除空数据
-        CrimeLab.instance().gc();
+        CrimeDao.instance().gc();
 
         // 2. 异步查询
-        CrimeLab.instance().queryAllCrimesAsync().addChangeListener(
+        CrimeDao.instance().queryAllCrimesAsync().addChangeListener(
             new RealmChangeListener<RealmResults<Crime>>() {
                 @Override public void onChange(RealmResults<Crime> element) {
                     mDatas.clear();
@@ -133,17 +131,17 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     private void updateUI() {
 
-        CrimeLab.instance().gc();
+        CrimeDao.instance().gc();
 
         // 是否显示 Empty 视图
-        if (CrimeLab.instance().queryAllCrimes().isEmpty()) {
+        if (CrimeDao.instance().queryAllCrimes().isEmpty()) {
             stubEmpty.setVisibility(View.VISIBLE);
         } else {
             stubEmpty.setVisibility(View.GONE);
         }
 
         if (adapter == null) {
-            adapter = new CrimeAdapter(CrimeLab.instance().queryAllCrimes(), this);
+            adapter = new CrimeAdapter(CrimeDao.instance().queryAllCrimes(), this);
             recyclerCrime.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
@@ -223,7 +221,7 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     /** 更新子标题 */
     private void updateSubtitle() {
 
-        // int crimeSize = CrimeLab.instance().queryAllCrimes().size();
+        // int crimeSize = CrimeDao.instance().queryAllCrimes().size();
         int crimeSize = mDatas.size();
 
         String subtitle = getResources()
@@ -253,10 +251,10 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     private void newCrime() {
         final Crime crime = new Crime();
-        CrimeLab.instance().insertOrUpdateCrimeAsync(crime, new Realm.Transaction.OnSuccess() {
+        CrimeDao.instance().insertOrUpdateCrimeAsync(crime, new Realm.Transaction.OnSuccess() {
             @Override public void onSuccess() {
                 // 刚刚插入了一条数据，-1
-                // int position = CrimeLab.instance().size() - 1;
+                // int position = CrimeDao.instance().size() - 1;
                 int position = mDatas.size() - 1;
                 Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
                 startActivity(intent);

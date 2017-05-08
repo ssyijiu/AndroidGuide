@@ -3,9 +3,7 @@ package com.ssyijiu.criminalintent.bean;
 import android.text.TextUtils;
 import com.ssyijiu.common.util.DateUtil;
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +24,7 @@ public class Crime extends RealmObject implements Serializable{
     public Date date;
     public boolean solved;
     public String suspect;
+    public String suspectPhoneNum;
 
 
     public Crime() {
@@ -43,7 +42,15 @@ public class Crime extends RealmObject implements Serializable{
         return TextUtils.isEmpty(title);
     }
 
-    public boolean isHasSuspect() {
+    public boolean hasSuspect() {
         return !TextUtils.isEmpty(suspect);
+    }
+
+    public boolean hasSuspectPhoneNum() {
+        return !TextUtils.isEmpty(suspectPhoneNum);
+    }
+
+    public String getPhotoFilename() {
+        return "IMG_" + id + ".jpg";
     }
 }

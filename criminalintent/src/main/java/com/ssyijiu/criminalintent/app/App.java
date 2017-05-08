@@ -1,6 +1,7 @@
 package com.ssyijiu.criminalintent.app;
 
 import android.app.Application;
+import android.content.Context;
 import com.ssyijiu.common.Common;
 import io.realm.Realm;
 
@@ -12,9 +13,18 @@ import io.realm.Realm;
 
 public class App extends Application {
 
+    private static App app;
+
+
     @Override public void onCreate() {
         super.onCreate();
         Common.init(this);
         Realm.init(this);
+        app = this;
+    }
+
+
+    public static Context getContext() {
+        return app;
     }
 }

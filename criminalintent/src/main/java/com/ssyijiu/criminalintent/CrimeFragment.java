@@ -2,16 +2,17 @@ package com.ssyijiu.criminalintent;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,24 +21,33 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import butterknife.BindView;
+import butterknife.OnClick;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.IOUtil;
 import com.ssyijiu.common.util.IntentUtil;
-import com.ssyijiu.common.util.ToastUtil;
+import com.ssyijiu.common.util.PhoneUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
-import com.ssyijiu.criminalintent.bean.CrimeLab;
+import com.ssyijiu.criminalintent.db.CrimeDao;
 import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
+import static android.R.attr.type;
+import static android.content.Context.MODE_PRIVATE;
+import static android.os.Environment.DIRECTORY_MUSIC;
+
 @RuntimePermissions
-public class CrimeFragment extends BaseFragment implements View.OnClickListener {
+public class CrimeFragment extends BaseFragment {
 
     private static final String ARG_CRIME_ID = "arg_crime_id";
     private static final String ARG_CRIME_POSITION = "arg_crime_position";
@@ -50,6 +60,8 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
     @BindView(R2.id.cb_crime_solved) CheckBox cbCrimeSolved;
     @BindView(R2.id.btn_choose_suspect) Button btnChooseSuspect;
     @BindView(R2.id.btn_crime_report) Button btnCrimeReport;
+    @BindView(R2.id.btn_call_suspect) Button btnCallSuspect;
+    @BindView(R2.id.iv_crime_photo) ImageView ivCrimePhoto;
 
     private Crime crime;
 
@@ -62,7 +74,7 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
 
     @Override protected void parseArguments(Bundle arguments) {
         String crimeId = arguments.getString(ARG_CRIME_ID);
-        crime = CrimeLab.instance().getCrime(crimeId);
+        crime = CrimeDao.instance().getCrime(crimeId);
     }
 
 
@@ -77,12 +89,14 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         etCrimeTitle.setText(crime.title);
         cbCrimeSolved.setChecked(crime.solved);
 
-        btnCrimeDate.setOnClickListener(this);
-        btnChooseSuspect.setOnClickListener(this);
-        btnCrimeReport.setOnClickListener(this);
-
-        if (crime.isHasSuspect()) {
+        if (crime.hasSuspect()) {
             btnChooseSuspect.setText(crime.suspect);
+        }
+
+        if(crime.hasSuspectPhoneNum()) {
+            btnCallSuspect.setText(crime.suspectPhoneNum);
+        } else {
+            btnCallSuspect.setEnabled(false);
         }
 
         updateDate();
@@ -124,28 +138,11 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
             });
             updateDate();
 
-        } else if (requestCode == REQUEST_CONTACT && data != null) { // 选择联系人
-            Uri contactUri = data.getData();
-            // Specify which fields you want your query to return
-            // values for.
-            String[] queryFields = new String[] {
-                ContactsContract.Contacts.DISPLAY_NAME
-            };
-            // Perform your query - the contactUri is like a "where"
-            // clause here
-            Cursor cursor = context.getContentResolver()
-                .query(contactUri, queryFields, null, null, null);
+        } else if (requestCode == REQUEST_CONTACT) { // 选择联系人
 
-            try {
-                // Double-check that you actually got results
-                if (cursor == null || cursor.getCount() == 0) {
-                    return;
-                }
-
-                // Pull out the first column of the first row of data -
-                // that is your suspect's name.
-                cursor.moveToFirst();
-                final String suspect = cursor.getString(0);
+            String[] userInfo = parseContactInfo(data);
+            if (!TextUtils.isEmpty(userInfo[0])) {
+                final String suspect = userInfo[0];
 
                 RealmUtil.transaction(new Realm.Transaction() {
                     @Override public void execute(Realm realm) {
@@ -153,9 +150,19 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
                     }
                 });
                 btnChooseSuspect.setText(suspect);
-            } finally {
-                IOUtil.close(cursor);
             }
+
+            if (!TextUtils.isEmpty(userInfo[1])) {
+                final String phoneNum = userInfo[1];
+                RealmUtil.transaction(new Realm.Transaction() {
+                    @Override public void execute(Realm realm) {
+                        crime.suspectPhoneNum = phoneNum;
+                    }
+                });
+                btnCallSuspect.setText(phoneNum);
+                btnCallSuspect.setEnabled(true);
+            }
+
         }
     }
 
@@ -169,7 +176,7 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_del_crime:
-                CrimeLab.instance().deleteCrime(crime.id);
+                CrimeDao.instance().deleteCrime(crime.id);
                 context.finish();
                 return true;
             default:
@@ -196,10 +203,10 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
             Locale.getDefault()));
 
         String suspect;
-        if (crime.isHasSuspect()) {
-            suspect = getString(R.string.crime_report_no_suspect);
-        } else {
+        if (crime.hasSuspect()) {
             suspect = getString(R.string.crime_report_suspect, crime.suspect);
+        } else {
+            suspect = getString(R.string.crime_report_no_suspect);
         }
 
         return getString(R.string.crime_report_detailed,
@@ -215,23 +222,6 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         fragment.setArguments(args);
         return fragment;
     }
-
-
-    @Override public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_crime_date:
-                showDateDialog();
-                break;
-            case R.id.btn_choose_suspect:
-                CrimeFragmentPermissionsDispatcher.chooseSuspectWithCheck(this);
-                break;
-            case R.id.btn_crime_report:
-                report();
-                break;
-            default:
-        }
-    }
-
 
     @NeedsPermission(Manifest.permission.READ_CONTACTS)
     public void chooseSuspect() {
@@ -264,5 +254,128 @@ public class CrimeFragment extends BaseFragment implements View.OnClickListener 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         CrimeFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode,
             grantResults);
+    }
+
+
+    private String[] parseContactInfo(Intent data) {
+
+        String[] userInfo = new String[2];
+
+        if (data == null) {
+            return userInfo;
+        }
+
+        Uri contactUri = data.getData();
+
+        // 1. 查询联系人 id 和 name
+        String[] queryFields = new String[] {
+            ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME
+        };
+
+        // 2. 获取查询结果
+        Cursor cursor = context.getContentResolver()
+            .query(contactUri, queryFields, null, null, null);
+
+        Cursor phoneCursor = null;
+
+        try {
+            // Double-check that you actually got results
+            if (cursor == null || cursor.getCount() == 0) {
+                return userInfo;
+            }
+
+            cursor.moveToFirst();  // 游标移动到第一行
+            // 获取第0列数据，对应前面 queryFields#ContactsContract.Contacts._ID
+            String contactId = cursor.getString(0);
+            String name = cursor.getString(1);
+            userInfo[0] = name;
+
+            String phoneNumber;
+
+            // 3. 使用 id 查询电话号码
+            phoneCursor = context.getContentResolver()
+                .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, // uri
+                    // 查询的列
+                    new String[] { ContactsContract.CommonDataKinds.Phone.NUMBER },
+                    // 查询条件
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?",
+                    // 条件参数
+                    new String[] { contactId },
+                    // 是否排序
+                    null);
+
+            if (phoneCursor == null || phoneCursor.getCount() == 0) {
+                return userInfo;
+            }
+
+            phoneCursor.moveToFirst();
+            phoneNumber = phoneCursor.getString(0);
+            userInfo[1] = phoneNumber;
+
+            return userInfo;
+
+        } finally {
+            IOUtil.close(cursor);
+            IOUtil.close(phoneCursor);
+        }
+    }
+
+
+    @Nullable private String parseContactName(Intent data) {
+
+        if (data == null) {
+            return null;
+        }
+
+        Uri contactUri = data.getData();
+        // Specify which fields you want your query to return
+        // values for.
+        String[] queryFields = new String[] {
+            ContactsContract.Contacts.DISPLAY_NAME
+        };
+        // Perform your query - the contactUri is like a "where"
+        // clause here
+        Cursor cursor = context.getContentResolver()
+            .query(contactUri, queryFields, null, null, null);
+
+        try {
+            // Double-check that you actually got results
+            if (cursor == null || cursor.getCount() == 0) {
+                return null;
+            }
+
+            // Pull out the first column of the first row of data -
+            // that is your suspect's name.
+            cursor.moveToFirst();
+            return cursor.getString(0);
+        } finally {
+            IOUtil.close(cursor);
+        }
+    }
+
+
+    @OnClick({ R.id.btn_crime_date, R.id.btn_choose_suspect, R.id.btn_crime_report, R.id.btn_call_suspect })
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+
+            case R.id.btn_crime_date:
+                showDateDialog();
+                break;
+            case R.id.btn_choose_suspect:
+                CrimeFragmentPermissionsDispatcher.chooseSuspectWithCheck(this);
+                break;
+            case R.id.btn_call_suspect:
+                callSuspect();
+                break;
+            case R.id.btn_crime_report:
+                report();
+                break;
+            default:
+        }
+    }
+
+
+    private void callSuspect() {
+        PhoneUtil.toDial(context,btnCallSuspect.getText().toString().trim());
     }
 }
