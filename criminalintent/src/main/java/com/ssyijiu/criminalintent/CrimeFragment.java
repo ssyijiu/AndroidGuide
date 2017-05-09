@@ -157,7 +157,7 @@ public class CrimeFragment extends BaseFragment {
 
     @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
 
-        // 去选择日期
+        // 选择日期
         if (requestCode == REQUEST_CRIME_DATE
             && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
             RealmUtil.transaction(new Realm.Transaction() {
@@ -167,8 +167,8 @@ public class CrimeFragment extends BaseFragment {
             });
             updateDate();
 
-        } else if (requestCode == REQUEST_CONTACT) { // 选择联系人
-
+        } else if (requestCode == REQUEST_CONTACT) {
+            // 选择联系人
             String[] userInfo = parseContactInfo(data);
             if (!TextUtils.isEmpty(userInfo[0])) {
                 final String suspect = userInfo[0];
@@ -193,6 +193,7 @@ public class CrimeFragment extends BaseFragment {
             }
 
         } else if (requestCode == REQUEST_PHOTO && resultCode == Activity.RESULT_OK) {
+            // 拍照
             updatePhotoView();
         }
     }
