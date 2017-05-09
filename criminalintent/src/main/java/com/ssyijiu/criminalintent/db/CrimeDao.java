@@ -1,6 +1,7 @@
 package com.ssyijiu.criminalintent.db;
 
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.App;
@@ -146,8 +147,8 @@ public class CrimeDao {
             .getExternalFilesDir(null), "crime_images");
 
         if(!externalFilesDir.exists()) {
-            if(externalFilesDir.mkdirs()) {
-                externalFilesDir = App.getContext().getCacheDir();
+            if(!externalFilesDir.mkdirs()) {
+                ToastUtil.show("照片保存失败");
             }
         }
 

@@ -25,18 +25,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnClick;
-import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.BitmapUtil;
 import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.IOUtil;
 import com.ssyijiu.common.util.IntentUtil;
 import com.ssyijiu.common.util.PhoneUtil;
-import com.ssyijiu.common.util.SDCardUtil;
-import com.ssyijiu.common.util.ToastUtil;
-import com.ssyijiu.criminalintent.app.App;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
@@ -48,8 +45,6 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
-
-import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
 @RuntimePermissions
 public class CrimeFragment extends BaseFragment {
@@ -67,7 +62,8 @@ public class CrimeFragment extends BaseFragment {
     @BindView(R2.id.btn_choose_suspect) Button btnChooseSuspect;
     @BindView(R2.id.btn_crime_report) Button btnCrimeReport;
     @BindView(R2.id.btn_call_suspect) Button btnCallSuspect;
-    @BindView(R2.id.iv_crime_photo) ImageView ivCrimePhoto;
+    @BindView(R2.id.img_crime_photo) ImageView imgCrimePhoto;
+    @BindView(R2.id.ib_crime_photo) ImageButton ibCrimePhoto;
 
     private Crime crime;
     private File crimePhoto;
@@ -133,23 +129,25 @@ public class CrimeFragment extends BaseFragment {
                 });
             }
         });
-
-        MLog.i(SDCardUtil.getDiskCache("xxx").getAbsolutePath());
     }
 
 
     private void initPhotoIntent() {
         photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        // 设备没有相机时拍照按钮不可用
         boolean canTakePhoto = crimePhoto != null &&
             IntentUtil.checkIntentAvailable(photoIntent);
-        ivCrimePhoto.setEnabled(canTakePhoto);
+        imgCrimePhoto.setEnabled(canTakePhoto);
+
         if (canTakePhoto) {
             Uri uri;
             // 适配 Android 7.0
-            if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
                 uri = Uri.fromFile(crimePhoto);
             } else {
-                uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
+                uri = FileProvider.getUriForFile(context,
+                    BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
             }
             photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
 
@@ -194,7 +192,7 @@ public class CrimeFragment extends BaseFragment {
                 btnCallSuspect.setEnabled(true);
             }
 
-        } else if(requestCode == REQUEST_PHOTO) {
+        } else if (requestCode == REQUEST_PHOTO && resultCode == Activity.RESULT_OK) {
             updatePhotoView();
         }
     }
@@ -227,9 +225,12 @@ public class CrimeFragment extends BaseFragment {
         if (crimePhoto != null && crimePhoto.exists()) {
             Bitmap bitmap = BitmapUtil.getScaledBitmap(
                 crimePhoto.getPath(), getActivity());
-            ivCrimePhoto.setImageBitmap(bitmap);
+            imgCrimePhoto.setImageBitmap(bitmap);
+        } else {
+            imgCrimePhoto.setImageBitmap(null);
         }
     }
+
 
     private String getCrimeReport() {
         String solvedString;
@@ -381,8 +382,8 @@ public class CrimeFragment extends BaseFragment {
 
 
     @OnClick({ R.id.btn_crime_date, R.id.btn_choose_suspect, R.id.btn_crime_report,
-                 R.id.btn_call_suspect,
-                 R.id.iv_crime_photo })
+                 R.id.btn_call_suspect, R.id.img_crime_photo,
+                 R.id.ib_crime_photo })
     public void onViewClicked(View view) {
         switch (view.getId()) {
 
@@ -397,12 +398,19 @@ public class CrimeFragment extends BaseFragment {
                 break;
             case R.id.btn_crime_report:
                 report();
-            case R.id.iv_crime_photo:
+                break;
+            case R.id.ib_crime_photo:
                 takePhoto();
+                break;
+            case R.id.img_crime_photo:
+                showPhoto();
                 break;
             default:
         }
     }
+
+
+    private void showPhoto() {}
 
 
     private void showDateDialog() {

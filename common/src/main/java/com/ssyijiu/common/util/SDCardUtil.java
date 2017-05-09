@@ -71,7 +71,7 @@ public class SDCardUtil {
      *
      * @param name 缓存的文件或者目录名称
      * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName <br/>
-     *         sd卡不可用路径为 /data/data/package_name/cache/fileName
+     * sd卡不可用路径为 /data/data/package_name/cache/fileName
      */
     public static File getDiskCache(String name) {
         String cachePath;
@@ -84,7 +84,7 @@ public class SDCardUtil {
 
             // In some case, getExternalCacheDir will return null
             if (file != null) {
-                sb.append(file.getAbsolutePath()).append(File.separator);
+                sb.append(file.getAbsolutePath());
             } else {
                 sb.append(getSDCardPath())
                     .append("Android/data/")
@@ -93,8 +93,15 @@ public class SDCardUtil {
             }
 
             cachePath = sb.toString();
+
+            File cacheFile = new File(cachePath);
+            if(!cacheFile.exists()) {
+                if(!cacheFile.mkdirs()) {
+                    return Common.getContext().getCacheDir();
+                }
+            }
         }
 
-        return new File(cachePath + File.separator + File.separator + name);
+        return new File(cachePath + File.separator + name);
     }
 }

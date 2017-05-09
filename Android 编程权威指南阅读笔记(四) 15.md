@@ -139,7 +139,7 @@
     	PackageManager packageManager = Common.getContext().getPackageManager();
     	// 只匹配清单文件中带 CATEGORY_DEFAULT 标志的 activity
     	return packageManager.resolveActivity(intent,
-                                          PackageManager.MATCH_DEFAULT_ONLY) != null;
+                   PackageManager.MATCH_DEFAULT_ONLY) != null;
   }
   ```
 
@@ -211,7 +211,8 @@
       // sdcard根目录/Music
       Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
 
-      // 以上两个 API 权限完全相同. 只不过 getExternalStoragePublicDirectory(String type) 必须指定一个 type 指定存储类型 
+      // 以上两个 API 权限完全相同
+      // 区别是 getExternalStoragePublicDirectory(String type) 必须指定一个 type 指定存储类型 
       ```
 
 
@@ -233,11 +234,11 @@
      /**
        * 获取磁盘缓存
        *
-       * @param fileName 缓存的文件名
-       * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName 
-       *         sd卡不可用路径为 /data/data/package_name/cache/fileName
+       * @param name 缓存的文件或者目录名称
+       * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName
+       * 		   sd卡不可用路径为 /data/data/package_name/cache/fileName
        */
-      public static File getDiskCache(String fileName) {
+      public static File getDiskCache(String name) {
           String cachePath;
           if (!isAvailable()) {
               cachePath = Common.getContext().getCacheDir().getAbsolutePath();
@@ -248,7 +249,7 @@
 
               // In some case, getExternalCacheDir will return null
               if (file != null) {
-                  sb.append(file.getAbsolutePath()).append(File.separator);
+                  sb.append(file.getAbsolutePath());
               } else {
                   sb.append(getSDCardPath())
                       .append("Android/data/")
@@ -257,9 +258,16 @@
               }
 
               cachePath = sb.toString();
+
+              File cacheFile = new File(cachePath);
+              if(!cacheFile.exists()) {
+                  if(!cacheFile.mkdirs()) {
+                      return Common.getContext().getCacheDir();
+                  }
+              }
           }
 
-          return new File(cachePath + File.separator + fileName);
+          return new File(cachePath + File.separator + name);
       }
   ```
 
@@ -270,26 +278,35 @@
           />
   ```
 
-#### 打开相机及Android 7.0 适配
+#### 使用相机及 Android 7.0 适配
 
-- 打开相机
+- 使用相机拍照
 
   ```java
+  // 1. 打开相机
   // ACTION_IMAGE_CAPTURE 这个属性默认只支持拍摄缩略图，并且图片会保存在 onActivityResult 返回的 Intent 中
   Intent photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
   Uri uri;
   // 适配 Android 7.0
   if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-  	uri = Uri.fromFile(crimePhoto);
+  	uri = Uri.fromFile(crimePhotoFile);
   } else {
-  	uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
+  	uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhotoFile);
   }
 
-  // 使用 EXTRA_OUTPUT 获取全尺寸图片，图片会保存到 uri 中
+  // 使用 EXTRA_OUTPUT 才能获取全尺寸图片，图片会保存到文件系统中，并对应一个 uri
   // 也就是这个 uri 要适配 Android 7.0
   photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
   startActivityForResult(photoIntent, REQUEST_PHOTO);
+
+  // 2. onActivityResult
+  @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
+    	if(requestCode == REQUEST_PHOTO
+        		&& resultCode == Activity.RESULT_OK) {
+      	// 操作图片文件 crimePhotoFile
+      }
+  }
   ```
 
 - Android 7.0 FileProvider 适配
@@ -342,11 +359,13 @@
   // authority:前面 AndroidManifest 中 provider 下声明的 authorities
   // file:共享文件，一定要位于前面 path 指定的目录下
    
-  // eg:
+    
+  // 举一个栗子
   Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
 
   // uri:content://com.ssyijiu.criminalintent.crime_images/crime_images/IMG_6ca2e635-b0be-425e-84cf-61b21fdc781f.jpg
-  // 是不是很熟悉，和 ContentProvider 的 uri 格式一样，其实 FileProvider 继承了 ContentProvider
+  // 是不是很熟悉，和 ContentProvider 的 uri 格式一样
+  // 其实 FileProvider 就是继承了 ContentProvider
   ```
 
 - Bitmap 压缩
@@ -379,5 +398,18 @@
   }
   ```
 
-  ​
+  - imageView.setImageBitmap(null);  将 ImageView 设置的图片去掉
+
+  - ```Xml
+    // 告诉 Android 系统该应用需要使用相机
+    // 如果设备缺少相机，类似 Google Play 商店的安装长袖会拒绝安装应用。
+    <uses-feature android:name="android.hardware.camera"
+            // 让 Android 系统知道，即使设备没有相机，也不影响使用
+            // 感觉和 uses-feature 冲突呢 。。
+            android:required="false" 
+            />
+    ```
+
+  - ​
+
 
