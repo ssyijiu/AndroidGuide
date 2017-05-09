@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.text.format.Formatter;
 import com.ssyijiu.common.Common;
+import com.ssyijiu.common.log.MLog;
 import java.io.File;
 
 /**
@@ -68,11 +69,11 @@ public class SDCardUtil {
     /**
      * 获取磁盘缓存
      *
-     * @param fileName 缓存的文件名
-     * @return sd卡可用路径为   /sdcard/Android/data/application package/cache/fileName <br/>
-     * sd卡不可用路径为 /data/data/application package/cache/fileName
+     * @param name 缓存的文件或者目录名称
+     * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName <br/>
+     *         sd卡不可用路径为 /data/data/package_name/cache/fileName
      */
-    public static File getDiskCache(String fileName) {
+    public static File getDiskCache(String name) {
         String cachePath;
         if (!isAvailable()) {
             cachePath = Common.getContext().getCacheDir().getAbsolutePath();
@@ -94,6 +95,6 @@ public class SDCardUtil {
             cachePath = sb.toString();
         }
 
-        return new File(cachePath + File.separator + fileName);
+        return new File(cachePath + File.separator + File.separator + name);
     }
 }

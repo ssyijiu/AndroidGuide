@@ -98,6 +98,7 @@ public class CrimeDao {
         });
     }
 
+
     public void gc() {
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
@@ -139,12 +140,15 @@ public class CrimeDao {
         }
     }
 
-    public File getPhotoFile(Crime crime) {
-        File externalFilesDir = App.getContext()
-            .getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-        if (externalFilesDir == null) {
-            return null;
+    public File getPhotoFile(Crime crime) {
+        File externalFilesDir = new File(App.getContext()
+            .getExternalFilesDir(null), "crime_images");
+
+        if(!externalFilesDir.exists()) {
+            if(externalFilesDir.mkdirs()) {
+                externalFilesDir = App.getContext().getCacheDir();
+            }
         }
 
         return new File(externalFilesDir, crime.getPhotoFilename());

@@ -127,6 +127,8 @@
       }
   ```
 
+- 联系人应用返回包含在 intent 中的 URI 数据给父activity时，会添加一个Intent.FLAG_GRANT_READ_URI_PERMISSION 标志，该标志告诉 Android 我们的父 Activity 可以使用联系人数据库一次。
+
 - 检查意图是否可用：
 
   ```java
@@ -154,60 +156,64 @@
 
 ## 第16章：使用 Intent 拍照
 
-- Android 存储相关知识   
+#### Android 存储相关知识   
 
-  - 内部存储：
+> 注意，以下存储路径可能由于各个 ROM 的不同而改变
 
-    - 特点：默认是只能被你的 app 访问、用户卸载 app 是数据会被清除、确保不被其他 app 访问的最佳存储区域。
+- 内部存储：
 
-    - ```java
-      context.getFilesDir();   // /data/data/pacgage_name/files
-      context.getCacheDir();   // /data/data/package_name/cache
+  - 特点：默认是只能被你的 app 访问、用户卸载 app 是数据会被清除、确保不被其他 app 访问的最佳存储区域。
 
-      // 一个 FileInputStream 位置 /data/data/package_name/files/name
-      context.openFileInput(String name);
+  - ```java
+    context.getFilesDir();   // /data/data/pacgage_name/files
+    context.getCacheDir();   // /data/data/package_name/cache
 
-      // 一个 FileOutputStream 位置 /data/data/package_name/files/name
-      // mode: 
-      // MODE_PRIVATE: 默认模式，仅自己的 App 可以访问
-      // MODE_APPEND: if the file already exists then write data to the end of the existing file instead of erasing it.
-      context.openFileOutput(String name, int mode)  
-        
-      // /data/data/package_name/name
-      context.getDir(String name, int mode)
-      ```
+    // 一个 FileInputStream 位置 /data/data/package_name/files/name
+    context.openFileInput(String name);
 
-  - 外部存储
+    // 一个 FileOutputStream 位置 /data/data/package_name/files/name
+    // mode: 
+    // MODE_PRIVATE: 默认模式，仅自己的 App 可以访问
+    // MODE_APPEND: if the file already exists then write data to the end of the existing file instead of erasing it.
+    context.openFileOutput(String name, int mode)  
+      
+    // /data/data/package_name/name
+    context.getDir(String name, int mode)
+    ```
 
-    - 私有存储
+- 外部存储
 
-      - 特点：相对私有、App 卸载时文件会被清除
+  - 私有存储
+
+    - 特点：相对私有、App 卸载时文件会被清除
+
+    ```java
+    // /sdcard/Android/date/package_name/cache
+    // 非常适合存放缓存数据
+    context.getExternalCacheDir()
+      
+    // /sdcard/Android/date/package_name/files/
+    context.getExternalFilesDir(String type)  
+    // type 用来指定数据类型，例如 Environment.DIRECTORY_MUSIC
+    // -> /sdcard/Android/date/package_name/files/Music
+    // type 为 null 时, 目录为: /sdcard/Android/date/package_name/files
+    ```
+
+    ​
+
+  - 公共存储
+
+    - 特点：完全对用户和其他应用可见、App 卸载后数据不会被清除
 
       ```java
-      // /sdcard/Android/date/package_name/cache
-      // 非常适合存放缓存数据
-      context.getExternalCacheDir()
-        
-      // /sdcard/Android/date/package_name/files/
-      context.getExternalFilesDir(String type)  
-      // type 用来指定数据类型，例如 Environment.DIRECTORY_MUSIC
-      // -> /sdcard/Android/date/package_name/files/Music
+      // sdcard根目录
+      Environment.getExternalStorageDirectory()
+      // sdcard根目录/Music
+      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+
+      // 以上两个 API 权限完全相同. 只不过 getExternalStoragePublicDirectory(String type) 必须指定一个 type 指定存储类型 
       ```
 
-      ​
-
-    - 公共存储
-
-      - 特点：完全对用户和其他应用可见、App 卸载后数据不会被清除
-
-        ```java
-        // sdcard根目录
-        Environment.getExternalStorageDirectory()
-        // sdcard根目录/Music
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-
-        // 以上两个 API 权限完全相同. 只不过 getExternalStoragePublicDirectory(String type) 必须指定一个 type 指定存储类型 
-        ```
 
 - files 与 cache 的区别
 
@@ -219,5 +225,159 @@
 
 - type 的作用
 
-  让系统正确对待你的文件，以 Environment.DIRECTORY_MUSIC 类型保存的文件系统会认为是音乐
+  让系统正确对待你的文件，例如：以 Environment.DIRECTORY_MUSIC 类型保存的文件系统会认为是音乐
+
+- 获取磁盘缓存
+
+  ```java
+     /**
+       * 获取磁盘缓存
+       *
+       * @param fileName 缓存的文件名
+       * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName 
+       *         sd卡不可用路径为 /data/data/package_name/cache/fileName
+       */
+      public static File getDiskCache(String fileName) {
+          String cachePath;
+          if (!isAvailable()) {
+              cachePath = Common.getContext().getCacheDir().getAbsolutePath();
+          } else {
+
+              StringBuilder sb = new StringBuilder();
+              File file = Common.getContext().getExternalCacheDir();
+
+              // In some case, getExternalCacheDir will return null
+              if (file != null) {
+                  sb.append(file.getAbsolutePath()).append(File.separator);
+              } else {
+                  sb.append(getSDCardPath())
+                      .append("Android/data/")
+                      .append(Common.getContext().getPackageName())
+                      .append("/cache");
+              }
+
+              cachePath = sb.toString();
+          }
+
+          return new File(cachePath + File.separator + fileName);
+      }
+  ```
+
+- ```xml
+  // 仅在 api 18 及以下使用 READ_EXTERNAL_STORAGE 权限
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+          android:maxSdkVersion="18"
+          />
+  ```
+
+#### 打开相机及Android 7.0 适配
+
+- 打开相机
+
+  ```java
+  // ACTION_IMAGE_CAPTURE 这个属性默认只支持拍摄缩略图，并且图片会保存在 onActivityResult 返回的 Intent 中
+  Intent photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+  Uri uri;
+  // 适配 Android 7.0
+  if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+  	uri = Uri.fromFile(crimePhoto);
+  } else {
+  	uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
+  }
+
+  // 使用 EXTRA_OUTPUT 获取全尺寸图片，图片会保存到 uri 中
+  // 也就是这个 uri 要适配 Android 7.0
+  photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+  startActivityForResult(photoIntent, REQUEST_PHOTO);
+  ```
+
+- Android 7.0 FileProvider 适配
+
+  在 targetSdkVersion >= 24，运行在 Android 7.0 及以上设备上时，使用 uri = Uri.fromFile(crimePhoto); 会触发 **FileUriExposedException** 异常。原因是从 Android 7.0 开始，不再允许通过 **file://** URI 访问其他应用的私有目录文件或者让其他应用访问自己的私有目录文件，同时也不运行我们在应用中使用包含 **file://** URI 的 Intent 离开自己的应用。   
+
+  适配步骤： 
+
+  1、在 AndroidManifest.xml 注册 FileProvider
+
+  ```xml
+  <provider
+  	android:name="android.support.v4.content.FileProvider"
+  	android:authorities="${applicationId}.crime_images"
+  	android:exported="false"
+  	android:grantUriPermissions="true">  
+    	<meta-data
+  		android:name="android.support.FILE_PROVIDER_PATHS"
+  		android:resource="@xml/provider_takephoto" />
+  </provider>
+  ```
+
+  `android:authorities` 属性在代码中会用到。它的值是一个由 build.gradle 文件中的 **applicationId** 值和自定义的名称组成的 Uri 字符串（约定俗成）。
+
+  `android:grantUriPermissions`  是否授予 URI 临时访问权限。
+
+  2、res/xml/provider_takephoto.xml
+
+  ```xml
+  <?xml version="1.0" encoding="utf-8"?>
+  <paths>
+      <external-files-path
+          name="crime_images"     // name 别名，生成 uri 时用来指代 path 
+          path="crime_images"/>   // path 用于指定共享目录，不能是文件
+  </paths>
+  ```
+
+  paths 元素必须包含一到多个子元素, 用于指定共享目录，必须是这些元素之一：  
+  - `<files-path>`：内部存储空间应用私有目录下的 files/ 目录，等同于 `Context.getFilesDir()` 所获取的目录路径；  
+  - `<cache-path>`：内部存储空间应用私有目录下的 cache/ 目录，等同于 `Context.getCacheDir()` 所获取的目录路径；
+  - `<external-path>`：外部存储空间根目录，等同于 `Environment.getExternalStorageDirectory()` 所获取的目录路径；
+  - `<external-files-path>`：外部存储空间应用私有目录下的 files/ 目录，等同于 `Context.getExternalFilesDir(null)` 所获取的目录路径；
+  - `<external-cache-path>`：外部存储空间应用私有目录下的 cache/ 目录，等同于 Context.getExternalCacheDir()；
+
+  3、生成 uri
+
+  ```java
+  Uri getUriForFile(Context context, String authority, File file)
+  // context:可以使用 ApplicationContext
+  // authority:前面 AndroidManifest 中 provider 下声明的 authorities
+  // file:共享文件，一定要位于前面 path 指定的目录下
+   
+  // eg:
+  Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
+
+  // uri:content://com.ssyijiu.criminalintent.crime_images/crime_images/IMG_6ca2e635-b0be-425e-84cf-61b21fdc781f.jpg
+  // 是不是很熟悉，和 ContentProvider 的 uri 格式一样，其实 FileProvider 继承了 ContentProvider
+  ```
+
+- Bitmap 压缩
+
+  ```java
+  public static Bitmap getScaledBitmap(String path, int destWidth, int destHeight) {
+      // Read in the dimensions of the image on disk
+      BitmapFactory.Options options = new BitmapFactory.Options();
+      options.inJustDecodeBounds = true;
+      BitmapFactory.decodeFile(path, options);
+
+      float srcWidth = options.outWidth;
+      float srcHeight = options.outHeight;
+
+      // Figure out how much to scale down by
+      int inSampleSize = 1;
+      if (srcHeight > destHeight || srcWidth > destWidth) {
+          if (srcWidth > srcHeight) {
+            	inSampleSize = Math.round(srcHeight / destHeight);
+          } else {
+            	inSampleSize = Math.round(srcWidth / destWidth);
+          }
+      }
+
+      options = new BitmapFactory.Options();
+      options.inSampleSize = inSampleSize;
+
+      // Read in and create final bitmap
+      return BitmapFactory.decodeFile(path, options);
+  }
+  ```
+
+  ​
 

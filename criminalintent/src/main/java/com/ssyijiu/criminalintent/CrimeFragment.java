@@ -1,16 +1,20 @@
 package com.ssyijiu.criminalintent;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -25,10 +29,14 @@ import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.common.util.BitmapUtil;
 import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.IOUtil;
 import com.ssyijiu.common.util.IntentUtil;
 import com.ssyijiu.common.util.PhoneUtil;
+import com.ssyijiu.common.util.SDCardUtil;
+import com.ssyijiu.common.util.ToastUtil;
+import com.ssyijiu.criminalintent.app.App;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
@@ -36,15 +44,12 @@ import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
-import static android.R.attr.type;
-import static android.content.Context.MODE_PRIVATE;
-import static android.os.Environment.DIRECTORY_MUSIC;
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
 @RuntimePermissions
 public class CrimeFragment extends BaseFragment {
@@ -54,6 +59,7 @@ public class CrimeFragment extends BaseFragment {
 
     private static final int REQUEST_CRIME_DATE = 2001;
     private static final int REQUEST_CONTACT = 2002;
+    private static final int REQUEST_PHOTO = 2003;
 
     @BindView(R2.id.et_crime_title) EditText etCrimeTitle;
     @BindView(R2.id.btn_crime_date) Button btnCrimeDate;
@@ -64,6 +70,8 @@ public class CrimeFragment extends BaseFragment {
     @BindView(R2.id.iv_crime_photo) ImageView ivCrimePhoto;
 
     private Crime crime;
+    private File crimePhoto;
+    private Intent photoIntent;
 
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +83,7 @@ public class CrimeFragment extends BaseFragment {
     @Override protected void parseArguments(Bundle arguments) {
         String crimeId = arguments.getString(ARG_CRIME_ID);
         crime = CrimeDao.instance().getCrime(crimeId);
+        crimePhoto = CrimeDao.instance().getPhotoFile(crime);
     }
 
 
@@ -93,13 +102,15 @@ public class CrimeFragment extends BaseFragment {
             btnChooseSuspect.setText(crime.suspect);
         }
 
-        if(crime.hasSuspectPhoneNum()) {
+        if (crime.hasSuspectPhoneNum()) {
             btnCallSuspect.setText(crime.suspectPhoneNum);
         } else {
             btnCallSuspect.setEnabled(false);
         }
 
         updateDate();
+        updatePhotoView();
+        initPhotoIntent();
 
         // update view
         etCrimeTitle.addTextChangedListener(new AfterTextWatcher() {
@@ -123,6 +134,26 @@ public class CrimeFragment extends BaseFragment {
             }
         });
 
+        MLog.i(SDCardUtil.getDiskCache("xxx").getAbsolutePath());
+    }
+
+
+    private void initPhotoIntent() {
+        photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        boolean canTakePhoto = crimePhoto != null &&
+            IntentUtil.checkIntentAvailable(photoIntent);
+        ivCrimePhoto.setEnabled(canTakePhoto);
+        if (canTakePhoto) {
+            Uri uri;
+            // 适配 Android 7.0
+            if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+                uri = Uri.fromFile(crimePhoto);
+            } else {
+                uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
+            }
+            photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+        }
     }
 
 
@@ -163,6 +194,8 @@ public class CrimeFragment extends BaseFragment {
                 btnCallSuspect.setEnabled(true);
             }
 
+        } else if(requestCode == REQUEST_PHOTO) {
+            updatePhotoView();
         }
     }
 
@@ -189,6 +222,14 @@ public class CrimeFragment extends BaseFragment {
         btnCrimeDate.setText(crime.getDate());
     }
 
+
+    private void updatePhotoView() {
+        if (crimePhoto != null && crimePhoto.exists()) {
+            Bitmap bitmap = BitmapUtil.getScaledBitmap(
+                crimePhoto.getPath(), getActivity());
+            ivCrimePhoto.setImageBitmap(bitmap);
+        }
+    }
 
     private String getCrimeReport() {
         String solvedString;
@@ -223,27 +264,12 @@ public class CrimeFragment extends BaseFragment {
         return fragment;
     }
 
+
     @NeedsPermission(Manifest.permission.READ_CONTACTS)
     public void chooseSuspect() {
         final Intent pickContact = new Intent(Intent.ACTION_PICK,
             ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(pickContact, REQUEST_CONTACT);
-    }
-
-
-    private void report() {
-        IntentUtil.shareText(context, getCrimeReport(), getString(R.string.crime_report_subject),
-            getString(R.string.send_report));
-    }
-
-
-    private void showDateDialog() {
-        FragmentManager manager = getFragmentManager();
-        DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
-        // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
-        dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
-        dialog.show(manager, dialog.getClass().getSimpleName());
-
     }
 
 
@@ -354,7 +380,9 @@ public class CrimeFragment extends BaseFragment {
     }
 
 
-    @OnClick({ R.id.btn_crime_date, R.id.btn_choose_suspect, R.id.btn_crime_report, R.id.btn_call_suspect })
+    @OnClick({ R.id.btn_crime_date, R.id.btn_choose_suspect, R.id.btn_crime_report,
+                 R.id.btn_call_suspect,
+                 R.id.iv_crime_photo })
     public void onViewClicked(View view) {
         switch (view.getId()) {
 
@@ -369,13 +397,37 @@ public class CrimeFragment extends BaseFragment {
                 break;
             case R.id.btn_crime_report:
                 report();
+            case R.id.iv_crime_photo:
+                takePhoto();
                 break;
             default:
         }
     }
 
 
-    private void callSuspect() {
-        PhoneUtil.toDial(context,btnCallSuspect.getText().toString().trim());
+    private void showDateDialog() {
+        FragmentManager manager = getFragmentManager();
+        DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
+        // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
+        dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
+        dialog.show(manager, dialog.getClass().getSimpleName());
+
     }
+
+
+    private void callSuspect() {
+        PhoneUtil.toDial(context, btnCallSuspect.getText().toString().trim());
+    }
+
+
+    private void report() {
+        IntentUtil.shareText(context, getCrimeReport(), getString(R.string.crime_report_subject),
+            getString(R.string.send_report));
+    }
+
+
+    private void takePhoto() {
+        startActivityForResult(photoIntent, REQUEST_PHOTO);
+    }
+
 }
