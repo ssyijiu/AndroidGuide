@@ -1,10 +1,12 @@
 package com.ssyijiu.criminalintent.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
 import butterknife.ButterKnife;
 import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.criminalintent.util.RealmUtil;
@@ -19,7 +21,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     String className;
 
-    protected Context context;
+    protected Activity context;
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

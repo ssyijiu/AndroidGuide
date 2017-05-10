@@ -3,6 +3,7 @@ package com.ssyijiu.criminalintent.db;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.common.util.FileUtil;
 import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.App;
 import com.ssyijiu.criminalintent.bean.Crime;
@@ -89,6 +90,7 @@ public class CrimeDao {
      * 删除 crime
      */
     public void deleteCrime(final String id) {
+        FileUtil.deleteFile(getPhotoFile(id));
         realm.executeTransaction(new Realm.Transaction() {
             @Override public void execute(Realm realm) {
                 MLog.i(Thread.currentThread().getName());
@@ -97,6 +99,9 @@ public class CrimeDao {
                 crimes.deleteFromRealm(indexOf);
             }
         });
+
+
+
     }
 
 
@@ -106,6 +111,7 @@ public class CrimeDao {
                 RealmResults<Crime> allCrimes = queryAllCrimes();
                 for (Crime crime : allCrimes.createSnapshot()) {
                     if (crime.couldDelete()) {
+                        FileUtil.deleteFile(getPhotoFile(crime));
                         getCrime(crime.id).deleteFromRealm();
                     }
                 }
@@ -142,12 +148,18 @@ public class CrimeDao {
     }
 
 
+    public File getPhotoFile(String id) {
+        Crime crime = getCrime(id);
+        return getPhotoFile(crime);
+    }
+
+
     public File getPhotoFile(Crime crime) {
         File externalFilesDir = new File(App.getContext()
             .getExternalFilesDir(null), "crime_images");
 
-        if(!externalFilesDir.exists()) {
-            if(!externalFilesDir.mkdirs()) {
+        if (!externalFilesDir.exists()) {
+            if (!externalFilesDir.mkdirs()) {
                 ToastUtil.show("照片保存失败");
             }
         }

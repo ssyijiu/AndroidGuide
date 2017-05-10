@@ -1,5 +1,4 @@
-package com.ssyijiu.common.util;// package com.ssyijiu.common.util;
-//
+// package com.ssyijiu.common.util;
 // import java.lang.reflect.Type;
 //
 // import android.util.Log;

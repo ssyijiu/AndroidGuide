@@ -1,19 +1,16 @@
-package com.ssyijiu.criminalintent;
+package com.ssyijiu.criminalintent.dialog;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
+import com.ssyijiu.criminalintent.R;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -24,20 +21,13 @@ import java.util.GregorianCalendar;
  * E-mail: lxmyijiu@163.com
  */
 
-public class DatePickerFragment extends DialogFragment implements View.OnClickListener {
+public class DatePickerDialog extends BaseDialog implements View.OnClickListener {
 
     private static final String ARGS_CRIME_DATE = "args_crime_date";
     private static final String EXTRA_CRIME_DATE = "extra_crime_date";
 
     public static final int REQUEST_CRIME_DATE = 10;
-    private Activity context;
     private DatePicker datePicker;
-
-
-    @Override public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        context = activity;
-    }
 
 
     @Nullable @Override
@@ -102,10 +92,10 @@ public class DatePickerFragment extends DialogFragment implements View.OnClickLi
     // }
 
 
-    public static DatePickerFragment newInstance(Date date) {
+    public static DatePickerDialog newInstance(Date date) {
         Bundle args = new Bundle();
         args.putSerializable(ARGS_CRIME_DATE, date);
-        DatePickerFragment fragment = new DatePickerFragment();
+        DatePickerDialog fragment = new DatePickerDialog();
         fragment.setArguments(args);
         return fragment;
     }

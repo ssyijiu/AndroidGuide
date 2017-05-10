@@ -410,6 +410,23 @@
             />
     ```
 
-  - ​
 
 
+
+
+- 使用视图树在 Activity 的 onCreate 方法中获取 View 的宽高
+
+  ```java
+  final ViewTreeObserver observer = view.getViewTreeObserver();
+  observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+      @Override public void onGlobalLayout() {
+          int width = view.getWidth();
+          int height = view.getHeight();
+          if (observer.isAlive()) {
+            	observer.removeOnGlobalLayoutListener(this);
+          }
+      }
+  });
+  ```
+
+  ​

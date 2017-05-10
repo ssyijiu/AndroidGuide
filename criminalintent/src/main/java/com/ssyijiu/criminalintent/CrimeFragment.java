@@ -12,6 +12,7 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.FileProvider;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -29,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnClick;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.BitmapUtil;
 import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.IOUtil;
@@ -37,8 +40,11 @@ import com.ssyijiu.common.util.PhoneUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
+import com.ssyijiu.criminalintent.dialog.DatePickerDialog;
+import com.ssyijiu.criminalintent.dialog.PhotoViewDialog;
 import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import com.ssyijiu.criminalintent.util.RealmUtil;
+import com.ssyijiu.criminalintent.util.image.Vinci;
 import io.realm.Realm;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -129,6 +135,18 @@ public class CrimeFragment extends BaseFragment {
                 });
             }
         });
+
+        final ViewTreeObserver observer = imgCrimePhoto.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override public void onGlobalLayout() {
+                MLog.i(imgCrimePhoto.getWidth());
+                MLog.i(imgCrimePhoto.getHeight());
+                if (observer.isAlive()) {
+                    // observer.removeOnGlobalLayoutListener(this);
+                }
+
+            }
+        });
     }
 
 
@@ -159,10 +177,10 @@ public class CrimeFragment extends BaseFragment {
 
         // 选择日期
         if (requestCode == REQUEST_CRIME_DATE
-            && resultCode == DatePickerFragment.REQUEST_CRIME_DATE) {
+            && resultCode == DatePickerDialog.REQUEST_CRIME_DATE) {
             RealmUtil.transaction(new Realm.Transaction() {
                 @Override public void execute(Realm realm) {
-                    crime.date = DatePickerFragment.resultDate(data);
+                    crime.date = DatePickerDialog.resultDate(data);
                 }
             });
             updateDate();
@@ -224,11 +242,9 @@ public class CrimeFragment extends BaseFragment {
 
     private void updatePhotoView() {
         if (crimePhoto != null && crimePhoto.exists()) {
-            Bitmap bitmap = BitmapUtil.getScaledBitmap(
-                crimePhoto.getPath(), getActivity());
-            imgCrimePhoto.setImageBitmap(bitmap);
+            Vinci.instance().loadImage(this, crimePhoto.getAbsolutePath(), imgCrimePhoto);
         } else {
-            imgCrimePhoto.setImageBitmap(null);
+            imgCrimePhoto.setImageResource(0);
         }
     }
 
@@ -411,13 +427,26 @@ public class CrimeFragment extends BaseFragment {
     }
 
 
-    private void showPhoto() {}
+    private void showPhoto() {
+
+        ActivityOptionsCompat optionsCompat;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(context,
+                imgCrimePhoto, "CrimeImage");
+        } else {
+            optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(imgCrimePhoto, 0, 0,
+                imgCrimePhoto.getWidth(), imgCrimePhoto.getHeight());
+        }
+
+        PhotoViewActivity.start(context, crimePhoto.getPath(), optionsCompat);
+
+    }
 
 
     private void showDateDialog() {
         FragmentManager manager = getFragmentManager();
-        DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
-        // TimePickerFragment dialog = TimePickerFragment.newInstance(crime.date);
+        DatePickerDialog dialog = DatePickerDialog.newInstance(crime.date);
+        // TimePickerDialog dialog = TimePickerDialog.newInstance(crime.date);
         dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
         dialog.show(manager, dialog.getClass().getSimpleName());
 

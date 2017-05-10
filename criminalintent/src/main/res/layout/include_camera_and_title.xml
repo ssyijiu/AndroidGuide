@@ -17,7 +17,7 @@
             android:id="@+id/img_crime_photo"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:scaleType="centerInside"
+            android:scaleType="centerCrop"
             android:background="@android:color/darker_gray"
             android:cropToPadding="true"
             />
