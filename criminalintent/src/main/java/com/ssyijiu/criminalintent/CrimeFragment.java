@@ -142,7 +142,7 @@ public class CrimeFragment extends BaseFragment {
                 MLog.i(imgCrimePhoto.getWidth());
                 MLog.i(imgCrimePhoto.getHeight());
                 if (observer.isAlive()) {
-                    // observer.removeOnGlobalLayoutListener(this);
+                    observer.removeOnGlobalLayoutListener(this);
                 }
 
             }

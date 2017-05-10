@@ -1,5 +1,6 @@
 # Android 编程权威指南阅读笔记
 
+
 ## 第15章：隐式 Intent 
 
 - 使用隐式 intent，只需要告诉操作系统我们想要做什么，操作系统就会去启动能够胜任工作任务的activity。如果找到多个符合的activity，用提供一个可选的应用列供用户选择。
@@ -24,7 +25,7 @@
 
   效果如图：
 
-  ![](http://obe5pxv6t.bkt.clouddn.com/send_intent.jpg)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-e69274054b5b8be4.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
 
@@ -127,7 +128,7 @@
       }
   ```
 
-- 联系人应用返回包含在 intent 中的 URI 数据给父activity时，会添加一个Intent.FLAG_GRANT_READ_URI_PERMISSION 标志，该标志告诉 Android 我们的父 Activity 可以使用联系人数据库一次。
+- 联系人应用返回包含在 intent 中的 URI 数据给父 activity 时，会添加一个Intent.FLAG_GRANT_READ_URI_PERMISSION 标志，该标志告诉 Android 我们的父 Activity 可以使用联系人数据库一次。
 
 - 检查意图是否可用：
 
@@ -136,9 +137,9 @@
     * 检查意图是否可用
     */
   public static boolean checkIntentAvailable(Intent intent) {
-    	PackageManager packageManager = Common.getContext().getPackageManager();
-    	// 只匹配清单文件中带 CATEGORY_DEFAULT 标志的 activity
-    	return packageManager.resolveActivity(intent,
+      PackageManager packageManager = Common.getContext().getPackageManager();
+      // 只匹配清单文件中带 CATEGORY_DEFAULT 标志的 activity
+      return packageManager.resolveActivity(intent,
                    PackageManager.MATCH_DEFAULT_ONLY) != null;
   }
   ```
@@ -164,7 +165,7 @@
 
   - 特点：默认是只能被你的 app 访问、用户卸载 app 是数据会被清除、确保不被其他 app 访问的最佳存储区域。
 
-  - ```java
+    ```java
     context.getFilesDir();   // /data/data/pacgage_name/files
     context.getCacheDir();   // /data/data/package_name/cache
 
@@ -185,21 +186,19 @@
 
   - 私有存储
 
-    - 特点：相对私有、App 卸载时文件会被清除
+  -  特点：相对私有、App 卸载时文件会被清除
 
-    ```java
-    // /sdcard/Android/date/package_name/cache
-    // 非常适合存放缓存数据
-    context.getExternalCacheDir()
-      
-    // /sdcard/Android/date/package_name/files/
-    context.getExternalFilesDir(String type)  
-    // type 用来指定数据类型，例如 Environment.DIRECTORY_MUSIC
-    // -> /sdcard/Android/date/package_name/files/Music
-    // type 为 null 时, 目录为: /sdcard/Android/date/package_name/files
-    ```
+      ```java
+      // /sdcard/Android/date/package_name/cache
+      // 非常适合存放缓存数据
+      context.getExternalCacheDir()
 
-    ​
+      // /sdcard/Android/date/package_name/files/
+      context.getExternalFilesDir(String type)  
+      // type 用来指定数据类型，例如 Environment.DIRECTORY_MUSIC
+      // -> /sdcard/Android/date/package_name/files/Music
+      // type 为 null 时, 目录为: /sdcard/Android/date/package_name/files
+      ```
 
   - 公共存储
 
@@ -236,7 +235,7 @@
        *
        * @param name 缓存的文件或者目录名称
        * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName
-       * 		   sd卡不可用路径为 /data/data/package_name/cache/fileName
+       *       sd卡不可用路径为 /data/data/package_name/cache/fileName
        */
       public static File getDiskCache(String name) {
           String cachePath;
@@ -271,12 +270,12 @@
       }
   ```
 
-- ```xml
-  // 仅在 api 18 及以下使用 READ_EXTERNAL_STORAGE 权限
+- 仅在 api 18 及以下使用 READ_EXTERNAL_STORAGE 权限
+```xml
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
           android:maxSdkVersion="18"
           />
-  ```
+```
 
 #### 使用相机及 Android 7.0 适配
 
@@ -290,9 +289,9 @@
   Uri uri;
   // 适配 Android 7.0
   if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-  	uri = Uri.fromFile(crimePhotoFile);
+    uri = Uri.fromFile(crimePhotoFile);
   } else {
-  	uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhotoFile);
+    uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhotoFile);
   }
 
   // 使用 EXTRA_OUTPUT 才能获取全尺寸图片，图片会保存到文件系统中，并对应一个 uri
@@ -302,9 +301,9 @@
 
   // 2. onActivityResult
   @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
-    	if(requestCode == REQUEST_PHOTO
-        		&& resultCode == Activity.RESULT_OK) {
-      	// 操作图片文件 crimePhotoFile
+      if(requestCode == REQUEST_PHOTO
+            && resultCode == Activity.RESULT_OK) {
+        // 操作图片文件 crimePhotoFile
       }
   }
   ```
@@ -319,19 +318,19 @@
 
   ```xml
   <provider
-  	android:name="android.support.v4.content.FileProvider"
-  	android:authorities="${applicationId}.crime_images"
-  	android:exported="false"
-  	android:grantUriPermissions="true">  
-    	<meta-data
-  		android:name="android.support.FILE_PROVIDER_PATHS"
-  		android:resource="@xml/provider_takephoto" />
+    android:name="android.support.v4.content.FileProvider"
+    android:authorities="${applicationId}.crime_images"
+    android:exported="false"
+    android:grantUriPermissions="true">  
+      <meta-data
+      android:name="android.support.FILE_PROVIDER_PATHS"
+      android:resource="@xml/provider_takephoto" />
   </provider>
   ```
 
-  `android:authorities` 属性在代码中会用到。它的值是一个由 build.gradle 文件中的 **applicationId** 值和自定义的名称组成的 Uri 字符串（约定俗成）。
+  android:authorities 属性在代码中会用到。它的值是一个由 build.gradle 文件中的 **applicationId** 值和自定义的名称组成的 Uri 字符串（约定俗成）。
 
-  `android:grantUriPermissions`  是否授予 URI 临时访问权限。
+  android:grantUriPermissions  是否授予 URI 临时访问权限。
 
   2、res/xml/provider_takephoto.xml
 
@@ -345,28 +344,27 @@
   ```
 
   paths 元素必须包含一到多个子元素, 用于指定共享目录，必须是这些元素之一：  
-  - `<files-path>`：内部存储空间应用私有目录下的 files/ 目录，等同于 `Context.getFilesDir()` 所获取的目录路径；  
-  - `<cache-path>`：内部存储空间应用私有目录下的 cache/ 目录，等同于 `Context.getCacheDir()` 所获取的目录路径；
-  - `<external-path>`：外部存储空间根目录，等同于 `Environment.getExternalStorageDirectory()` 所获取的目录路径；
-  - `<external-files-path>`：外部存储空间应用私有目录下的 files/ 目录，等同于 `Context.getExternalFilesDir(null)` 所获取的目录路径；
-  - `<external-cache-path>`：外部存储空间应用私有目录下的 cache/ 目录，等同于 Context.getExternalCacheDir()；
+  - <files-path>：内部存储空间应用私有目录下的 files/ 目录，等同于 Context.getFilesDir() 所获取的目录路径；  
+  - <cache-path>：内部存储空间应用私有目录下的 cache/ 目录，等同于 Context.getCacheDir() 所获取的目录路径；
+  - <external-path>：外部存储空间根目录，等同于 Environment.getExternalStorageDirectory() 所获取的目录路径；
+  - <external-files-path>：外部存储空间应用私有目录下的 files/ 目录，等同于 Context.getExternalFilesDir(null) 所获取的目录路径；
+  - <external-cache-path>：外部存储空间应用私有目录下的 cache/ 目录，等同于 Context.getExternalCacheDir()；
 
   3、生成 uri
 
-  ```java
+  ```java 
   Uri getUriForFile(Context context, String authority, File file)
   // context:可以使用 ApplicationContext
   // authority:前面 AndroidManifest 中 provider 下声明的 authorities
   // file:共享文件，一定要位于前面 path 指定的目录下
-   
-    
+
   // 举一个栗子
   Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
-
   // uri:content://com.ssyijiu.criminalintent.crime_images/crime_images/IMG_6ca2e635-b0be-425e-84cf-61b21fdc781f.jpg
   // 是不是很熟悉，和 ContentProvider 的 uri 格式一样
   // 其实 FileProvider 就是继承了 ContentProvider
   ```
+
 
 - Bitmap 压缩
 
@@ -384,9 +382,9 @@
       int inSampleSize = 1;
       if (srcHeight > destHeight || srcWidth > destWidth) {
           if (srcWidth > srcHeight) {
-            	inSampleSize = Math.round(srcHeight / destHeight);
+              inSampleSize = Math.round(srcHeight / destHeight);
           } else {
-            	inSampleSize = Math.round(srcWidth / destWidth);
+              inSampleSize = Math.round(srcWidth / destWidth);
           }
       }
 
@@ -398,9 +396,10 @@
   }
   ```
 
-  - imageView.setImageBitmap(null);  将 ImageView 设置的图片去掉
+- imageView.setImageBitmap(null);  将 ImageView 设置的图片去掉
 
-  - ```Xml
+- uses-feature 标签，位于 manifest 节点下
+```xml
     // 告诉 Android 系统该应用需要使用相机
     // 如果设备缺少相机，类似 Google Play 商店的安装长袖会拒绝安装应用。
     <uses-feature android:name="android.hardware.camera"
@@ -408,7 +407,7 @@
             // 感觉和 uses-feature 冲突呢 。。
             android:required="false" 
             />
-    ```
+```
 
 
 
@@ -423,7 +422,7 @@
           int width = view.getWidth();
           int height = view.getHeight();
           if (observer.isAlive()) {
-            	observer.removeOnGlobalLayoutListener(this);
+              observer.removeOnGlobalLayoutListener(this);
           }
       }
   });
