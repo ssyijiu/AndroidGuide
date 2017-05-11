@@ -28,7 +28,7 @@ public class PhotoViewActivity extends BaseActivity {
     private String path;
 
 
-    @Override protected int getContentView() {
+    @Override protected int getLayoutResId() {
         hideStatusBar();
         return R.layout.activity_photo_view;
     }

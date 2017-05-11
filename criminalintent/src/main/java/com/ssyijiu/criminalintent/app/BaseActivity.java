@@ -1,15 +1,13 @@
 package com.ssyijiu.criminalintent.app;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
 import butterknife.ButterKnife;
 import com.ssyijiu.common.log.MLog;
-import com.ssyijiu.criminalintent.util.RealmUtil;
 
 /**
  * Created by ssyijiu on 2017/4/5.
@@ -25,7 +23,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getContentView());
+        setContentView(getLayoutResId());
 
         context = this;
         className = getClass().getSimpleName();
@@ -45,7 +43,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void parseIntent(Intent intent) {}
 
 
-    protected abstract int getContentView();
+    @LayoutRes
+    protected abstract int getLayoutResId();
 
     protected void initFragment(){}
 

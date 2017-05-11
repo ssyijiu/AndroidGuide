@@ -28,9 +28,7 @@ class GlideLoader implements ImageLoader {
         Glide.with(context)
             .load(url)
             .error(R.color.colorPrimary)
-            .dontAnimate()
-            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
             .into(imageView);
     }
 
@@ -39,9 +37,7 @@ class GlideLoader implements ImageLoader {
         Glide.with(fragment)
             .load(url)
             .error(R.color.colorPrimary)
-            .dontAnimate()
-            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
             .into(imageView);
     }
 }

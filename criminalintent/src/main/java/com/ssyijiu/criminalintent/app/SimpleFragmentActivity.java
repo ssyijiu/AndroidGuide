@@ -14,7 +14,7 @@ public abstract class SimpleFragmentActivity extends BaseActivity {
 
     protected abstract Fragment createFragment();
 
-    @Override protected int getContentView() {
+    @Override protected int getLayoutResId() {
         return R.layout.activity_fragment;
     }
 

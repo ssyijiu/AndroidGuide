@@ -30,23 +30,20 @@ public class CrimePagerActivity extends BaseActivity {
 
     private static final String EXTRA_CRIME_ID = "extra_crime_id";
     private static final String EXTRA_CRIME_POSITION = "extra_crime_position";
-    private String crimeId;
     private int currentPosition;
 
 
     @Override protected void parseIntent(Intent intent) {
-        crimeId = intent.getStringExtra(EXTRA_CRIME_ID);
         currentPosition = intent.getIntExtra(EXTRA_CRIME_POSITION, 0);
     }
 
 
-    @Override protected int getContentView() {
+    @Override protected int getLayoutResId() {
         return R.layout.activity_crime_pager;
     }
 
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-
 
         // 同步查询
         mDatas = CrimeDao.instance().queryAllCrimes();
@@ -59,6 +56,7 @@ public class CrimePagerActivity extends BaseActivity {
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
+        viewPagerRoot.setCurrentItem(currentPosition);
         viewPagerRoot.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override public Fragment getItem(int position) {
 
@@ -78,11 +76,11 @@ public class CrimePagerActivity extends BaseActivity {
             public void finishUpdate(ViewGroup container) {
                 try{
                     super.finishUpdate(container);
-                } catch (NullPointerException ignored){
+                } catch (Exception ignored){
                 }
             }
         });
-        viewPagerRoot.setCurrentItem(currentPosition);
+
     }
 
 
@@ -93,26 +91,4 @@ public class CrimePagerActivity extends BaseActivity {
         return intent;
     }
 
-
-    class ViewPagerAdapter extends PagerAdapter {
-
-        @Override public int getCount() {
-            return 0;
-        }
-
-
-        @Override public boolean isViewFromObject(View view, Object object) {
-            return view == object;
-        }
-
-
-        @Override public Object instantiateItem(ViewGroup container, int position) {
-            return super.instantiateItem(container, position);
-        }
-
-
-        @Override public void destroyItem(ViewGroup container, int position, Object object) {
-            super.destroyItem(container, position, object);
-        }
-    }
 }

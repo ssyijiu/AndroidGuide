@@ -1,5 +1,6 @@
 package com.ssyijiu.criminalintent;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
-import butterknife.BindView;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
@@ -40,9 +40,23 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     private CrimeAdapter adapter;
     private boolean subtitleVisible;
-    private List<Crime> mDatas = new ArrayList<>();
 
-    private Handler handler = new Handler();
+    public Callback callback;
+
+
+    /**
+     * Required interface for hosting activities.
+     */
+    public interface Callback {
+        void onCrimeSelected(Crime crime, int position);
+        void onCrimeSolved(Crime crime, boolean isChecked);
+    }
+
+
+    @Override public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        callback = (Callback) activity;
+    }
 
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,64 +87,14 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         });
     }
 
+
     @Override public void onResume() {
         super.onResume();
-        updateData();
+        updateUI();
     }
 
 
-    private void updateData() {
-
-        // 1. 删除空数据
-        CrimeDao.instance().gc();
-
-        // 2. 异步查询
-        CrimeDao.instance().queryAllCrimesAsync().addChangeListener(
-            new RealmChangeListener<RealmResults<Crime>>() {
-                @Override public void onChange(RealmResults<Crime> element) {
-                    mDatas.clear();
-                    mDatas.addAll(element);
-                    updateUIAsync();
-                }
-            });
-    }
-
-
-    private void updateUIAsync() {
-
-        // 是否显示 Empty 视图
-        if (mDatas.isEmpty()) {
-            stubEmpty.setVisibility(View.VISIBLE);
-        } else {
-            stubEmpty.setVisibility(View.GONE);
-        }
-
-        if (adapter == null) {
-            adapter = new CrimeAdapter(mDatas, this);
-            recyclerCrime.setAdapter(adapter);
-        } else {
-
-            // fix bug : Cannot call this method while RecyclerView is computing a layout or scrolling
-            // 在 OnBindViewHolder 中调用 notifyDataSetChanged 触发
-            if(recyclerCrime.isComputingLayout()) {
-               handler.post(new Runnable() {
-                   @Override public void run() {
-                       adapter.notifyDataSetChanged();
-                   }
-               });
-            } else {
-                adapter.notifyDataSetChanged();
-            }
-
-
-        }
-
-        updateSubtitleAsync();
-
-    }
-
-
-    private void updateUI() {
+    public void updateUI() {
 
         CrimeDao.instance().gc();
 
@@ -180,7 +144,6 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             case R.id.menu_item_show_subtitle:
                 subtitleVisible = !subtitleVisible;
                 context.invalidateOptionsMenu();
-                // updateSubtitleAsync();
                 updateSubtitle();
                 return true;
             default:
@@ -199,31 +162,11 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     }
 
 
-    /** 异步更新子标题 */
-    private void updateSubtitleAsync() {
-
-        int crimeSize = mDatas.size();
-
-        String subtitle = getResources()
-            .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
-
-        AppCompatActivity activity = (AppCompatActivity) context;
-        ActionBar actionBar = activity.getSupportActionBar();
-
-        if (!subtitleVisible) {
-            subtitle = null;
-        }
-
-        if (actionBar != null) {
-            actionBar.setSubtitle(subtitle);
-        }
-    }
-
     /** 更新子标题 */
     private void updateSubtitle() {
 
-        // int crimeSize = CrimeDao.instance().queryAllCrimes().size();
-        int crimeSize = mDatas.size();
+        int crimeSize = CrimeDao.instance().queryAllCrimes().size();
+        // int crimeSize = mDatas.size();
 
         String subtitle = getResources()
             .getQuantityString(R.plurals.subtitle_plural, crimeSize, crimeSize);
@@ -250,18 +193,20 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         }
     }
 
+
     private void newCrime() {
         final Crime crime = new Crime();
-        CrimeDao.instance().insertOrUpdateCrimeAsync(crime, new Realm.Transaction.OnSuccess() {
-            @Override public void onSuccess() {
-                // 刚刚插入了一条数据，-1
-                // int position = CrimeDao.instance().size() - 1;
-                int position = mDatas.size() - 1;
-                Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
-                startActivity(intent);
-            }
-        });
-
+        CrimeDao.instance().insertOrUpdateCrime(crime);
+        updateUI();
+        int position = CrimeDao.instance().size() - 1;
+        callback.onCrimeSelected(crime, position);
     }
 
+
+    @Override public void onDetach() {
+        super.onDetach();
+        if (callback != null) {
+            callback = null;
+        }
+    }
 }

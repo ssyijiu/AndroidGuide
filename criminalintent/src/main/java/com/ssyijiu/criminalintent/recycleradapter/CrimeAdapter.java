@@ -12,6 +12,8 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.ssyijiu.criminalintent.CrimeFragment;
+import com.ssyijiu.criminalintent.CrimeListFragment;
 import com.ssyijiu.criminalintent.CrimePagerActivity;
 import com.ssyijiu.criminalintent.R;
 import com.ssyijiu.criminalintent.bean.Crime;
@@ -27,11 +29,11 @@ import java.util.List;
 
 public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHolder> {
     private List<Crime> crimeList;
-    private Fragment fragment;
+    private CrimeListFragment fragment;
     private Context context;
 
 
-    public CrimeAdapter(List<Crime> crimeList, Fragment fragment) {
+    public CrimeAdapter(List<Crime> crimeList, CrimeListFragment fragment) {
         this.crimeList = crimeList;
         this.fragment = fragment;
         context = fragment.getContext();
@@ -56,6 +58,7 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
     @Override public int getItemCount() {
         return crimeList.size();
     }
+
 
     class CrimeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
@@ -85,8 +88,7 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
 
 
         @Override public void onClick(View v) {
-            Intent intent = CrimePagerActivity.newIntent(context, crime.id, position);
-            fragment.startActivity(intent);
+            fragment.callback.onCrimeSelected(crime, position);
         }
 
 
@@ -96,6 +98,7 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
                     crime.solved = isChecked;
                 }
             });
+            fragment.callback.onCrimeSolved(crime, isChecked);
         }
     }
 }

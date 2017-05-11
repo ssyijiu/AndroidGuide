@@ -14,3 +14,5 @@
 
 - OptionsMenu 和 Toolbar 的关系区别
 
+- android:showDividers="end" 无效 
+

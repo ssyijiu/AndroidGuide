@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -31,9 +29,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnClick;
-import com.ssyijiu.common.log.MLog;
-import com.ssyijiu.common.util.BitmapUtil;
 import com.ssyijiu.common.util.DateUtil;
+import com.ssyijiu.common.util.FileUtil;
 import com.ssyijiu.common.util.IOUtil;
 import com.ssyijiu.common.util.IntentUtil;
 import com.ssyijiu.common.util.PhoneUtil;
@@ -41,7 +38,6 @@ import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
 import com.ssyijiu.criminalintent.dialog.DatePickerDialog;
-import com.ssyijiu.criminalintent.dialog.PhotoViewDialog;
 import com.ssyijiu.criminalintent.util.AfterTextWatcher;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import com.ssyijiu.criminalintent.util.image.Vinci;
@@ -72,8 +68,21 @@ public class CrimeFragment extends BaseFragment {
     @BindView(R2.id.ib_crime_photo) ImageButton ibCrimePhoto;
 
     private Crime crime;
-    private File crimePhoto;
     private Intent photoIntent;
+    private boolean canTakePhoto;
+    private File tempPhotoFile;
+
+    public Callback callback;
+
+    public interface Callback {
+        void onCrimeUpdated(Crime crime);
+    }
+
+
+    @Override public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        callback = (Callback) activity;
+    }
 
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +94,6 @@ public class CrimeFragment extends BaseFragment {
     @Override protected void parseArguments(Bundle arguments) {
         String crimeId = arguments.getString(ARG_CRIME_ID);
         crime = CrimeDao.instance().getCrime(crimeId);
-        crimePhoto = CrimeDao.instance().getPhotoFile(crime);
     }
 
 
@@ -112,7 +120,11 @@ public class CrimeFragment extends BaseFragment {
 
         updateDate();
         updatePhotoView();
-        initPhotoIntent();
+
+        photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // 设备没有相机时拍照按钮不可用
+        canTakePhoto = IntentUtil.checkIntentAvailable(photoIntent);
+        imgCrimePhoto.setEnabled(canTakePhoto);
 
         // update view
         etCrimeTitle.addTextChangedListener(new AfterTextWatcher() {
@@ -122,54 +134,29 @@ public class CrimeFragment extends BaseFragment {
                         crime.title = s.toString();
                     }
                 });
+                callback.onCrimeUpdated(crime);
             }
         });
 
         cbCrimeSolved.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
-                RealmUtil.transaction(new Realm.Transaction() {
-                    @Override public void execute(Realm realm) {
-                        crime.solved = isChecked;
-                    }
-                });
+                updateCrimeSolved(isChecked);
+                callback.onCrimeUpdated(crime);
             }
         });
 
-        final ViewTreeObserver observer = imgCrimePhoto.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override public void onGlobalLayout() {
-                MLog.i(imgCrimePhoto.getWidth());
-                MLog.i(imgCrimePhoto.getHeight());
-                if (observer.isAlive()) {
-                    observer.removeOnGlobalLayoutListener(this);
-                }
-
-            }
-        });
-    }
-
-
-    private void initPhotoIntent() {
-        photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        // 设备没有相机时拍照按钮不可用
-        boolean canTakePhoto = crimePhoto != null &&
-            IntentUtil.checkIntentAvailable(photoIntent);
-        imgCrimePhoto.setEnabled(canTakePhoto);
-
-        if (canTakePhoto) {
-            Uri uri;
-            // 适配 Android 7.0
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                uri = Uri.fromFile(crimePhoto);
-            } else {
-                uri = FileProvider.getUriForFile(context,
-                    BuildConfig.APPLICATION_ID + ".crime_images", crimePhoto);
-            }
-            photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
-        }
+        // final ViewTreeObserver observer = imgCrimePhoto.getViewTreeObserver();
+        // observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        //     @Override public void onGlobalLayout() {
+        //         MLog.i(imgCrimePhoto.getWidth());
+        //         MLog.i(imgCrimePhoto.getHeight());
+        //         if (observer.isAlive()) {
+        //             observer.removeOnGlobalLayoutListener(this);
+        //         }
+        //
+        //     }
+        // });
     }
 
 
@@ -184,6 +171,7 @@ public class CrimeFragment extends BaseFragment {
                 }
             });
             updateDate();
+            callback.onCrimeUpdated(crime);
 
         } else if (requestCode == REQUEST_CONTACT) {
             // 选择联系人
@@ -211,6 +199,15 @@ public class CrimeFragment extends BaseFragment {
             }
 
         } else if (requestCode == REQUEST_PHOTO && resultCode == Activity.RESULT_OK) {
+            // 临时文件可用，保存到正式文件中
+            RealmUtil.transaction(new Realm.Transaction() {
+                @Override public void execute(Realm realm) {
+                    // 删除以前的文件
+                    FileUtil.deleteFile(crime.getPhotoFile());
+                    // 重新赋值
+                    crime.photoPath = tempPhotoFile.getAbsolutePath();
+                }
+            });
             // 拍照
             updatePhotoView();
         }
@@ -241,8 +238,8 @@ public class CrimeFragment extends BaseFragment {
 
 
     private void updatePhotoView() {
-        if (crimePhoto != null && crimePhoto.exists()) {
-            Vinci.instance().loadImage(this, crimePhoto.getAbsolutePath(), imgCrimePhoto);
+        if (crime.hasPhotoFile()) {
+            Vinci.instance().loadImage(this, crime.photoPath, imgCrimePhoto);
         } else {
             imgCrimePhoto.setImageResource(0);
         }
@@ -429,16 +426,20 @@ public class CrimeFragment extends BaseFragment {
 
     private void showPhoto() {
 
-        ActivityOptionsCompat optionsCompat;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(context,
-                imgCrimePhoto, "CrimeImage");
-        } else {
-            optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(imgCrimePhoto, 0, 0,
-                imgCrimePhoto.getWidth(), imgCrimePhoto.getHeight());
-        }
+        if (crime.hasPhotoFile()) {
+            ActivityOptionsCompat optionsCompat;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(context,
+                    imgCrimePhoto, "CrimeImage");
+            } else {
+                optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(imgCrimePhoto, 0, 0,
+                    imgCrimePhoto.getWidth(), imgCrimePhoto.getHeight());
+            }
 
-        PhotoViewActivity.start(context, crimePhoto.getPath(), optionsCompat);
+            PhotoViewActivity.start(context, crime.photoPath, optionsCompat);
+        } else {
+            takePhoto();
+        }
 
     }
 
@@ -465,7 +466,40 @@ public class CrimeFragment extends BaseFragment {
 
 
     private void takePhoto() {
-        startActivityForResult(photoIntent, REQUEST_PHOTO);
+
+        // 每次拍照的时候先获取临时文件，将照片保存到临时文件
+        tempPhotoFile = crime.getTempPhotoFile();
+
+        if (canTakePhoto) {
+            Uri uri;
+            // 适配 Android 7.0
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+                uri = Uri.fromFile(tempPhotoFile);
+            } else {
+                uri = FileProvider.getUriForFile(context,
+                    BuildConfig.APPLICATION_ID + ".crime_images", tempPhotoFile);
+            }
+            photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            startActivityForResult(photoIntent, REQUEST_PHOTO);
+
+        }
+
     }
 
+    public void updateCrimeSolved(final boolean solved) {
+        RealmUtil.transaction(new Realm.Transaction() {
+            @Override public void execute(Realm realm) {
+                crime.solved = solved;
+            }
+        });
+        cbCrimeSolved.setChecked(solved);
+    }
+
+
+    @Override public void onDetach() {
+        super.onDetach();
+        if(callback != null) {
+            callback = null;
+        }
+    }
 }

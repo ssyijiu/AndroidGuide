@@ -8,7 +8,6 @@ package com.ssyijiu.criminalintent.util.image;
 
 public class Vinci {
 
-    // 1. Vinci
     private Vinci() {
     }
 

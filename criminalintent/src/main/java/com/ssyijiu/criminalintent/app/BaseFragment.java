@@ -35,11 +35,6 @@ public abstract class BaseFragment extends Fragment {
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if(getArguments() != null) {
-            parseArguments(getArguments());
-        }
-
         MLog.i(className + ": onCreate");
     }
 
@@ -51,6 +46,11 @@ public abstract class BaseFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
         MLog.i(className + ": onCreateView");
+
+
+        if(getArguments() != null) {
+            parseArguments(getArguments());
+        }
 
         if(rootView == null) {
             rootView = inflater.inflate(getFragLayoutId(), container, false);
