@@ -22,7 +22,7 @@ import java.util.List;
  * Email  : lxmyijiu@163.com
  */
 
-public class CrimePagerActivity extends BaseActivity {
+public class CrimePagerActivity extends BaseActivity implements CrimeFragment.Callback{
 
     @BindView(R2.id.crime_pager_root) ViewPager viewPagerRoot;
 
@@ -56,10 +56,8 @@ public class CrimePagerActivity extends BaseActivity {
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
-        viewPagerRoot.setCurrentItem(currentPosition);
         viewPagerRoot.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override public Fragment getItem(int position) {
-
                 Crime crime = mDatas.get(position);
                 return CrimeFragment.newInstance(crime.id,position);
             }
@@ -80,6 +78,7 @@ public class CrimePagerActivity extends BaseActivity {
                 }
             }
         });
+        viewPagerRoot.setCurrentItem(currentPosition);
 
     }
 
@@ -91,4 +90,8 @@ public class CrimePagerActivity extends BaseActivity {
         return intent;
     }
 
+
+    @Override public void onCrimeUpdated(Crime crime) {
+
+    }
 }

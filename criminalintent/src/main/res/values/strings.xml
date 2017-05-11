@@ -14,9 +14,9 @@
     <string name="hide_subtitle">Hide Subtitle</string>
     <string name="subtitle_format">%1$s crimes </string>
 
-    <string name="crime_choose_suspect">CHOOSE SUSPECT</string>
+    <string name="crime_choose_suspect">SUSPECT</string>
     <string name="crime_call_suspect">CALL SUSPECT</string>
-    <string name="crime_report">SEND CRIME REPORT</string>
+    <string name="crime_report">REPORT</string>
 
     <plurals name="subtitle_plural">
         <item quantity="one">%1$s crime</item>

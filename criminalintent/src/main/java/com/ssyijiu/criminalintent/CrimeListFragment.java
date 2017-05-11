@@ -14,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
+import butterknife.BindView;
+import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
@@ -35,7 +37,7 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     private static final String SAVED_SUBTITLE_VISIBLE = "saved_subtitle_visible";
 
-    RecyclerView recyclerCrime;
+    @BindView(R2.id.rv_crime) RecyclerView recyclerCrime;
     ViewStub stubEmpty;
 
     private CrimeAdapter adapter;
@@ -75,14 +77,17 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             subtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
 
-        recyclerCrime = (RecyclerView) rootView.findViewById(R.id.rv_crime);
         recyclerCrime.setLayoutManager(new LinearLayoutManager(context));
         stubEmpty = (ViewStub) rootView.findViewById(R.id.stub_empty);
 
         // ViewStub 点击事件
         stubEmpty.setOnInflateListener(new ViewStub.OnInflateListener() {
             @Override public void onInflate(ViewStub stub, View inflated) {
-                inflated.setOnClickListener(CrimeListFragment.this);
+                inflated.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        ToastUtil.show("xxx");
+                    }
+                });
             }
         });
     }
@@ -90,13 +95,12 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
 
     @Override public void onResume() {
         super.onResume();
+        CrimeDao.instance().gc();
         updateUI();
     }
 
 
     public void updateUI() {
-
-        CrimeDao.instance().gc();
 
         // 是否显示 Empty 视图
         if (CrimeDao.instance().queryAllCrimes().isEmpty()) {
