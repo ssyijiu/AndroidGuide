@@ -6,9 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.ssyijiu.criminalintent.app.BaseActivity;
@@ -22,7 +20,7 @@ import java.util.List;
  * Email  : lxmyijiu@163.com
  */
 
-public class CrimePagerActivity extends BaseActivity implements CrimeFragment.Callback{
+public class CrimePagerActivity extends BaseActivity implements CrimeFragment.OnCrimeUpdatedListener {
 
     @BindView(R2.id.crime_pager_root) ViewPager viewPagerRoot;
 

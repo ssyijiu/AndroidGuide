@@ -29,6 +29,7 @@ public class Crime extends RealmObject implements Serializable {
     public String suspect;
     public String suspectPhoneNum;
     public String photoPath;
+    public boolean selected;
 
 
     public Crime() {

@@ -1,9 +1,12 @@
 package com.ssyijiu.criminalintent;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DensityUtil;
+import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.SimpleFragmentActivity;
 import com.ssyijiu.criminalintent.bean.Crime;
 
@@ -14,7 +17,7 @@ import com.ssyijiu.criminalintent.bean.Crime;
  */
 
 public class CrimeListActivity extends SimpleFragmentActivity
-    implements CrimeListFragment.Callback, CrimeFragment.Callback {
+    implements CrimeListFragment.OnCrimeListItemListener, CrimeFragment.OnCrimeUpdatedListener {
 
     private Crime currentCrime;
 
@@ -38,11 +41,14 @@ public class CrimeListActivity extends SimpleFragmentActivity
 
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay()
+            .getSize(size);
+        MLog.i(size.x+"");
     }
 
 
-    @Override public void onCrimeSelected(Crime crime, int position) {
+    @Override public void onCrimeItemClick(Crime crime, int position) {
 
         // 竖屏
         if (DensityUtil.isScreenPortrait()) {
@@ -50,23 +56,27 @@ public class CrimeListActivity extends SimpleFragmentActivity
             startActivity(intent);
         } else {
 
-            if(currentCrime == crime) {
+            if (currentCrime == crime) {
                 return;
             }
 
-            Fragment newDetail = CrimeFragment.newInstance(crime.id, position);
-            getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container_detailed, newDetail)
-                .commit();
-
+            replaceDetail(crime.id, position);
             currentCrime = crime;
         }
     }
 
 
-    @Override public void onCrimeSolved(Crime crime, boolean isChecked) {
+    private void replaceDetail(String id, int position) {
+        Fragment newDetail = CrimeFragment.newInstance(id, position);
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.fragment_container_detailed, newDetail)
+            .commit();
+    }
 
-        if(crime == currentCrime) {
+
+    @Override public void onCrimeItemCheck(Crime crime, boolean isChecked) {
+
+        if (crime == currentCrime) {
             CrimeFragment crimeFragment = (CrimeFragment)
                 getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_container_detailed);

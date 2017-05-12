@@ -73,4 +73,9 @@ public class DensityUtil {
         return Common.getAppResources().getConfiguration().orientation ==
             Configuration.ORIENTATION_PORTRAIT;
     }
+
+    public static boolean isScreenLand() {
+        return Common.getAppResources().getConfiguration().orientation ==
+            Configuration.ORIENTATION_LANDSCAPE;
+    }
 }

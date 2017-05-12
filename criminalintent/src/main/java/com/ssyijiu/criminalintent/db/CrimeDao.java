@@ -1,16 +1,10 @@
 package com.ssyijiu.criminalintent.db;
 
-import android.os.Environment;
-import android.support.annotation.Nullable;
-import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.FileUtil;
-import com.ssyijiu.common.util.ToastUtil;
-import com.ssyijiu.criminalintent.app.App;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.util.RealmUtil;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import java.io.File;
 
 /**
  * Created by ssyijiu on 2017/4/21.

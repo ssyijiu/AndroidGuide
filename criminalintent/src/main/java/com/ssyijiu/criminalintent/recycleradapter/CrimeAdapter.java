@@ -1,8 +1,7 @@
 package com.ssyijiu.criminalintent.recycleradapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.app.Fragment;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.ssyijiu.criminalintent.CrimeFragment;
+import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.criminalintent.CrimeListFragment;
-import com.ssyijiu.criminalintent.CrimePagerActivity;
 import com.ssyijiu.criminalintent.R;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.util.RealmUtil;
@@ -28,13 +26,13 @@ import java.util.List;
  */
 
 public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHolder> {
-    private List<Crime> crimeList;
+    private List<Crime> datas;
     private CrimeListFragment fragment;
     private Context context;
 
 
     public CrimeAdapter(List<Crime> crimeList, CrimeListFragment fragment) {
-        this.crimeList = crimeList;
+        this.datas = crimeList;
         this.fragment = fragment;
         context = fragment.getContext();
     }
@@ -51,12 +49,12 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
 
 
     @Override public void onBindViewHolder(CrimeViewHolder holder, int position) {
-        holder.bindCrime(crimeList.get(position), position);
+        holder.bindCrime(datas.get(position), position);
     }
 
 
     @Override public int getItemCount() {
-        return crimeList.size();
+        return datas.size();
     }
 
 
@@ -84,11 +82,34 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
             cbSolved.setChecked(crime.solved);
             cbSolved.setOnCheckedChangeListener(this);
             tvDate.setText(crime.getDate());
+            if (DensityUtil.isScreenLand() && crime.selected) {
+                itemView.setBackgroundColor(Color.GRAY);
+            } else {
+                itemView.setBackgroundColor(0);
+            }
         }
 
 
         @Override public void onClick(View v) {
-            fragment.callback.onCrimeSelected(crime, position);
+            for (final Crime crime : datas) {
+                RealmUtil.transaction(new Realm.Transaction() {
+                    @Override public void execute(Realm realm) {
+                        crime.selected = false;
+                    }
+                });
+
+            }
+            RealmUtil.transaction(new Realm.Transaction() {
+                @Override public void execute(Realm realm) {
+                    crime.selected = true;
+                }
+            });
+
+            fragment.listener.onCrimeItemClick(crime, position);
+            if (DensityUtil.isScreenLand()) {
+                notifyDataSetChanged();
+            }
+
         }
 
 
@@ -98,7 +119,7 @@ public class CrimeAdapter extends RecyclerView.Adapter<CrimeAdapter.CrimeViewHol
                     crime.solved = isChecked;
                 }
             });
-            fragment.callback.onCrimeSolved(crime, isChecked);
+            fragment.listener.onCrimeItemCheck(crime, isChecked);
         }
     }
 }

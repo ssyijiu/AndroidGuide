@@ -72,16 +72,22 @@ public class CrimeFragment extends BaseFragment {
     private boolean canTakePhoto;
     private File tempPhotoFile;
 
-    public Callback callback;
+    public OnCrimeUpdatedListener listener;
 
-    public interface Callback {
+    public interface OnCrimeUpdatedListener {
         void onCrimeUpdated(Crime crime);
     }
 
 
     @Override public void onAttach(Activity activity) {
         super.onAttach(activity);
-        callback = (Callback) activity;
+        if(activity instanceof OnCrimeUpdatedListener) {
+            listener = (OnCrimeUpdatedListener) activity;
+        } else {
+            throw new RuntimeException(context.toString()
+                + " must implement OnCrimeUpdatedListener");
+        }
+
     }
 
 
@@ -134,7 +140,7 @@ public class CrimeFragment extends BaseFragment {
                         crime.title = s.toString();
                     }
                 });
-                callback.onCrimeUpdated(crime);
+                listener.onCrimeUpdated(crime);
             }
         });
 
@@ -142,7 +148,7 @@ public class CrimeFragment extends BaseFragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
                 updateCrimeSolved(isChecked);
-                callback.onCrimeUpdated(crime);
+                listener.onCrimeUpdated(crime);
             }
         });
 
@@ -171,7 +177,7 @@ public class CrimeFragment extends BaseFragment {
                 }
             });
             updateDate();
-            callback.onCrimeUpdated(crime);
+            listener.onCrimeUpdated(crime);
 
         } else if (requestCode == REQUEST_CONTACT) {
             // 选择联系人
@@ -498,8 +504,8 @@ public class CrimeFragment extends BaseFragment {
 
     @Override public void onDetach() {
         super.onDetach();
-        if(callback != null) {
-            callback = null;
+        if(listener != null) {
+            listener = null;
         }
     }
 }

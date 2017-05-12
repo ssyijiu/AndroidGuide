@@ -1,9 +1,7 @@
 package com.ssyijiu.criminalintent;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,17 +13,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import butterknife.BindView;
-import com.ssyijiu.common.util.ToastUtil;
+import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
 import com.ssyijiu.criminalintent.recycleradapter.CrimeAdapter;
 import com.ssyijiu.criminalintent.util.RealmUtil;
-import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ssyijiu on 2017/4/21.
@@ -43,21 +36,26 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     private CrimeAdapter adapter;
     private boolean subtitleVisible;
 
-    public Callback callback;
-
+    public OnCrimeListItemListener listener;
 
     /**
      * Required interface for hosting activities.
      */
-    public interface Callback {
-        void onCrimeSelected(Crime crime, int position);
-        void onCrimeSolved(Crime crime, boolean isChecked);
+    public interface OnCrimeListItemListener {
+        void onCrimeItemClick(Crime crime, int position);
+        void onCrimeItemCheck(Crime crime, boolean isChecked);
     }
 
 
     @Override public void onAttach(Activity activity) {
         super.onAttach(activity);
-        callback = (Callback) activity;
+        if(activity instanceof OnCrimeListItemListener) {
+            listener = (OnCrimeListItemListener) activity;
+        } else {
+            throw new RuntimeException(context.toString()
+                + " must implement OnCrimeListItemListener");
+        }
+
     }
 
 
@@ -85,7 +83,7 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
             @Override public void onInflate(ViewStub stub, View inflated) {
                 inflated.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        ToastUtil.show("xxx");
+                        newCrime();
                     }
                 });
             }
@@ -105,15 +103,16 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
         // 是否显示 Empty 视图
         if (CrimeDao.instance().queryAllCrimes().isEmpty()) {
             stubEmpty.setVisibility(View.VISIBLE);
+            recyclerCrime.setVisibility(View.GONE);
         } else {
             stubEmpty.setVisibility(View.GONE);
-        }
-
-        if (adapter == null) {
-            adapter = new CrimeAdapter(CrimeDao.instance().queryAllCrimes(), this);
-            recyclerCrime.setAdapter(adapter);
-        } else {
-            adapter.notifyDataSetChanged();
+            recyclerCrime.setVisibility(View.VISIBLE);
+            if (adapter == null) {
+                adapter = new CrimeAdapter(CrimeDao.instance().queryAllCrimes(), this);
+                recyclerCrime.setAdapter(adapter);
+            } else {
+                adapter.notifyDataSetChanged();
+            }
         }
 
         updateSubtitle();
@@ -201,16 +200,18 @@ public class CrimeListFragment extends BaseFragment implements View.OnClickListe
     private void newCrime() {
         final Crime crime = new Crime();
         CrimeDao.instance().insertOrUpdateCrime(crime);
-        updateUI();
+        if(DensityUtil.isScreenLand()) {
+            updateUI();
+        }
         int position = CrimeDao.instance().size() - 1;
-        callback.onCrimeSelected(crime, position);
+        listener.onCrimeItemClick(crime, position);
     }
 
 
     @Override public void onDetach() {
         super.onDetach();
-        if (callback != null) {
-            callback = null;
+        if (listener != null) {
+            listener = null;
         }
     }
 }
