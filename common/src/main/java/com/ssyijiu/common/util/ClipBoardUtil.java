@@ -20,7 +20,7 @@ public class ClipBoardUtil {
 
 
     static void copyToClipBoard(String text) {
-        ClipData clipData = ClipData.newPlainText("rebase_copy", text);
+        ClipData clipData = ClipData.newPlainText("common_copy", text);
         ClipboardManager manager =
             (ClipboardManager) Common.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         manager.setPrimaryClip(clipData);
