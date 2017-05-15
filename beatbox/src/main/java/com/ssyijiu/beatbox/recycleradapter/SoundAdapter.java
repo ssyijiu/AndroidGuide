@@ -6,9 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import com.ssyijiu.beatbox.R;
+import com.ssyijiu.beatbox.bean.BeatBox;
 import com.ssyijiu.beatbox.bean.Sound;
-import com.ssyijiu.common.log.MLog;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,10 +19,14 @@ import java.util.List;
 public class SoundAdapter extends RecyclerView.Adapter<SoundAdapter.SoundHolder> {
 
     private List<Sound> sounds;
+    private BeatBox beatbox;
 
-    public SoundAdapter(List<Sound> sounds) {
+
+    public SoundAdapter(List<Sound> sounds, BeatBox beatbox) {
         this.sounds = sounds;
+        this.beatbox = beatbox;
     }
+
 
     @Override public SoundHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -50,14 +53,22 @@ public class SoundAdapter extends RecyclerView.Adapter<SoundAdapter.SoundHolder>
         private Button button;
         private Sound sound;
 
+
         public SoundHolder(View itemView) {
             super(itemView);
             button = (Button) itemView.findViewById(R.id.item_sound_button);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    beatbox.play(sound);
+                }
+            });
         }
+
 
         public void bindSound(Sound sound) {
             this.sound = sound;
             button.setText(sound.getName());
         }
     }
+
 }

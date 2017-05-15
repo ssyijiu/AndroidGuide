@@ -3,6 +3,7 @@ package com.ssyijiu.criminalintent;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DensityUtil;
@@ -24,6 +25,11 @@ public class CrimeListActivity extends SimpleFragmentActivity
 
     @Override protected Fragment createFragment() {
         return new CrimeListFragment();
+    }
+
+
+    @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
 

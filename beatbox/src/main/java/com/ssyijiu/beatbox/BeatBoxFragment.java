@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import com.ssyijiu.beatbox.app.BaseFragment;
 import com.ssyijiu.beatbox.bean.BeatBox;
 import com.ssyijiu.beatbox.recycleradapter.SoundAdapter;
+import com.ssyijiu.common.log.MLog;
 
 /**
  * Created by ssyijiu on 2017/5/12.
@@ -28,6 +29,7 @@ public class BeatBoxFragment extends BaseFragment {
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);  // 保留 fragment
         mBeatBox = new BeatBox();
     }
 
@@ -35,7 +37,14 @@ public class BeatBoxFragment extends BaseFragment {
     @Override protected void initViewAndData(Bundle savedInstanceState) {
         mRecyclerView = findView(R.id.rv_beat_box);
         mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
-        mRecyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds()));
+        mRecyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds(), mBeatBox));
+    }
+
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        MLog.i("onDestroy");
+        mBeatBox.release();
     }
 
 
