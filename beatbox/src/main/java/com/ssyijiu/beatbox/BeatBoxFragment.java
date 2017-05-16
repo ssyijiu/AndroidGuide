@@ -43,7 +43,6 @@ public class BeatBoxFragment extends BaseFragment {
 
     @Override public void onDestroy() {
         super.onDestroy();
-        MLog.i("onDestroy");
         mBeatBox.release();
     }
 
