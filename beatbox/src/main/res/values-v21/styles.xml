@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="BeatBoxButton" parent="android:style/Widget.Material.Button">
+        <item name="android:background">@drawable/selector_btn_beatbox</item>
+    </style>
+
+</resources>

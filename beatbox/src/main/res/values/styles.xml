@@ -7,15 +7,12 @@
         <item name="colorPrimaryDark">@color/dark_red</item>
         <item name="colorAccent">@color/gray</item>
         <item name="android:colorBackground">@color/soothing_blue</item>
+        <item name="android:buttonStyle">@style/BeatBoxButton</item>
     </style>
 
 
-    <style name="BeatBoxButton">
-        <item name="android:background">@color/dark_blue</item>
-    </style>
-
-    <style name="BeatBoxButton.Strong">
-        <item name="android:textStyle">bold</item>
+    <style name="BeatBoxButton" parent="android:style/Widget.Holo.Button">
+        <item name="android:background">@drawable/selector_btn_beatbox</item>
     </style>
 
 </resources>
