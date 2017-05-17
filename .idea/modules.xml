@@ -3,11 +3,18 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidGuide.iml" filepath="$PROJECT_DIR$/AndroidGuide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidGuide.iml" filepath="$PROJECT_DIR$/AndroidGuide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/beatbox/beatbox.iml" filepath="$PROJECT_DIR$/beatbox/beatbox.iml" />
       <module fileurl="file://$PROJECT_DIR$/beatbox/beatbox.iml" filepath="$PROJECT_DIR$/beatbox/beatbox.iml" />
       <module fileurl="file://$PROJECT_DIR$/ceoquiz/ceoquiz.iml" filepath="$PROJECT_DIR$/ceoquiz/ceoquiz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ceoquiz/ceoquiz.iml" filepath="$PROJECT_DIR$/ceoquiz/ceoquiz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/criminalintent/criminalintent.iml" filepath="$PROJECT_DIR$/criminalintent/criminalintent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/criminalintent/criminalintent.iml" filepath="$PROJECT_DIR$/criminalintent/criminalintent.iml" />
       <module fileurl="file://$PROJECT_DIR$/nerdlauncher/nerdlauncher.iml" filepath="$PROJECT_DIR$/nerdlauncher/nerdlauncher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/nerdlauncher/nerdlauncher.iml" filepath="$PROJECT_DIR$/nerdlauncher/nerdlauncher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/photogallery/photogallery.iml" filepath="$PROJECT_DIR$/photogallery/photogallery.iml" />
       <module fileurl="file://$PROJECT_DIR$/photogallery/photogallery.iml" filepath="$PROJECT_DIR$/photogallery/photogallery.iml" />
     </modules>
   </component>

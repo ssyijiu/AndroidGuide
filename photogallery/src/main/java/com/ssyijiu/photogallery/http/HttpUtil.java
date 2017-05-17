@@ -1,5 +1,8 @@
 package com.ssyijiu.photogallery.http;
 
+import android.support.annotation.Nullable;
+import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.common.util.IOUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +17,19 @@ import java.net.URL;
 
 public class HttpUtil {
 
-    public byte[] getUrlBytes(String urlSpec) throws IOException {
-        URL url = new URL(urlSpec);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+    @Nullable
+    public byte[] getUrlBytes(String urlSpec) {
+
+        HttpURLConnection connection = null;
+        ByteArrayOutputStream out = null;
+        InputStream in = null;
 
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            InputStream in = connection.getInputStream();
+            URL url = new URL(urlSpec);
+            connection = (HttpURLConnection) url.openConnection();
+
+            out = new ByteArrayOutputStream();
+            in = connection.getInputStream();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 throw new IOException(connection.getResponseMessage() +
@@ -28,19 +37,33 @@ public class HttpUtil {
                     urlSpec);
             }
 
-            int bytesRead = 0;
+            int bytesRead;
             byte[] buffer = new byte[1024];
             while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);
             }
-            out.close();
+
             return out.toByteArray();
+        } catch (IOException e) {
+            return null;
         } finally {
-            connection.disconnect();
+            IOUtil.close(out);
+            IOUtil.close(in);
+            IOUtil.close(connection);
         }
+
     }
 
+
     public String getUrlString(String urlSpec) throws IOException {
-        return new String(getUrlBytes(urlSpec));
+
+        byte[] resultByte = getUrlBytes(urlSpec);
+
+        if(resultByte != null) {
+            String result = new String(resultByte);
+            MLog.i("Fetched contents of URL: " + urlSpec + result);
+            return result;
+        }
+        return null;
     }
 }

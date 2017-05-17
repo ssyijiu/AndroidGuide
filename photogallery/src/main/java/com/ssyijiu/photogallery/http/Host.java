@@ -7,5 +7,5 @@ package com.ssyijiu.photogallery.http;
  */
 
 public interface Host {
-    String host = "http://gank.io/api/data/福利/10/1";
+    String host = "http://gank.io/api/data/福利/10/";
 }

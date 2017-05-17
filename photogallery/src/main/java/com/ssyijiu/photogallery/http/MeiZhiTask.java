@@ -11,15 +11,19 @@ import java.io.IOException;
  * E-mail: lxmyijiu@163.com
  */
 
-public abstract class MeiZhiTask extends AsyncTask<Void, Void, MeiZhi> {
+public abstract class MeiZhiTask extends AsyncTask<Integer, Void, MeiZhi> {
 
-    @Override protected MeiZhi doInBackground(Void... params) {
+    // Integer doInBackground 的参数, AsyncTask.execute 的参数
+    // Integer 用于更新进度，在 doInBackground 使用 publishProgress 发送进度
+    //         在 onProgressUpdate 接收进度更新 UI
+    // MeiZhi doInBackground 的返回 onPostExecute 参数，后台线程的操作结果
+
+    @Override protected MeiZhi doInBackground(Integer... params) {
 
         MeiZhi meiZhi = null;
 
         try {
-            String result = new HttpUtil().getUrlString(Host.host);
-            MLog.i("Fetched contents of URL: " + result);
+            String result = new HttpUtil().getUrlString(Host.host + params[0]);
             meiZhi = Gsons.json2Bean(result, MeiZhi.class);
         } catch (IOException e) {
             MLog.e("Failed to fetch URL: ", e);
@@ -30,9 +34,12 @@ public abstract class MeiZhiTask extends AsyncTask<Void, Void, MeiZhi> {
 
     @Override protected void onPostExecute(MeiZhi meiZhi) {
         super.onPostExecute(meiZhi);
-        afterGetMeiZhi(meiZhi);
+        if(meiZhi != null && !meiZhi.error) {
+            afterMeiZhi(meiZhi);
+        }
     }
 
 
-    protected abstract void afterGetMeiZhi(MeiZhi meiZhi);
+
+    protected abstract void afterMeiZhi(MeiZhi meiZhi);
 }

@@ -17,3 +17,5 @@
 - android:showDividers="end" 无效 
 
 - 调用 startActivity(Intent) 方法（或者 startActivityForResult(...) 方法）发送隐式 intent 时，操作系统会悄悄的为目标 intent 添加 Intent.CATEGORY_ DEFAULT 。 
+
+- AsyncTaskLoader 的使用

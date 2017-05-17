@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 
 /**
  * Created by ssyijiu on 2016/9/16.
@@ -40,6 +41,12 @@ public class IOUtil {
     public static void close(Cursor cursor) {
         if (cursor != null) {
             cursor.close();
+        }
+    }
+
+    public static void close(HttpURLConnection connection) {
+        if (connection != null) {
+            connection.disconnect();
         }
     }
 
