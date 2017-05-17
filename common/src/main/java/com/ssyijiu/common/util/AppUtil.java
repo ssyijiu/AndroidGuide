@@ -1,8 +1,11 @@
 package com.ssyijiu.common.util;
 
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import com.ssyijiu.common.Common;
+import java.util.List;
 
 /**
  * Created by ssyijiu on 2016/9/29.
@@ -46,5 +49,12 @@ public class AppUtil {
             // can't reach
         }
         return 1;
+    }
+
+    public static List<ResolveInfo> getAllLauncher() {
+        Intent startupIntent = new Intent(Intent.ACTION_MAIN);
+        startupIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        final PackageManager pm = Common.getContext().getPackageManager();
+        return pm.queryIntentActivities(startupIntent, 0);
     }
 }

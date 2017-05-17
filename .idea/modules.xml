@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/criminalintent/criminalintent.iml" filepath="$PROJECT_DIR$/criminalintent/criminalintent.iml" />
       <module fileurl="file://$PROJECT_DIR$/nerdlauncher/nerdlauncher.iml" filepath="$PROJECT_DIR$/nerdlauncher/nerdlauncher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/photogallery/photogallery.iml" filepath="$PROJECT_DIR$/photogallery/photogallery.iml" />
     </modules>
   </component>
 </project>

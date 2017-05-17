@@ -1,1 +1,1 @@
-include ':ceoquiz', ':common', ':criminalintent', ':beatbox', ':nerdlauncher'
+include ':ceoquiz', ':common', ':criminalintent', ':beatbox', ':nerdlauncher', ':photogallery'

@@ -31,6 +31,7 @@ public class BeatBoxFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);  // 保留 fragment
         mBeatBox = new BeatBox();
+        MLog.i("onCreate");
     }
 
 
