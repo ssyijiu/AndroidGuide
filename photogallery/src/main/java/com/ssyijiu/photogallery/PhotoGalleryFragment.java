@@ -1,6 +1,10 @@
 package com.ssyijiu.photogallery;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -45,10 +49,18 @@ public class PhotoGalleryFragment extends BaseFragment {
         setRetainInstance(true);
         requestData(mPage);
 
-        mImageLoader = new ImageLoader<>();
+        mImageLoader = new ImageLoader<>(new Handler());
+        mImageLoader.setImageLoadListener(
+            new ImageLoader.ImageLoadListener<PhotoAdapter.PhotoHolder>() {
+                @Override public void onImageLoadFinish(PhotoAdapter.PhotoHolder target, Bitmap bitmap) {
+                    Drawable drawable = new BitmapDrawable(getResources(),bitmap);
+                    target.bindMeiZhi(drawable);
+                }
+            });
 
         // 在子线程中准备 Looper
         mImageLoader.start();
+        mImageLoader.getLooper();
     }
 
 
@@ -122,6 +134,13 @@ public class PhotoGalleryFragment extends BaseFragment {
 
     @Override public void onDestroyView() {
         super.onDestroyView();
+        mImageLoader.clearQueue();
+    }
+
+
+    @Override public void onDestroy() {
+        super.onDestroy();
         mImageLoader.quit();
     }
+
 }
