@@ -1,5 +1,6 @@
 package com.ssyijiu.common.util;
 
+import android.graphics.drawable.Drawable;
 import com.ssyijiu.common.Common;
 
 /**
@@ -23,5 +24,9 @@ public class ResUtil {
 
     public static int getColor(int id) {
         return Common.getAppResources().getColor(id);
+    }
+
+    public static Drawable getDrawable(int id) {
+        return Common.getAppResources().getDrawable(id);
     }
 }

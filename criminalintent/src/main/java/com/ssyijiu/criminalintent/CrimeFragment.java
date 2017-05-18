@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -29,6 +30,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnClick;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.FileUtil;
 import com.ssyijiu.common.util.IOUtil;
@@ -152,17 +154,14 @@ public class CrimeFragment extends BaseFragment {
             }
         });
 
-        // final ViewTreeObserver observer = imgCrimePhoto.getViewTreeObserver();
-        // observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-        //     @Override public void onGlobalLayout() {
-        //         MLog.i(imgCrimePhoto.getWidth());
-        //         MLog.i(imgCrimePhoto.getHeight());
-        //         if (observer.isAlive()) {
-        //             observer.removeOnGlobalLayoutListener(this);
-        //         }
-        //
-        //     }
-        // });
+        final ViewTreeObserver observer = imgCrimePhoto.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override public void onGlobalLayout() {
+                imgCrimePhoto.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                MLog.i(imgCrimePhoto.getWidth());
+                MLog.i(imgCrimePhoto.getHeight());
+            }
+        });
     }
 
 

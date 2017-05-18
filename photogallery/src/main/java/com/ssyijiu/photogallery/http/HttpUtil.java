@@ -64,6 +64,6 @@ public class HttpUtil {
             MLog.i("Fetched contents of URL: " + urlSpec + result);
             return result;
         }
-        return null;
+        return "";
     }
 }

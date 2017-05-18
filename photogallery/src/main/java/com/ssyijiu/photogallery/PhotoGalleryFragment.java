@@ -4,20 +4,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewTreeObserver;
-import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DensityUtil;
-import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.bean.MeiZhi;
+import com.ssyijiu.photogallery.http.ImageLoader;
 import com.ssyijiu.photogallery.http.MeiZhiTask;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.width;
 
 /**
  * Created by ssyijiu on 2017/5/17.
@@ -32,6 +28,7 @@ public class PhotoGalleryFragment extends BaseFragment {
     private PhotoAdapter mAdapter;
     private List<MeiZhi.Results> mDatas = new ArrayList<>();
     private int mCellWidth;
+    private ImageLoader<PhotoAdapter.PhotoHolder> mImageLoader;
 
     private int mPage = 1;
 
@@ -46,27 +43,35 @@ public class PhotoGalleryFragment extends BaseFragment {
 
         // 保留 fragment 横竖屏切换不去重复请求数据
         setRetainInstance(true);
+        requestData(mPage);
 
-        // requestData(mPage);
+        mImageLoader = new ImageLoader<>();
+
+        // 在子线程中准备 Looper
+        mImageLoader.start();
     }
 
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-        mRecyclerView = findView(R.id.rv_photogallery);
+        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.rv_photogallery);
         mCellWidth = DensityUtil.dp2px(77);
 
         final ViewTreeObserver observer = mRecyclerView.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override public void onGlobalLayout() {
+                mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 int width = mRecyclerView.getWidth();
                 int cellNum = width / mCellWidth;
                 layoutManager = new GridLayoutManager(mContext, cellNum);
                 mRecyclerView.setLayoutManager(layoutManager);
-                requestData(mPage);
-                mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                // 横竖屏旋转后没有 setAdapter，给设置上
+                if (mRecyclerView.getAdapter() == null) {
+                    mAdapter = new PhotoAdapter(mDatas, mImageLoader);
+                    mRecyclerView.setAdapter(mAdapter);
+                }
             }
         });
-
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -79,7 +84,7 @@ public class PhotoGalleryFragment extends BaseFragment {
                     = layoutManager.findLastCompletelyVisibleItemPosition();
                 final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
                 if (isBottom) {
-                    // requestData(++mPage);
+                    requestData(++mPage);
                 }
             }
         });
@@ -90,18 +95,18 @@ public class PhotoGalleryFragment extends BaseFragment {
 
         new MeiZhiTask() {
             @Override protected void afterMeiZhi(MeiZhi meiZhi) {
-                setAdapter(meiZhi);
+                mDatas.addAll(meiZhi.results);
+                updateUI();
             }
         }.execute(page);
     }
 
 
-    private void setAdapter(MeiZhi meiZhi) {
+    private void updateUI() {
 
         if (isAdded()) {
-            mDatas.addAll(meiZhi.results);
             if (mAdapter == null) {
-                mAdapter = new PhotoAdapter(mDatas);
+                mAdapter = new PhotoAdapter(mDatas, mImageLoader);
                 mRecyclerView.setAdapter(mAdapter);
             } else {
                 mAdapter.notifyDataSetChanged();
@@ -112,5 +117,11 @@ public class PhotoGalleryFragment extends BaseFragment {
 
     public static Fragment newInstance() {
         return new PhotoGalleryFragment();
+    }
+
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        mImageLoader.quit();
     }
 }

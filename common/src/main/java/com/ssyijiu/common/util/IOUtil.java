@@ -36,7 +36,7 @@ public class IOUtil {
 
 
     /**
-     * 关闭流 Cursor
+     * 关闭 Cursor
      */
     public static void close(Cursor cursor) {
         if (cursor != null) {
@@ -44,6 +44,10 @@ public class IOUtil {
         }
     }
 
+
+    /**
+     * 断开 HttpURLConnection
+     */
     public static void close(HttpURLConnection connection) {
         if (connection != null) {
             connection.disconnect();

@@ -1,5 +1,6 @@
 package com.ssyijiu.photogallery.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  * E-mail: lxmyijiu@163.com
  */
 
-public class MeiZhi {
+public class MeiZhi implements Serializable{
 
     /**
      * error : false
@@ -19,7 +20,7 @@ public class MeiZhi {
     public List<Results> results;
 
 
-    public static class Results {
+    public static class Results implements Serializable{
         /**
          * _id : 591a4a02421aa92c794632c8
          * createdAt : 2017-05-16T08:38:26.35Z

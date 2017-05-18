@@ -128,15 +128,6 @@
 
 - 异步任务结束后刷新 fragment UI 先判断 isAdded
 
-  ```java
-  /**
-   * Return true if the fragment is currently added to its activity.
-   */
-  final public boolean isAdded() {
-  	return mHost != null && mAdded;
-  }
-  ```
-
 - AsyncTask 的基本使用
 
   ```java
@@ -147,14 +138,14 @@
       //         在 onProgressUpdate 接收进度更新 UI
       // MeiZhi doInBackground 的返回 onPostExecute 参数，后台线程的操作结果
 
-      @Override protected MeiZhi doInBackground(String... params) {
+    	@Override protected MeiZhi doInBackground(String... params) {
 
           for (String param : params) {
-              MLog.i(param);
+            	MLog.i(param);
           }
 
           for (int i = 0; i < 20; i++) {
-              publishProgress(i);
+            	publishProgress(i);
           }
 
           MeiZhi meiZhi = null;
@@ -163,25 +154,24 @@
               String result = new HttpUtil().getUrlString(Host.host);
               meiZhi = Gsons.json2Bean(result, MeiZhi.class);
           } catch (IOException e) {
-              MLog.e("Failed to fetch URL: ", e);
+            	MLog.e("Failed to fetch URL: ", e);
           }
           return meiZhi;
       }
 
 
-      @Override protected void onProgressUpdate(Integer... values) {
-          super.onProgressUpdate(values);
-          MLog.i(values[0]);
-      }
+    @Override protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+        MLog.i(values[0]);
+    }
+
+    @Override protected void onPostExecute(MeiZhi meiZhi) {
+        super.onPostExecute(meiZhi);
+        afterMeiZhi(meiZhi);
+    }
 
 
-      @Override protected void onPostExecute(MeiZhi meiZhi) {
-          super.onPostExecute(meiZhi);
-          afterMeiZhi(meiZhi);
-      }
-
-
-      protected abstract void afterMeiZhi(MeiZhi meiZhi);
+    protected abstract void afterMeiZhi(MeiZhi meiZhi);
   }
 
 
@@ -193,37 +183,42 @@
           }
       }
   };
+
   meiZhiTask.execute("ssyijiu", "android");
 
   // onDestroy 取消异步任务
   @Override public void onDestroy() {
-    	super.onDestroy();
-    	meiZhiTask.cancel(false);
+      super.onDestroy();
+      meiZhiTask.cancel(false);
   }
   ```
 
-- RecyclerView 分页加载
+- RecyclerView 分页加载 
 
   ```java
   mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-  	@Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-          super.onScrolled(recyclerView, dx, dy);
-          if (dy < 0) return;
-  		
-        	// item 总数，假设是 100
+    	@Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+      	super.onScrolled(recyclerView, dx, dy);
+      	if (dy < 0) return;
+
+          // item 总数，假设是 100
           final int itemCount = layoutManager.getItemCount();
-          
-        	// 最后可见 item 的 position，最大值会达到 99
-        	final int lastVisiblePosition
+
+          // 最后可见 item 的 position，最大值会达到 99
+          final int lastVisiblePosition
             = layoutManager.findLastCompletelyVisibleItemPosition();
-          
-        	// itemCount-1 是 99，只有当lastVisiblePosition 达到最大时（99）才会加载下一页
-        	final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
+
+          // itemCount-1 是 99，只有当lastVisiblePosition 达到最大时（99）才会加载下一页
+          final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
           if (isBottom) {
-            	requestData(++mPage);
+            requestData(++mPage);
           }
-      }
+    	}
   });
   ```
 
+
   ​
+
+## 第24章：Looper、Handler 和 HandlerThread
+

@@ -8,6 +8,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.ssyijiu.common.util.ToastUtil;
 
 /**
  * Created by ssyijiu on 2017/4/20.
@@ -40,10 +41,10 @@ public abstract class BaseFragment extends Fragment {
     @Nullable @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
-        if (mRootView == null) {
+        // if (mRootView == null) {
             mRootView = inflater.inflate(getFragLayoutId(), container, false);
             initViewAndData(savedInstanceState);
-        }
+        // }
         return mRootView;
     }
 
@@ -53,8 +54,11 @@ public abstract class BaseFragment extends Fragment {
     protected abstract void initViewAndData(Bundle savedInstanceState);
 
 
-    private SparseArray<View> mViews = new SparseArray<>();
 
+
+    // fix bug：E/RecyclerView: No adapter attached; skipping layout
+    // RecyclerView 被缓存了，横竖屏旋转后 findView 找到的依然是以前的，无法更新 UI
+    private SparseArray<View> mViews = new SparseArray<>();
 
     public <T extends View> T findView(int viewId) {
         View view = mViews.get(viewId);
