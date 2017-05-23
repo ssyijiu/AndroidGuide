@@ -106,7 +106,7 @@
 
 - Androd 中主线程不能访问网络，工作线程不能刷新 UI。
 
-- Android 中的主线程处于一个无线循环的运行状态，等待着系统或者用户触发事件，事件触发后，主线程便负责执行代码，已响应这些事件。
+- Android 中的主线程处于一个无线循环的运行状态，等待着系统或者用户触发事件，事件触发后，主线程便负责执行代码，以响应这些事件。
 
   ![](http://obe5pxv6t.bkt.clouddn.com/main_thread.png)
 
@@ -158,13 +158,14 @@
           }
           return meiZhi;
       }
+  ```
 
 
     @Override protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         MLog.i(values[0]);
     }
-
+    
     @Override protected void onPostExecute(MeiZhi meiZhi) {
         super.onPostExecute(meiZhi);
         afterMeiZhi(meiZhi);
