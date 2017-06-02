@@ -32,14 +32,11 @@ public class SDCardUtil {
 
 
     /**
-     * 获取SD卡路径
+     * 获取SD卡路径，使用前先判断 SDCard 是否可用，不可用自行处理
      *
      * @return sdcard path
      */
     public static String getSDCardPath() {
-        if (!isAvailable()) {
-            return "the sdcard is unable!";
-        }
         return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
     }
 
