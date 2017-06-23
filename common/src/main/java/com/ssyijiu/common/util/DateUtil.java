@@ -2,6 +2,7 @@ package com.ssyijiu.common.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -99,5 +100,35 @@ public class DateUtil {
             e.printStackTrace();
         }
         return -1;
+    }
+
+
+    /**
+     * 获取一天的开始时间
+     *
+     * @return 时间戳
+     */
+    public static long getDayBeginTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+
+    /**
+     * 获取一天的结束时间
+     *
+     * @return 时间戳
+     */
+    public static long getDayEndTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 24);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
     }
 }
