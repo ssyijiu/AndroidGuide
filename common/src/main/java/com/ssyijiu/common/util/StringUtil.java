@@ -16,21 +16,4 @@ public class StringUtil {
     }
 
 
-    /**
-     * if null -> ""
-     */
-    public static String null2Empty(String str) {
-        return null2Other(str, "");
-    }
-
-
-    /**
-     * if null -> other
-     */
-    public static String null2Other(String str, String other) {
-        if (TextUtils.isEmpty(str)) {
-            return other;
-        }
-        return str;
-    }
 }

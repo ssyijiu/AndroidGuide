@@ -2,6 +2,7 @@ package com.ssyijiu.common.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -96,7 +97,7 @@ public class MD5Util {
      * @param path 文件路径
      * @return MD5检验码
      */
-    public static String getMD5File(String path) throws IOException {
+    public static String getMD5File(String path) {
 
         File file = new File(path);
 
@@ -112,6 +113,8 @@ public class MD5Util {
             digest = md.digest();
         } catch (NoSuchAlgorithmException neverHappened) {
             throw new RuntimeException(neverHappened);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (in != null) {
                 try {

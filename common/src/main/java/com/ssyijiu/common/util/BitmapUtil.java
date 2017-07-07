@@ -20,6 +20,18 @@ import static android.R.attr.translateX;
 
 public class BitmapUtil {
 
+    private BitmapUtil() {
+        /* cannot be instantiated */
+        throw new UnsupportedOperationException("BitmapUtil cannot be instantiated !");
+    }
+
+    /**
+     * 获取压缩后的 Bitmap
+     *
+     * @param path 图片路径
+     * @param activity 当前 Activity，用于计算压缩比
+     * @return 压缩后的 Bitmap
+     */
     public static Bitmap getScaledBitmap(String path, Activity activity) {
         Point size = new Point();
         activity.getWindowManager().getDefaultDisplay()
@@ -29,6 +41,14 @@ public class BitmapUtil {
     }
 
 
+    /**
+     * 获取压缩后的 Bitmap
+     *
+     * @param path 图片路径
+     * @param destWidth Bitmap 目标宽度，用于计算压缩比
+     * @param destHeight Bitmap 目标高度，用于计算压缩比
+     * @return 压缩后的 Bitmap
+     */
     public static Bitmap getScaledBitmap(String path, int destWidth, int destHeight) {
         // Read in the dimensions of the image on disk
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -56,35 +76,10 @@ public class BitmapUtil {
     }
 
 
-    public static void setTextDrawableLeft(TextView textView, int resId) {
-        setTextDrawableLeft(textView, resId, 0);
-    }
-
-    public static void setTextDrawableLeft(TextView textView, int resId, int drawablePadding) {
-        if (resId == 0) {
-            textView.setCompoundDrawables(null, null, null, null);
-            return;
-        }
-        Drawable drawable = Common.getAppResources().getDrawable(resId);
-        setTextDrawableLeft(textView, drawable, drawablePadding);
-    }
-
-    public static void setTextDrawableLeft(TextView textView, Drawable drawable) {
-        setTextDrawableLeft(textView, drawable, 0);
-    }
-
-    public static void setTextDrawableLeft(TextView textView, Drawable drawable, int drawablePadding) {
-        if (drawable == null) {
-            textView.setCompoundDrawables(null, null, null, null);
-            return;
-        }
-        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        textView.setCompoundDrawables(drawable, null, null, null);
-        textView.setCompoundDrawablePadding(drawablePadding);
-    }
-
-
-    public static Bitmap getBitmapFromView(View view) {
+    /**
+     * 将 View 转换为 Bitmap(截屏)
+     */
+    public static Bitmap view2Bitmap(View view) {
 
         // 1. 绘图缓存可用
         view.setDrawingCacheEnabled(true);
