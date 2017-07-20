@@ -1,11 +1,8 @@
 package com.ssyijiu.common.util;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 
 public class KeyboardUtil implements ViewTreeObserver.OnGlobalLayoutListener {
 
@@ -83,20 +80,5 @@ public class KeyboardUtil implements ViewTreeObserver.OnGlobalLayoutListener {
 
     public void setOnKeyboardChangedListener(OnKeyboardChangedListener listener) {
         mSoftKeyboardChangedListener = listener;
-    }
-
-
-    /**
-     * Hide the soft keyboard
-     *
-     * @param activity the current activity
-     */
-    public static void hideKeyboard(Activity activity) {
-        View view = activity.getWindow().peekDecorView();
-        if (view != null) {
-            InputMethodManager inputmanager = (InputMethodManager) activity
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputmanager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
     }
 }  
