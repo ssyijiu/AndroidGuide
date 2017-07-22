@@ -16,7 +16,6 @@ public class ToastUtil {
         throw new UnsupportedOperationException("ToastUtil cannot be instantiated !");
     }
 
-
     public static void show(int resId) {
         String msg = Common.getAppResources().getString(resId);
         show(msg);

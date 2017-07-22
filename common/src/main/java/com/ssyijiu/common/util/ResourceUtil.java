@@ -9,11 +9,11 @@ import com.ssyijiu.common.Common;
  * E-mail: lxmyijiu@163.com
  */
 
-public class ResUtil {
+public class ResourceUtil {
 
-    private ResUtil() {
+    private ResourceUtil() {
         /* cannot be instantiated */
-        throw new UnsupportedOperationException("ResUtil cannot be instantiated !");
+        throw new UnsupportedOperationException("ResourceUtil cannot be instantiated !");
     }
 
 

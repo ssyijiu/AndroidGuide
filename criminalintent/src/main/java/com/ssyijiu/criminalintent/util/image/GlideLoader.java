@@ -33,7 +33,8 @@ class GlideLoader implements ImageLoader {
     }
 
 
-    @Override public void loadImage(Fragment fragment, String url, ImageView imageView) {
+    @Override
+    public void loadImage(Fragment fragment, String url, ImageView imageView) {
         Glide.with(fragment)
             .load(url)
             .error(R.color.colorPrimary)

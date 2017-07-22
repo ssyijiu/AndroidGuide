@@ -35,7 +35,9 @@ import com.ssyijiu.common.util.DateUtil;
 import com.ssyijiu.common.util.FileUtil;
 import com.ssyijiu.common.util.IOUtil;
 import com.ssyijiu.common.util.IntentUtil;
+import com.ssyijiu.common.util.KeyboardUtil;
 import com.ssyijiu.common.util.PhoneUtil;
+import com.ssyijiu.common.util.ToastUtil;
 import com.ssyijiu.criminalintent.app.BaseFragment;
 import com.ssyijiu.criminalintent.bean.Crime;
 import com.ssyijiu.criminalintent.db.CrimeDao;
@@ -75,6 +77,8 @@ public class CrimeFragment extends BaseFragment {
     private File tempPhotoFile;
 
     public OnCrimeUpdatedListener listener;
+    private KeyboardUtil mKeyboardUtil;
+
 
     public interface OnCrimeUpdatedListener {
         void onCrimeUpdated(Crime crime);
@@ -162,6 +166,25 @@ public class CrimeFragment extends BaseFragment {
                 MLog.i(imgCrimePhoto.getHeight());
             }
         });
+
+        mKeyboardUtil = KeyboardUtil.with(rootView);
+        mKeyboardUtil.setOnKeyboardChangedListener(
+            new KeyboardUtil.OnKeyboardChangedListener() {
+                @Override public void onKeyboardOpened(int keyboardHeightInPx) {
+                    ToastUtil.show("open");
+                }
+
+
+                @Override public void onKeyboardClosed() {
+                    ToastUtil.show("close");
+                }
+            });
+    }
+
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        mKeyboardUtil.removeKeyboardChangedListener();
     }
 
 

@@ -2,47 +2,76 @@ package com.ssyijiu.common.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
+import com.ssyijiu.common.Common;
 
 public class InputMethodUtil {
 
-    public static void toggleSoftInput(Context context) {
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+    private InputMethodUtil() {
+        /* cannot be instantiated */
+        throw new UnsupportedOperationException("InputMethodUtil cannot be instantiated !");
     }
 
-    public static boolean showSoftInput(View view) {
-        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        return imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+
+    private static Handler sHandler = new Handler(Looper.getMainLooper());
+
+
+    private static InputMethodManager getInputMethodManager() {
+        return (InputMethodManager) Common.getContext()
+            .getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
-    public static boolean showSoftInput(Activity activity) {
+
+    public static void toggleSoftInput() {
+        sHandler.post(new Runnable() {
+            @Override public void run() {
+                getInputMethodManager().toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        });
+
+    }
+
+
+    public static void showSoftInput(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            return imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+            showSoftInput(view);
         }
-        return false;
     }
 
-    public static boolean hideSoftInput(View view) {
-        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        return imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+    public static void showSoftInput(final View view) {
+        sHandler.post(new Runnable() {
+            @Override public void run() {
+                getInputMethodManager().showSoftInput(view, InputMethodManager.SHOW_FORCED);
+            }
+        });
+
     }
 
-    public static boolean hideSoftInput(Activity activity) {
-        if (activity.getCurrentFocus() != null) {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            return imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+
+    public static void hideSoftInput(Activity activity) {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            hideSoftInput(view);
         }
-        return false;
     }
 
-    public static boolean isActive(Context context) {
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        return imm.isActive();
+
+    public static void hideSoftInput(final View view) {
+        sHandler.post(new Runnable() {
+            @Override public void run() {
+                getInputMethodManager().hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        });
+
+    }
+
+
+    public static boolean isActive() {
+        return getInputMethodManager().isActive();
     }
 }

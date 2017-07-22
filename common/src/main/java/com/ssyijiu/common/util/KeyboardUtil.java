@@ -6,24 +6,24 @@ import android.view.ViewTreeObserver;
 
 public class KeyboardUtil implements ViewTreeObserver.OnGlobalLayoutListener {
 
-    private final View mActivityRootView;
+    private final View mRootView;
 
     private boolean mIsKeyboardOpened;
 
 
     private KeyboardUtil(View activityRootView) {
-        mActivityRootView = activityRootView;
-        mActivityRootView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+        mRootView = activityRootView;
+        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
 
 
     /**
-     * init KeyboardUtil
+     * init KeyboardUtil, use activity/fragment rootView
      *
-     * @param activityRootView can't use the view of Inflate R.layout
+     * @param rootView can't use the view of Inflate R.layout
      */
-    public static KeyboardUtil with(View activityRootView) {
-        return new KeyboardUtil(activityRootView);
+    public static KeyboardUtil with(View rootView) {
+        return new KeyboardUtil(rootView);
     }
 
 
@@ -31,9 +31,9 @@ public class KeyboardUtil implements ViewTreeObserver.OnGlobalLayoutListener {
     public void onGlobalLayout() {
         final Rect r = new Rect();
         //r will be populated with the coordinates of your view that area still visible.
-        mActivityRootView.getWindowVisibleDisplayFrame(r);
+        mRootView.getWindowVisibleDisplayFrame(r);
 
-        final int heightDiff = mActivityRootView.getRootView().getHeight() - (r.bottom - r.top);
+        final int heightDiff = mRootView.getRootView().getHeight() - (r.bottom - r.top);
         if (!mIsKeyboardOpened && heightDiff > 100) {
             notifyOnSoftKeyboardOpened(heightDiff);
         } else if (mIsKeyboardOpened && heightDiff < 100) {
@@ -48,7 +48,7 @@ public class KeyboardUtil implements ViewTreeObserver.OnGlobalLayoutListener {
      * call in Activity/Fragment#onDestroy
      */
     public void removeKeyboardChangedListener() {
-        mActivityRootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+        mRootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
     }
 
 

@@ -33,10 +33,11 @@ public abstract class BaseFragment extends Fragment {
         MLog.i(className + ": onAttach");
     }
 
+
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MLog.i(className + ": onCreate");
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             parseArguments(getArguments());
         }
     }
@@ -50,10 +51,10 @@ public abstract class BaseFragment extends Fragment {
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
         MLog.i(className + ": onCreateView");
 
-        if(rootView == null) {
+        if (rootView == null) {
             rootView = inflater.inflate(getFragLayoutId(), container, false);
             unbinder = ButterKnife.bind(this, rootView);
-            initViewAndData(rootView, savedInstanceState);
+
         }
         return rootView;
     }
@@ -62,6 +63,7 @@ public abstract class BaseFragment extends Fragment {
     @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MLog.i(className + ": onViewCreated");
+        initViewAndData(rootView, savedInstanceState);
     }
 
 

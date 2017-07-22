@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
-import com.ssyijiu.common.util.ResUtil;
 import com.ssyijiu.photogallery.R;
 import com.ssyijiu.photogallery.bean.MeiZhi;
 import com.ssyijiu.photogallery.http.ImageLoader;

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import com.ssyijiu.common.Common;
 import java.util.List;
 
@@ -56,5 +57,17 @@ public class AppUtil {
         startupIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         final PackageManager pm = Common.getContext().getPackageManager();
         return pm.queryIntentActivities(startupIntent, 0);
+    }
+
+
+    public static String getAppName(ResolveInfo resolveInfo) {
+        PackageManager packageManager = Common.getContext().getPackageManager();
+        return resolveInfo.loadLabel(packageManager).toString();
+    }
+
+
+    public static Drawable getAppIcon(ResolveInfo resolveInfo) {
+        PackageManager packageManager = Common.getContext().getPackageManager();
+        return resolveInfo.loadIcon(packageManager);
     }
 }

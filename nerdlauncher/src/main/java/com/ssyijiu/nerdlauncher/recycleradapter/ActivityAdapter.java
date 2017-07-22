@@ -11,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.ssyijiu.common.util.AppUtil;
 import com.ssyijiu.common.util.BitmapUtil;
 import com.ssyijiu.common.util.DensityUtil;
+import com.ssyijiu.common.util.DrawableUtil;
 import com.ssyijiu.nerdlauncher.app.App;
 import java.util.List;
 
@@ -69,12 +71,12 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
 
         void bindActivity(ResolveInfo resolveInfo) {
             this.resolveInfo = resolveInfo;
-            PackageManager pm = App.getContext().getPackageManager();
-            String appName = this.resolveInfo.loadLabel(pm).toString();
+            String appName = AppUtil.getAppName(resolveInfo);
             nameTextView.setText(appName);
 
-            Drawable icon = this.resolveInfo.loadIcon(pm);
-            BitmapUtil.setTextDrawableLeft(nameTextView, icon, DensityUtil.dp2px(10));
+            Drawable icon = AppUtil.getAppIcon(resolveInfo);
+            DrawableUtil.setTextDrawable(nameTextView, DrawableUtil.Direction.LEFT, icon,
+                DensityUtil.dp2px(10));
         }
 
 
