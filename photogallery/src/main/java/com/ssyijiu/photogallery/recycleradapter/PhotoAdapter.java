@@ -1,16 +1,16 @@
 package com.ssyijiu.photogallery.recycleradapter;
 
-import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import com.bumptech.glide.Glide;
 import com.ssyijiu.photogallery.R;
+import com.ssyijiu.photogallery.app.App;
 import com.ssyijiu.photogallery.bean.MeiZhi;
 import com.ssyijiu.photogallery.http.ImageLoader;
+import com.ssyijiu.photogallery.image.Vinci;
 import java.util.List;
 
 /**
@@ -19,31 +19,28 @@ import java.util.List;
  * E-mail: lxmyijiu@163.com
  */
 
-public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder> {
+public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
     private List<MeiZhi.Results> datas;
-    private ImageLoader<PhotoHolder> imageLoader;
-    private Activity activity;
+    private ImageLoader<ViewHolder> imageLoader;
 
 
-    public PhotoAdapter(List<MeiZhi.Results> datas, ImageLoader<PhotoHolder> imageLoader) {
+    public PhotoAdapter(List<MeiZhi.Results> datas, ImageLoader<ViewHolder> imageLoader) {
         this.datas = datas;
         this.imageLoader = imageLoader;
     }
 
 
-    @Override public PhotoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        this.activity = (Activity) parent.getContext();
-        return new PhotoHolder(
+        return new ViewHolder(
             inflater.inflate(R.layout.item_gallery, parent, false));
     }
 
 
-    @Override public void onBindViewHolder(PhotoHolder holder, int position) {
+    @Override public void onBindViewHolder(ViewHolder holder, int position) {
         // imageLoader.queueImage(holder, datas.get(position).url);
-        Glide.with(activity).load(datas.get(position).url)
-            .into(holder.photoView);
+        Vinci.instance().loadImage(App.getContext(),datas.get(position).url,holder.photoView);
 
     }
 
@@ -53,12 +50,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
     }
 
 
-    public static class PhotoHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView photoView;
 
 
-        public PhotoHolder(View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             photoView = (ImageView) itemView;
         }

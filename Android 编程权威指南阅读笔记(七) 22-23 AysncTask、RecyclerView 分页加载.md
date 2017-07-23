@@ -104,7 +104,7 @@
 
   ​
 
-- Androd 中主线程不能访问网络，工作线程不能刷新 UI。
+- Androd 中主线程不能访问网络，子线程不能刷新 UI。
 
 - Android 中的主线程处于一个无线循环的运行状态，等待着系统或者用户触发事件，事件触发后，主线程便负责执行代码，以响应这些事件。
 
@@ -138,18 +138,14 @@
       //         在 onProgressUpdate 接收进度更新 UI
       // MeiZhi doInBackground 的返回 onPostExecute 参数，后台线程的操作结果
 
-    	@Override protected MeiZhi doInBackground(String... params) {
-
+    @Override protected MeiZhi doInBackground(String... params) {
           for (String param : params) {
             	MLog.i(param);
           }
-
           for (int i = 0; i < 20; i++) {
-            	publishProgress(i);
+            	publishProgress(i);   // 发送进度，必须在 doInBackground 调用
           }
-
           MeiZhi meiZhi = null;
-
           try {
               String result = new HttpUtil().getUrlString(Host.host);
               meiZhi = Gsons.json2Bean(result, MeiZhi.class);
@@ -158,68 +154,86 @@
           }
           return meiZhi;
       }
-  ```
-
-
-    @Override protected void onProgressUpdate(Integer... values) {
-        super.onProgressUpdate(values);
-        MLog.i(values[0]);
-    }
     
+    // 更新进度
+    @Override protected void onProgressUpdate(Integer... values) {
+      	super.onProgressUpdate(values);
+      	MLog.i(values[0]);
+     }
+
     @Override protected void onPostExecute(MeiZhi meiZhi) {
         super.onPostExecute(meiZhi);
         afterMeiZhi(meiZhi);
     }
-
-
+    
     protected abstract void afterMeiZhi(MeiZhi meiZhi);
+    
   }
-
 
   // 使用 MeiZhiTask
   meiZhiTask = new MeiZhiTask() {
-      @Override protected void afterMeiZhi(MeiZhi meiZhi) {
-          if (isAdded()) {
-            	mRecyclerView.setAdapter(new PhotoAdapter(meiZhi.results));
-          }
-      }
+    @Override protected void afterMeiZhi(MeiZhi meiZhi) {
+        if (isAdded()) {
+        	  mRecyclerView.setAdapter(new PhotoAdapter(meiZhi.results));
+        }
+    }
   };
-
   meiZhiTask.execute("ssyijiu", "android");
 
   // onDestroy 取消异步任务
   @Override public void onDestroy() {
-      super.onDestroy();
-      meiZhiTask.cancel(false);
-  }
+    super.onDestroy();
+    meiZhiTask.cancel(false);
+  } 
   ```
 
 - RecyclerView 分页加载 
 
   ```java
   mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-    	@Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-      	super.onScrolled(recyclerView, dx, dy);
-      	if (dy < 0) return;
+      	@Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        	super.onScrolled(recyclerView, dx, dy);
+        	if (dy < 0) return;
 
-          // item 总数，假设是 100
-          final int itemCount = layoutManager.getItemCount();
+            // item 总数，假设是 100
+            final int itemCount = layoutManager.getItemCount();
 
-          // 最后可见 item 的 position，最大值会达到 99
-          final int lastVisiblePosition
-            = layoutManager.findLastCompletelyVisibleItemPosition();
+            // 最后可见 item 的 position，最大值会达到 99
+            final int lastVisiblePosition
+              = layoutManager.findLastCompletelyVisibleItemPosition();
 
-          // itemCount-1 是 99，只有当lastVisiblePosition 达到最大时（99）才会加载下一页
-          final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
-          if (isBottom) {
-            requestData(++mPage);
-          }
-    	}
-  });
+            // itemCount-1 是 99，只有当lastVisiblePosition 达到最大时（99）才会加载下一页
+            final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
+            if (isBottom) {
+              requestData(++mPage);
+            }
+      	}
+    });
   ```
 
+- RecyclerView 动态计算网格数目
+
+  ```java
+  // 定义网格宽度
+  mCellWidth = DensityUtil.dp2px(77);
+
+  mRecyclerView.getViewTreeObserver()
+              .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                  @Override public void onGlobalLayout() {
+                      mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                      // 获取 RecyclerView 宽度
+                    	int width = mRecyclerView.getWidth();
+                    	// 计算网格个数
+                      int cellNum = width / mCellWidth;
+                      layoutManager = new GridLayoutManager(mContext, cellNum);
+                      mRecyclerView.setLayoutManager(layoutManager);
+                      if(mRecyclerView.getAdapter() == null) {
+                          setAdapter();
+                      }
+
+                  }
+              });
+  ```
 
   ​
-
-## 第24章：Looper、Handler 和 HandlerThread
 

@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
@@ -27,14 +28,17 @@ import java.util.List;
 
 public class PhotoGalleryFragment extends BaseFragment {
 
+    private static final int LAST_VISIBLE = 8;
     private RecyclerView mRecyclerView;
     private GridLayoutManager layoutManager;
     private PhotoAdapter mAdapter;
     private List<MeiZhi.Results> mDatas = new ArrayList<>();
     private int mCellWidth;
-    private ImageLoader<PhotoAdapter.PhotoHolder> mImageLoader;
+    private ImageLoader<PhotoAdapter.ViewHolder> mImageLoader;
 
     private int mPage = 1;
+    private MeiZhiTask mTask;
+    private MeiZhiTask mTask1;
 
 
     @Override protected int getFragLayoutId() {
@@ -47,13 +51,14 @@ public class PhotoGalleryFragment extends BaseFragment {
 
         // 保留 fragment 横竖屏切换不去重复请求数据
         setRetainInstance(true);
-        requestData(mPage);
+        requestMeiZhi(mPage);
 
         mImageLoader = new ImageLoader<>(new Handler());
         mImageLoader.setImageLoadListener(
-            new ImageLoader.ImageLoadListener<PhotoAdapter.PhotoHolder>() {
-                @Override public void onImageLoadFinish(PhotoAdapter.PhotoHolder target, Bitmap bitmap) {
-                    Drawable drawable = new BitmapDrawable(getResources(),bitmap);
+            new ImageLoader.ImageLoadListener<PhotoAdapter.ViewHolder>() {
+                @Override
+                public void onImageLoadFinish(PhotoAdapter.ViewHolder target, Bitmap bitmap) {
+                    Drawable drawable = new BitmapDrawable(getResources(), bitmap);
                     target.bindMeiZhi(drawable);
                 }
             });
@@ -64,26 +69,24 @@ public class PhotoGalleryFragment extends BaseFragment {
     }
 
 
-    @Override protected void initViewAndData(Bundle savedInstanceState) {
+    @Override protected void initViewAndData(View view, Bundle savedInstanceState) {
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.rv_photogallery);
         mCellWidth = DensityUtil.dp2px(77);
 
-        final ViewTreeObserver observer = mRecyclerView.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override public void onGlobalLayout() {
-                mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                int width = mRecyclerView.getWidth();
-                int cellNum = width / mCellWidth;
-                layoutManager = new GridLayoutManager(mContext, cellNum);
-                mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.getViewTreeObserver()
+            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override public void onGlobalLayout() {
+                    mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    int width = mRecyclerView.getWidth();
+                    int cellNum = width / mCellWidth;
+                    layoutManager = new GridLayoutManager(mContext, cellNum);
+                    mRecyclerView.setLayoutManager(layoutManager);
+                    if(mRecyclerView.getAdapter() == null) {
+                        updateUI();
+                    }
 
-                // 横竖屏旋转后没有 setAdapter，给设置上
-                if (mRecyclerView.getAdapter() == null) {
-                    mAdapter = new PhotoAdapter(mDatas, mImageLoader);
-                    mRecyclerView.setAdapter(mAdapter);
                 }
-            }
-        });
+            });
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -94,29 +97,29 @@ public class PhotoGalleryFragment extends BaseFragment {
                 final int itemCount = layoutManager.getItemCount();
                 final int lastVisiblePosition
                     = layoutManager.findLastCompletelyVisibleItemPosition();
-                final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
+                final boolean isBottom = (lastVisiblePosition >= itemCount - LAST_VISIBLE);
                 if (isBottom) {
-                    requestData(++mPage);
+                    requestMeiZhi(++mPage);
                 }
             }
         });
     }
 
 
-    private void requestData(int page) {
-
-        new MeiZhiTask() {
+    private void requestMeiZhi(int page) {
+        mTask = new MeiZhiTask() {
             @Override protected void afterMeiZhi(MeiZhi meiZhi) {
                 mDatas.addAll(meiZhi.results);
                 updateUI();
             }
-        }.execute(page);
+        };
+
+        mTask.execute(page);
     }
 
 
     private void updateUI() {
-
-        if (isAdded()) {
+        if (isActive()) {
             if (mAdapter == null) {
                 mAdapter = new PhotoAdapter(mDatas, mImageLoader);
                 mRecyclerView.setAdapter(mAdapter);
@@ -135,11 +138,13 @@ public class PhotoGalleryFragment extends BaseFragment {
     @Override public void onDestroyView() {
         super.onDestroyView();
         mImageLoader.clearQueue();
+        mRecyclerView = null;
     }
 
 
     @Override public void onDestroy() {
         super.onDestroy();
+        mTask.cancel(false);
         mImageLoader.quit();
     }
 

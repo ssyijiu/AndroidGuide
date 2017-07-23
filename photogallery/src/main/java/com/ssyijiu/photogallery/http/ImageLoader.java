@@ -66,18 +66,11 @@ public class ImageLoader<T> extends HandlerThread {
                 // 创建一个消息
                 // target: mRequestHandler
                 // what: MESSAGE_DOWNLOAD
-                // obj: target(PhotoHolder)
+                // obj: target(ViewHolder)
                 Message msg = mRequestHandler.obtainMessage(MESSAGE_DOWNLOAD, target);
 
                 // handler.sendMessage(msg)
                 msg.sendToTarget();
-
-                // 相当于
-                // Message message = Message.obtain();
-                // message.what = MESSAGE_DOWNLOAD;
-                // message.obj = target;
-                // mRequestHandler.sendMessage(message);
-            // }
         }
     }
 

@@ -39,6 +39,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void initFragment(){}
 
-    protected void initViewAndData(Bundle savedInstanceState) {};
+    protected void initViewAndData(Bundle savedInstanceState) {}
 
 }

@@ -41,32 +41,28 @@ public abstract class BaseFragment extends Fragment {
     @Nullable @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
-        // if (mRootView == null) {
+        if (mRootView == null) {
             mRootView = inflater.inflate(getFragLayoutId(), container, false);
-            initViewAndData(savedInstanceState);
-        // }
+        }
         return mRootView;
+    }
+
+
+    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initViewAndData(view, savedInstanceState);
     }
 
 
     protected abstract int getFragLayoutId();
 
-    protected abstract void initViewAndData(Bundle savedInstanceState);
+    protected abstract void initViewAndData(View rootView, Bundle savedInstanceState);
 
 
-
-
-    // fix bug：E/RecyclerView: No adapter attached; skipping layout
-    // RecyclerView 被缓存了，横竖屏旋转后 findView 找到的依然是以前的，无法更新 UI
-    private SparseArray<View> mViews = new SparseArray<>();
-
-    public <T extends View> T findView(int viewId) {
-        View view = mViews.get(viewId);
-        if (view == null) {
-            view = mRootView.findViewById(viewId);
-            mViews.put(viewId, view);
-        }
-        return (T) view;
+    public boolean isActive() {
+        return mContext != null
+            && mRootView != null
+            && mRootView.getWindowToken() != null
+            && isAdded();
     }
-
 }
