@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.squareup.leakcanary.LeakCanary;
 import com.ssyijiu.common.Common;
+import com.ssyijiu.photogallery.image.Vinci;
 
 /**
  * Created by ssyijiu on 2017/4/17.
@@ -18,8 +19,9 @@ public class App extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-        Common.init(this);
         sApp = this;
+        Common.init(this);
+        Vinci.init(this);
 
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
