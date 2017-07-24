@@ -9,23 +9,26 @@ import java.lang.ref.WeakReference;
  * E-mail: lxmyijiu@163.com
  */
 
-public class SafetyHandler extends Handler {
+public class SafetyHandler<T> extends Handler {
 
     /**
      * 外部引用, 例如 Activity, Fragment, Dialog, View 等
      */
-    protected WeakReference<Object> mTargetRef ;
+    private WeakReference<T> mTargetRef;
+
 
     public SafetyHandler() {
     }
 
-    public SafetyHandler(Object external) {
-        this.mTargetRef = new WeakReference<>(external);
+
+    public SafetyHandler(T target) {
+        this.mTargetRef = new WeakReference<>(target);
     }
 
-    protected  <T> T getTarget() {
-        if ( isTargetAlive() ) {
-            return (T) mTargetRef.get() ;
+
+    protected T getTarget() {
+        if (isTargetAlive()) {
+            return mTargetRef.get();
         } else {
             removeCallbacksAndMessages(null);
             return null;
@@ -34,8 +37,12 @@ public class SafetyHandler extends Handler {
     }
 
 
-    protected boolean isTargetAlive() {
+    private boolean isTargetAlive() {
         return mTargetRef != null && mTargetRef.get() != null;
     }
 
+
+    public void setTarget(T target) {
+        this.mTargetRef = new WeakReference<>(target);
+    }
 }

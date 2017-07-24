@@ -1,16 +1,16 @@
 package com.ssyijiu.photogallery;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.bean.MeiZhi;
@@ -34,11 +34,10 @@ public class PhotoGalleryFragment extends BaseFragment {
     private PhotoAdapter mAdapter;
     private List<MeiZhi.Results> mDatas = new ArrayList<>();
     private int mCellWidth;
-    private ImageLoader<PhotoAdapter.ViewHolder> mImageLoader;
+    private ImageLoader<ImageView> mImageLoader;
 
     private int mPage = 1;
     private MeiZhiTask mTask;
-    private MeiZhiTask mTask1;
 
 
     @Override protected int getFragLayoutId() {
@@ -53,13 +52,12 @@ public class PhotoGalleryFragment extends BaseFragment {
         setRetainInstance(true);
         requestMeiZhi(mPage);
 
-        mImageLoader = new ImageLoader<>(new Handler());
+        mImageLoader = new ImageLoader<>(new Handler(Looper.getMainLooper()));
         mImageLoader.setImageLoadListener(
-            new ImageLoader.ImageLoadListener<PhotoAdapter.ViewHolder>() {
+            new ImageLoader.LoadFinishListener<ImageView>() {
                 @Override
-                public void onImageLoadFinish(PhotoAdapter.ViewHolder target, Bitmap bitmap) {
-                    Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-                    target.bindMeiZhi(drawable);
+                public void onImageLoadFinish(ImageView target, Bitmap bitmap) {
+                    target.setImageBitmap(bitmap);
                 }
             });
 

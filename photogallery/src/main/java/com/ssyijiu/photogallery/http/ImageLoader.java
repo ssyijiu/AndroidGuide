@@ -25,17 +25,17 @@ public class ImageLoader<T> extends HandlerThread {
     private ConcurrentMap<T, String> mRequestMap = new ConcurrentHashMap<>();
 
     // 主线程 Handler
-    private Handler mResponseHandler;
-    private ImageLoadListener<T> mImageLoadListener;
+    private Handler nMainHandler;
+    private LoadFinishListener<T> mLoadFinishListener;
 
 
-    public interface ImageLoadListener<T> {
+    public interface LoadFinishListener<T> {
         void onImageLoadFinish(T target, Bitmap bitmap);
     }
 
 
-    public void setImageLoadListener(ImageLoadListener<T> listener) {
-        mImageLoadListener = listener;
+    public void setImageLoadListener(LoadFinishListener<T> listener) {
+        mLoadFinishListener = listener;
     }
 
 
@@ -44,7 +44,7 @@ public class ImageLoader<T> extends HandlerThread {
 
     public ImageLoader(Handler mainHandler) {
         super(TAG);
-        mResponseHandler = mainHandler;
+        nMainHandler = mainHandler;
     }
 
 
@@ -55,22 +55,21 @@ public class ImageLoader<T> extends HandlerThread {
 
 
     // 分发下载任务
-    public void queueImage(T target, String url) {
+    public void queueImage(T obj, String url) {
         if (url == null) {
-            mRequestMap.remove(target);
+            mRequestMap.remove(obj);
         } else {
 
-            // if(!mRequestMap.containsKey(target)) {
-                mRequestMap.put(target, url);
+            mRequestMap.put(obj, url);
 
-                // 创建一个消息
-                // target: mRequestHandler
-                // what: MESSAGE_DOWNLOAD
-                // obj: target(ViewHolder)
-                Message msg = mRequestHandler.obtainMessage(MESSAGE_DOWNLOAD, target);
+            // 创建一个消息
+            // target: mRequestHandler
+            // what: MESSAGE_DOWNLOAD
+            // obj: obj (ViewHolder)
+            Message msg = mRequestHandler.obtainMessage(MESSAGE_DOWNLOAD, obj);
 
-                // handler.sendMessage(msg)
-                msg.sendToTarget();
+            // handler.sendMessage(msg)
+            msg.sendToTarget();
         }
     }
 
@@ -104,26 +103,28 @@ public class ImageLoader<T> extends HandlerThread {
 
         // 子线程下载图片
         byte[] bitmapBytes = new HttpUtil().getUrlBytes(url);
+
+        if(bitmapBytes == null) return;
         final Bitmap bitmap = BitmapFactory
             .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
 
         // 主线程刷新 UI
-        mResponseHandler.post(new Runnable() {
+        nMainHandler.post(new Runnable() {
             @Override public void run() {
 
                 if (!mRequestMap.get(target).equals(url)
-                        || hasQuit) {
+                    || hasQuit) {
                     return;
                 }
 
                 mRequestMap.remove(target);
-                if (mImageLoadListener != null) {
-                    mImageLoadListener.onImageLoadFinish(target, bitmap);
+                if (mLoadFinishListener != null) {
+                    mLoadFinishListener.onImageLoadFinish(target, bitmap);
                 }
             }
         });
-
     }
+
 
     public void clearQueue() {
         mRequestHandler.removeMessages(MESSAGE_DOWNLOAD);

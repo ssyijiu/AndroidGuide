@@ -22,10 +22,10 @@ import java.util.List;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
     private List<MeiZhi.Results> datas;
-    private ImageLoader<ViewHolder> imageLoader;
+    private ImageLoader<ImageView> imageLoader;
 
 
-    public PhotoAdapter(List<MeiZhi.Results> datas, ImageLoader<ViewHolder> imageLoader) {
+    public PhotoAdapter(List<MeiZhi.Results> datas, ImageLoader<ImageView> imageLoader) {
         this.datas = datas;
         this.imageLoader = imageLoader;
     }
@@ -39,8 +39,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
 
     @Override public void onBindViewHolder(ViewHolder holder, int position) {
-        // imageLoader.queueImage(holder, datas.get(position).url);
-        Vinci.instance().loadImage(App.getContext(),datas.get(position).url,holder.photoView);
+        imageLoader.queueImage(holder.photoView, datas.get(position).url);
+        // Vinci.instance().loadImage(App.getContext(),datas.get(position).url,holder.photoView);
 
     }
 
@@ -58,11 +58,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         public ViewHolder(View itemView) {
             super(itemView);
             photoView = (ImageView) itemView;
-        }
-
-
-        public void bindMeiZhi(Drawable drawable) {
-            photoView.setImageDrawable(drawable);
         }
     }
 }
