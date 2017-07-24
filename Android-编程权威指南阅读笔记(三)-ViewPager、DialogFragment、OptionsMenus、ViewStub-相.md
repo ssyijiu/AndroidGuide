@@ -1,4 +1,5 @@
-# Android 编程权威指南阅读笔记
+> 版权声明：  本文来自 [书生依旧](http://www.jianshu.com/p/628f138cf995) 的简书，转载请注明出处。
+
 
 ## 第11章：使用 ViewPager 
 
@@ -31,9 +32,9 @@
 - 使用 Dump Java Heap 检测 CrimeFragment 的数量，在 ViewPager 中滑动 20 次，点击 GC 之后
 
   - 使用 FragmentStatePagerAdapter 内存中存在 3 个 CrimeFragment 
-  - ![](http://obe5pxv6t.bkt.clouddn.com/FragmentStatePagerAdapter_count.png)
+  - ![](http://upload-images.jianshu.io/upload_images/1342220-f81f2ed2daae2082.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
   - 使用 FragmentPagerAdapter 内存中存在 23 个 CrimeFragment  
-  - ![](http://obe5pxv6t.bkt.clouddn.com/FragmentPagerAdapter_count.png)
+  - ![](http://upload-images.jianshu.io/upload_images/1342220-79e4559d5d70769d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - PageAdapter 的使用：
 
@@ -97,9 +98,9 @@
   return builder.create();
   ```
 
-  上述代码的按钮效果：
+  上述代码的按钮效果，主要看按钮：
 
-  ![](http://obe5pxv6t.bkt.clouddn.com/alertdialog_button_type.png)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-101bc6d68b706abc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
   注意：PositiveButton 总是在最右边，NeutralButton 总是在最左边，NeutralButton 如果有 PositiveButton 的话在中间，没有的话在最右边。
 
@@ -116,7 +117,7 @@
 
 - 同一个 Activity 托管的两个 fragment 之间传递数据
 
-  - ![](http://obe5pxv6t.bkt.clouddn.com/fragment_data_fragment.png)
+  - ![](http://upload-images.jianshu.io/upload_images/1342220-c0fdd483a8273ca4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
   ​
 
@@ -129,9 +130,11 @@
       fragment.setArguments(args);
       return fragment;
   }
+
   // 2. setTargetFragment(Fragment fragment, int requestCode) 
   FragmentManager manager = getFragmentManager();
   DatePickerFragment dialog = DatePickerFragment.newInstance(crime.date);
+
   // 设置要返回数据的 fragment 和 requestCode
   dialog.setTargetFragment(CrimeFragment.this, REQUEST_CRIME_DATE);
   dialog.show(manager, dialog.getClass().getSimpleName());
@@ -142,6 +145,7 @@
          Intent intent = new Intent();
          intent.putExtra(EXTRA_CRIME_DATE, date);  // 要返回的数据
          getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);
+
          // getTargetFragment 前面 setTargetFragment 的 fragment 参数
          // getTargetRequestCode 前面 setTargetFragment 的请求码
        }
@@ -251,7 +255,7 @@
 
   - AndroidManifest 在相应的Activity 中添加 android:parentActivityName=".CrimeListActivity" 出现下图效果
 
-    ![](http://obe5pxv6t.bkt.clouddn.com/parentActivity.png)
+    ![](http://upload-images.jianshu.io/upload_images/1342220-e9adc7efce8fb90d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
   - 点击左面箭头会执行
 
@@ -313,7 +317,9 @@
   - 等等，你说没效果？把手机语言设置为英语，谷歌这样说的：
 
     ```xml
-    but it's important to note that some languages (such as Chinese) don't make these grammatical distinctions at all, so you'll always get the other string.
+    but it's important to note that some languages (such as Chinese) 
+    don't make these grammatical distinctions at all, 
+    so you'll always get the other string.
 
     // 注意，一些语言（如中文）不会完全符合这些语法区别，所以你总会得到 other 的字符串。
     // 也是，总不能说："1个猴子" , "2个猴子们" 这种话吧。
@@ -321,9 +327,9 @@
 
     ​
 
-  - quantity 取值及描述
+  - quantity 取值及描述   
 
-    | 值     | 描述                                       |
+| 值     | 描述                                        |  
     | ----- | ---------------------------------------- |
     | zero  | 语言需要对数字0进行特殊处理。（比如阿拉伯语）                  |
     | one   | 语言需要对类似1的数字进行特殊处理。（比如英语和其它大多数语言里的1；在俄语里，任何以1结尾但不以11结尾的数也属于此类型。） |
@@ -338,7 +344,7 @@
   AppCompatActivity activity = (AppCompatActivity) context;
   ActionBar actionBar = activity.getSupportActionBar();
   if(actionBar != null) {
-    	// 如果 subtitle == null，副标题将会隐藏
+      // 如果 subtitle == null，副标题将会隐藏
   	actionBar.setSubtitle(subtitle);
   }
   ```

@@ -1,5 +1,4 @@
-# Android 编程权威指南阅读笔记
-
+> 版权声明：  本文来自 [书生依旧](http://www.jianshu.com/p/f7138c9fb534) 的简书，转载请注明出处。
 
 ## 第17章：Master-Detail 用户界面 
 
@@ -92,7 +91,7 @@
    }
    ```
 
-   思考：在平板上如何实现、点击 List，然后将 CrimeFragment 添加到 Activity
+   思考：在平板上如何实现点击 List，然后将 CrimeFragment 添加到 Activity ?
 
    这实际是 Activity 中两个 Fragment 之间的通信，为保持 fragment 的独立性，我们可以在 fragment 中定义   回调接口，委托拖管 activity 来完成那些不应由 fragment 处理的任务。  
 

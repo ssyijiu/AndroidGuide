@@ -1,4 +1,4 @@
-# Android 编程权威指南阅读笔记
+> 版权声明：  本文来自 [书生依旧](http://www.jianshu.com/p/1b6e33aaddc3) 的简书，转载请注明出处。
 
 ## 第7章：UI fragment 和 fragment 管理器
 - Fragement 的引入使 Adnroid UI 设计更加灵活。
@@ -7,9 +7,9 @@
 
 - id 的类型使用 UUID
 
-- Fragment 的生命周期有托管它的 Activity 调用。
+- Fragment 的生命周期由托管它的 Activity 调用。
 
-- ![](http://obe5pxv6t.bkt.clouddn.com/complete_android_fragment_lifecycle.png)
+- ![](http://upload-images.jianshu.io/upload_images/1342220-7f1e6d6c072ae14f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - Activity 添加 Fragment 的两种方式
     - 在布局中写死（不够灵活，不推荐使用）
@@ -20,7 +20,7 @@
 - ```java
     FragmentManager fm = getFragmentManager();
 
-    // 内存重启或者屏幕旋转时，FragmentManager会先保存fragment队列，然后将fragment队列恢复到原来的状态。
+    // 内存重启或者屏幕旋转时，FragmentManager 会先保存 fragment 队列，然后将 fragment 队列恢复到原来的状态。
     // 此时如果 fragment 已经在 fragment 队列中了，直接获取就好。
     Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
@@ -45,13 +45,13 @@
 
 - 内存重启或者屏幕旋转时，FragmentManager 会先保存 fragment 队列，然后将 fragment 队列到原来的状态。
 
-- FragmentManager 负责调用 Activity 的生命周期，add() 时候，onAttach、onCreate、onCreateView 等生命周期才会调用。
+- FragmentManager 负责调用 Activity 的生命周期，add() fragment 时候，onAttach、onCreate、onCreateView 等生命周期才会调用。
 
 - 封装可复用组件是 Google 设计 fragment 的本意。
 
 - 合理的使用 fragment 一个良好的原则：应用单屏至多使用 2~3 个 fragment。
 
-    ![](http://obe5pxv6t.bkt.clouddn.com/use-fragment.png)
+    ![](http://upload-images.jianshu.io/upload_images/1342220-95c58b411785164f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
 
@@ -74,7 +74,7 @@
           });
   ```
 
-- CompoundButton ![](http://obe5pxv6t.bkt.clouddn.com/CompoundButton.png)
+- CompoundButton ![](http://upload-images.jianshu.io/upload_images/1342220-91ed1bd548eb3d48.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - style 是 XML  资源文件，含有描述组件行为和外观的定义，可以自己定义。
 
@@ -86,7 +86,7 @@
 
 - 以 layout 开头的属性作用于组件的父组件，它们会告诉父布局如何安排自己的子元素。
 
-- 创建水平布局 ![](http://obe5pxv6t.bkt.clouddn.com/create_land_layout.png)
+- 创建水平布局 ![](http://upload-images.jianshu.io/upload_images/1342220-e11fff822aafa1ea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - layout_weight 将 layout_width(layout_height) 分配后的剩余空间按照比例分配。
 
@@ -94,14 +94,14 @@
   // 判断横竖屏
   public static boolean isScreenPortrait() {
           return Common.getAppResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
-      }
+}
   ```
 
 
 
 ## 第9章：使用 RecyclerView 显示列表 
 
-- 应用在内存里存多久，单例久存多久。
+- 应用在内存里存多久，单例就存多久。
 
 - 抽象 SingleFragmentActivity
 
@@ -196,7 +196,7 @@
           }
       }
 
-  	  // 使用
+      // 使用
       crimeRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
       adapter = new CrimeAdapter(CrimeLab.get().getCrimeList());
       crimeRecycler.setAdapter(adapter);
@@ -230,13 +230,13 @@
 
     - 这种方法使用稍微复杂，但是保证了 fragment 的通用性。
 
-    - 为什么不使用一些变量保存数据呢？内存重启是变量保存的数据被清空。
+    - 为什么不使用一些变量保存数据呢？内存重启时变量保存的数据被清空。
 
   - fragment 的生命周期会与托管其的 Activity 的生命周期保持一致，比如当 Activity 调用 onResume 的时候，它托管的 fragment 也会调用这个方法。
 
   - fragment 拥有 startActivityForResult、onActivityResult 但是没有 setResult 方法，需要调用 getActivity.setResult 
 
-  - fragment 向另一个 fragment 传递数据并获取返回值流程：
+  - 两个不同 Activity 中的 fragment 之间传递数据并获取返回值流程：
 
     ```java
     // 1. startActivityForResult
@@ -273,4 +273,3 @@
         }
     }
     ```
-

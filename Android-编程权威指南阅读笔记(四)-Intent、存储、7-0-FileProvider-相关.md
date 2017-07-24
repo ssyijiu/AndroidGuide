@@ -1,5 +1,4 @@
-# Android 编程权威指南阅读笔记
-
+> 版权声明：  本文来自 [书生依旧](http://www.jianshu.com/p/fe8ac0b1293c) 的简书，转载请注明出处。
 
 ## 第15章：隐式 Intent 
 
@@ -137,9 +136,9 @@
     * 检查意图是否可用
     */
   public static boolean checkIntentAvailable(Intent intent) {
-      PackageManager packageManager = Common.getContext().getPackageManager();
-      // 只匹配清单文件中带 CATEGORY_DEFAULT 标志的 activity
-      return packageManager.resolveActivity(intent,
+    	PackageManager packageManager = Common.getContext().getPackageManager();
+    	// 只匹配清单文件中带 CATEGORY_DEFAULT 标志的 activity
+    	return packageManager.resolveActivity(intent,
                    PackageManager.MATCH_DEFAULT_ONLY) != null;
   }
   ```
@@ -165,7 +164,7 @@
 
   - 特点：默认是只能被你的 app 访问、用户卸载 app 是数据会被清除、确保不被其他 app 访问的最佳存储区域。
 
-    ```java
+  - ```java
     context.getFilesDir();   // /data/data/pacgage_name/files
     context.getCacheDir();   // /data/data/package_name/cache
 
@@ -186,18 +185,18 @@
 
   - 私有存储
 
-  -  特点：相对私有、App 卸载时文件会被清除
+   - 特点：相对私有、App 卸载时文件会被清除
 
       ```java
       // /sdcard/Android/date/package_name/cache
       // 非常适合存放缓存数据
       context.getExternalCacheDir()
-
+      
       // /sdcard/Android/date/package_name/files/
-      context.getExternalFilesDir(String type)  
-      // type 用来指定数据类型，例如 Environment.DIRECTORY_MUSIC
-      // -> /sdcard/Android/date/package_name/files/Music
-      // type 为 null 时, 目录为: /sdcard/Android/date/package_name/files
+    context.getExternalFilesDir(String type)  
+    // type 用来指定数据类型，例如 Environment.DIRECTORY_MUSIC
+    // -> /sdcard/Android/date/package_name/files/Music
+    // type 为 null 时, 目录为: /sdcard/Android/date/package_name/files
       ```
 
   - 公共存储
@@ -235,7 +234,7 @@
        *
        * @param name 缓存的文件或者目录名称
        * @return sd卡可用路径为   /sdcard/Android/data/package_name/cache/fileName
-       *       sd卡不可用路径为 /data/data/package_name/cache/fileName
+       * 		   sd卡不可用路径为 /data/data/package_name/cache/fileName
        */
       public static File getDiskCache(String name) {
           String cachePath;
@@ -275,7 +274,7 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
           android:maxSdkVersion="18"
           />
-```
+  ```
 
 #### 使用相机及 Android 7.0 适配
 
@@ -289,9 +288,9 @@
   Uri uri;
   // 适配 Android 7.0
   if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-    uri = Uri.fromFile(crimePhotoFile);
+  	uri = Uri.fromFile(crimePhotoFile);
   } else {
-    uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhotoFile);
+  	uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".crime_images", crimePhotoFile);
   }
 
   // 使用 EXTRA_OUTPUT 才能获取全尺寸图片，图片会保存到文件系统中，并对应一个 uri
@@ -301,9 +300,9 @@
 
   // 2. onActivityResult
   @Override public void onActivityResult(int requestCode, int resultCode, final Intent data) {
-      if(requestCode == REQUEST_PHOTO
-            && resultCode == Activity.RESULT_OK) {
-        // 操作图片文件 crimePhotoFile
+    	if(requestCode == REQUEST_PHOTO
+        		&& resultCode == Activity.RESULT_OK) {
+      	// 操作图片文件 crimePhotoFile
       }
   }
   ```
@@ -318,19 +317,19 @@
 
   ```xml
   <provider
-    android:name="android.support.v4.content.FileProvider"
-    android:authorities="${applicationId}.crime_images"
-    android:exported="false"
-    android:grantUriPermissions="true">  
-      <meta-data
-      android:name="android.support.FILE_PROVIDER_PATHS"
-      android:resource="@xml/provider_takephoto" />
+  	android:name="android.support.v4.content.FileProvider"
+  	android:authorities="${applicationId}.crime_images"
+  	android:exported="false"
+  	android:grantUriPermissions="true">  
+    	<meta-data
+  		android:name="android.support.FILE_PROVIDER_PATHS"
+  		android:resource="@xml/provider_takephoto" />
   </provider>
   ```
 
   android:authorities 属性在代码中会用到。它的值是一个由 build.gradle 文件中的 **applicationId** 值和自定义的名称组成的 Uri 字符串（约定俗成）。
 
-  android:grantUriPermissions  是否授予 URI 临时访问权限。
+  android:grantUriPermissions  是否允许授予 URI 临时访问权限，注意是 allow  grant 不是 grant
 
   2、res/xml/provider_takephoto.xml
 
@@ -365,6 +364,31 @@
   // 其实 FileProvider 就是继承了 ContentProvider
   ```
 
+  4、授予 Content URI 访问权限
+    方式一
+    调用 Context.grantUriPermission(package, Uri, mode_flags) 为 content URI 授权，三个参数分别表示授权访问 URI 对象的应用包名，授权访问的 Uri 对象，和授权类型。其中，授权类型为 Intent 类提供的读写类型常量：
+
+  ```java
+  FLAG_GRANT_READ_URI_PERMISSION       // 读
+  FLAG_GRANT_WRITE_URI_PERMISSION      // 写
+  ```
+  可以同时选择
+  权限的有效期为：revokeUriPermission() 方法调用或重启设备。
+
+  方式二
+  使用 Intent 的 setData() 方法将 content URI 放入 Intent 中
+  然后 Intent.setFlags() 设置 flag 为
+  ```java
+  FLAG_GRANT_READ_URI_PERMISSION     // 读
+  FLAG_GRANT_WRITE_URI_PERMISSION    // 写
+  ```
+  可以同时选择
+  权限的有效期为：获取权限的 Activity 所在的 stack 存于存活状态，当这个 stack 销毁，权限移除。使用这种方法该 Activity 所在应用的其他组件也会获取该权限。
+
+  注意：使用相机拍照的时候我们没做这一步是因为我们仅仅需要的是打开相机，在 onActivityResult 方法返回给我们的 Intent 中已经由相机添加了 Content URI 访问权限
+
+  
+- [官方文档](https://developer.android.google.cn/reference/android/support/v4/content/FileProvider.html)
 
 - Bitmap 压缩
 
@@ -382,9 +406,9 @@
       int inSampleSize = 1;
       if (srcHeight > destHeight || srcWidth > destWidth) {
           if (srcWidth > srcHeight) {
-              inSampleSize = Math.round(srcHeight / destHeight);
+            	inSampleSize = Math.round(srcHeight / destHeight);
           } else {
-              inSampleSize = Math.round(srcWidth / destWidth);
+            	inSampleSize = Math.round(srcWidth / destWidth);
           }
       }
 
@@ -407,7 +431,7 @@
             // 感觉和 uses-feature 冲突呢 。。
             android:required="false" 
             />
-```
+    ```
 
 
 
@@ -419,11 +443,9 @@
   final ViewTreeObserver observer = view.getViewTreeObserver();
   observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
       @Override public void onGlobalLayout() {
+          view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
           int width = view.getWidth();
           int height = view.getHeight();
-          if (observer.isAlive()) {
-              observer.removeOnGlobalLayoutListener(this);
-          }
       }
   });
   ```

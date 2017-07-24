@@ -1,4 +1,5 @@
-# Android 编程权威指南阅读笔记
+> 版权声明：  本文来自 [书生依旧](http://www.jianshu.com/p/98915d2854ed) 的简书，转载请注明出处。
+原文链接： http://www.jianshu.com/p/98915d2854ed 
 
 ## 第18章：Assets 
 
@@ -6,13 +7,15 @@
 
 - 创建 asserts
 
-  ![](http://obe5pxv6t.bkt.clouddn.com/load_assert.png)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-60ab334a813d4c06.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - 访问 asserts 文件
 
   ```java
+  // sample_sounds 是 asserts 的子文件夹（asserts/sample_sounds）
+  private static final String SOUNDS_FOLDER = "sample_sounds";
   AssetManager assetManager = Common.getContext().getAssets();
-  // 获取 asserts/SOUNDS_FOLDER 下的所有文件
+  // 获取 asserts/sample_sounds 下的所有文件
   String[] soundNames = assetManager.list(SOUNDS_FOLDER);
 
   // 打开 asserts 中的文件（filename 是 soundNames 的一个元素）
@@ -46,6 +49,19 @@
 - 播放音频文件
 
   ```java
+
+  /**
+   * 封装音频对象
+   */
+  public class Sound {
+    private String assetPath;    // 音频的 asserts 路径
+    private String name;         // 音频名称
+    private Integer soundId;     // 音频加载 id
+ }
+
+  /**
+   * 加载音频
+   */
   private void load(Sound sound) throws IOException {
       AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
       // 加载音频，准备播放，加载失败返回 null
@@ -54,20 +70,23 @@
       sound.setSoundId(soundId);
   }
 
+  /**
+   * 播放音频
+   */
   public void play(Sound sound) {
   	Integer soundId = sound.getSoundId();
   	if(soundId == null) {
   		return;
   	}
     
-    	// 播放音频
+      // 播放音频
       soundPool.play(soundId, 1.0f, 1.0f, 1, 0, 1.0f);
-    	// @param soundID a soundID returned by the load() function
-    	// @param leftVolume left volume value (range = 0.0 to 1.0)
-    	// @param rightVolume right volume value (range = 0.0 to 1.0)
-    	// @param priority stream priority (0 = lowest priority)
-    	// @param loop loop mode (0 = no loop, -1 = loop forever)
-    	// @param rate playback rate (1.0 = normal playback, range 0.5 to 2.0)
+      // @param soundID a soundID returned by the load() function
+      // @param leftVolume left volume value (range = 0.0 to 1.0)
+      // @param rightVolume right volume value (range = 0.0 to 1.0)
+      // @param priority stream priority (0 = lowest priority)
+      // @param loop loop mode (0 = no loop, -1 = loop forever)
+      // @param rate playback rate (1.0 = normal playback, range 0.5 to 2.0)
   }
   ```
 
@@ -90,16 +109,18 @@
       setRetainInstance(true);  // 保留 fragment，默认 false
   }
   ```
-
+  - 保留 fragment 可以销毁和重建 fragment 视图，但无需销毁 fragment 本身。
   - 已经保留的 fragment 不会随着 activity 一起销毁，它会一直保留并在需要的时候原封不动的传递给 activity。
 
-  - 在设备配置发生变化时，FragmentManager 首先销毁队列中的 fragment 视图，紧接着检查每个 fragment 的  retainInstance 的属性值，如果是 false FragmentManager 会立刻销毁该 fragment 实例，如果是 true 则不销毁 fragment 实例。
+  - 在设备配置发生变化时，FragmentManager 首先销毁队列中的 fragment 视图（新的配置可能需要新的资源来匹配，当有更合适的资源时，需要重建视图），紧接着检查每个 fragment 的  retainInstance 的属性值，如果是 false FragmentManager 会立刻销毁该 fragment 实例及其视图，随后为适应新的配置，新的 Activity 中 新的 FragmentManager 会创建一个新的 fragment 及其视图；如果是 true 则 FragmentManager 只会销毁 fragment 视图，但不销毁 fragment 本身，当新的 Activity 创建后，新的 FragmentManager 会找到被保留的 fragment 并重建它的视图。
+
+  - 保留 fragment 中的 View 全部会销毁重建，其他成员变量不会销毁。
 
   - 虽然保留的 fragment 没有被销毁，但是它已脱离销毁的 activity 并处于保留状态，此时 fragment 仍然存在，但是没有任何 activity 托管它。
 
-  - 保留的 fragment ，在设备配置发生变化时，不会走 onDestory 方法
+  - 保留的 fragment ，在设备配置发生变化时，不会走 onDestory 方法，自然也不会走 onCreate 方法。
 
-    ![](http://obe5pxv6t.bkt.clouddn.com/fragment_life.png)
+    ![](http://upload-images.jianshu.io/upload_images/1342220-9cb47e0155086571.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
 
@@ -109,6 +130,10 @@
 - 保留 fragment 的缺点
   - 对于 Android 系统来说相比非保留 fragment 而言更加复杂。
   - Activity 因系统需要回收内存被销毁时，保留 fragment 也会被销毁。 （使用 onSaveInstanceState 解决）
+- 什么时候使用保留 fragment ？
+  - 设备配置发生变化时，不重复请求数据，可以在 onCreate 中请求数据，然后将 fragment 设置为保留
+  - 在设备配置发生变化时，用来保存一些 savedInstanceState 不容易保存的东西，比如  SoundPool
+  - 短暂保留数据时，可以使用保留 fragment 来代替 savedInstanceState，如果需要持久保存数据，还是要使用 savedInstanceState，因为当系统因回收内存销毁 Activity 是，fragment 也会被销毁，保留 fragment 也会随之被销毁。
 
 
 
@@ -294,8 +319,8 @@
 
   - 点 9 图左边和上面的黑线用来确定伸缩区域，右边和下边的黑线用来确定内容区域。
 
-  - 伸缩区域将点 9 图分为 9 部分，其中 4 个角落（1、3、7、9）不会被伸缩、边缘的 4 个部分（2、4、6、8）只按一个维度伸缩、中间部分（5）按照两个维度伸缩。
-
+  - 伸缩区域将点 9 图分为 9 部分，其中 4 个角落（1、3、7、9）不会被伸缩、边缘的 4 个部分（2、4、6、8）只按一个维度伸缩、中间部分（5）按照两个维度伸缩。  
+  
     ![](http://obe5pxv6t.bkt.clouddn.com/9patch_1.bmp)
 
     ![](http://obe5pxv6t.bkt.clouddn.com/9patch_2.bmp)
@@ -304,4 +329,4 @@
 
   - 制作点 9 图：重新命名你的图片为 xxx.9.png，使用 Android Studio 重新打开，使用鼠标标记出伸缩区域和内容区域即可，按住 Shift 可以去掉标记的区域。
 
-- 把应用的启动图标放在 mipmap 中，其他图片反正 drawable 中。 
+- 把应用的启动图标放在 mipmap 中，其他图片反正 drawable 中。

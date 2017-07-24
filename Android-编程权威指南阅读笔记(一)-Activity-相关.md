@@ -1,4 +1,6 @@
-# Android 编程权威指南阅读笔记
+> 版权声明：  本文来自[书生依旧](http://www.jianshu.com/p/6212c59ab59d)简书，转载请注明出处。
+
+一本基础书，最近半年一直研究 MVP、RxJava、Retrofit 相关的东西，复习下基础。
 
 ## 第1章：Android 开发初体验 
 
@@ -11,7 +13,7 @@
 - Control + R：Run
 
 - Android 编译过程
-  ![](http://obe5pxv6t.bkt.clouddn.com/android%20%E6%89%93%E5%8C%85%E8%BF%87%E7%A8%8B.png)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-e3cded99a36184ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
         1、使用 aapt 打包资源文件，生成 R.java 文件。
         2、使用 aidl 工具处理 aidl 文件，生成相应  java 文件。
@@ -31,7 +33,7 @@
 
 - C：控制对象，视图对象与模型对象的纽带，响应视图对象触发的各种事件，管理模型对象与视图之间的数据流动，有 Activity、Fragment 等构成。
 
-  ![](http://obe5pxv6t.bkt.clouddn.com/Android-MVC.png)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-d8e0740359deb521.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - 思考：这种模型看起来非常不错，但是由于 xml 文件的功能太弱，自己无法独立承担视图层的任务，更多的时候需要 Activity/Fragment 的帮助来控制各个 View 的状态，于是 Activity/Fragment 的代码的会变得异常臃肿，导致后期维护及其困难。而 [MVP](https://github.com/googlesamples/android-architecture) 的出现大的缓解了这个问题。
 
@@ -43,7 +45,7 @@
 ## 第3章：Activity 的生命周期
 > [官方文档](https://developer.android.google.cn/guide/components/activities.html)
 
-![](http://obe5pxv6t.bkt.clouddn.com/android-lifecycle.png)
+![](http://upload-images.jianshu.io/upload_images/1342220-3e2b542a02994dc8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 - 覆盖 Activity 的生命周期时，先调用超类的实现方法，然后再调用其他方法。
 
 - onPause：Activity 仍然可见，但是不能与用户交互，如：打开一个 Dialog 主题的 Activity 的时候。
@@ -117,14 +119,14 @@
 - Lint：Analyze -> Inspect Code
 
 ## 第5章：第二个 Activity
-- 显示横屏预览 ![](http://obe5pxv6t.bkt.clouddn.com/landscape.png)  
+- 显示横屏预览 ![](http://upload-images.jianshu.io/upload_images/1342220-0c568381245e3b9c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)  
 
 - startActivity(Intent) 实际上将请求发送给了操作系统的 ActivityManager。在启动 Activity 前，ActivityManager 会检查指定的 Class 是否在清单文件中配置，如果配置则创建 Activity 并调用其 onCreate 方法，未配置则抛出 ActivityNotFoundException。
-    ![](http://obe5pxv6t.bkt.clouddn.com/startActivity.png)
+    ![](http://upload-images.jianshu.io/upload_images/1342220-0d2544d398c1dcb3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - Intent 是 Android 四大组件与操作系统通信的一种媒介。
 
-  ![](http://obe5pxv6t.bkt.clouddn.com/intent.png)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-0f407be5c625d682.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - ​Intent.putExtra(...) 返回 Intent 本身，可以进行链式调用。
 

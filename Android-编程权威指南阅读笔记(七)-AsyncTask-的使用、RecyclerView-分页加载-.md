@@ -1,4 +1,5 @@
-# Android 编程权威指南阅读笔记
+> 版权声明：  本文来自 [书生依旧](http://www.jianshu.com/p/98915d2854ed) 的简书，转载请注明出处。
+原文链接： http://www.jianshu.com/p/dbc3012b2cf2
 
 ## 第22章：深入学习 Intent 和任务
 
@@ -108,7 +109,7 @@
 
 - Android 中的主线程处于一个无线循环的运行状态，等待着系统或者用户触发事件，事件触发后，主线程便负责执行代码，以响应这些事件。
 
-  ![](http://obe5pxv6t.bkt.clouddn.com/main_thread.png)
+  ![](http://upload-images.jianshu.io/upload_images/1342220-af390196bba3305b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 - 构造带参数的 Uri
 
@@ -133,10 +134,9 @@
   ```java
   public abstract class MeiZhiTask extends AsyncTask<String, Integer, MeiZhi> {
 
-      // String doInBackground 的参数, AsyncTask.execute 的参数，执行前的参数
-      // Integer 用于更新进度，在 doInBackground 使用 publishProgress 发送进度
-      //         在 onProgressUpdate 接收进度更新 UI
-      // MeiZhi doInBackground 的返回 onPostExecute 参数，后台线程的操作结果
+    // String doInBackground 的参数, AsyncTask.execute 的参数，执行前的参数
+    // Integer 用于更新进度，在 doInBackground 使用 publishProgress 发送进度，在 onProgressUpdate 接收进度更新 UI
+    // MeiZhi doInBackground 的返回 onPostExecute 参数，后台线程的操作结果
 
     @Override protected MeiZhi doInBackground(String... params) {
           for (String param : params) {
@@ -150,7 +150,7 @@
               String result = new HttpUtil().getUrlString(Host.host);
               meiZhi = Gsons.json2Bean(result, MeiZhi.class);
           } catch (IOException e) {
-            	MLog.e("Failed to fetch URL: ", e);
+              MLog.e("Failed to fetch URL: ", e);
           }
           return meiZhi;
       }
@@ -172,9 +172,9 @@
 
   // 使用 MeiZhiTask
   meiZhiTask = new MeiZhiTask() {
-    @Override protected void afterMeiZhi(MeiZhi meiZhi) {
-        if (isAdded()) {
-        	  mRecyclerView.setAdapter(new PhotoAdapter(meiZhi.results));
+      @Override protected void afterMeiZhi(MeiZhi meiZhi) {
+          if (isAdded()) {
+        	    mRecyclerView.setAdapter(new PhotoAdapter(meiZhi.results));
         }
     }
   };
@@ -182,8 +182,8 @@
 
   // onDestroy 取消异步任务
   @Override public void onDestroy() {
-    super.onDestroy();
-    meiZhiTask.cancel(false);
+      super.onDestroy();
+      meiZhiTask.cancel(false);
   } 
   ```
 
@@ -197,15 +197,13 @@
 
             // item 总数，假设是 100
             final int itemCount = layoutManager.getItemCount();
-
             // 最后可见 item 的 position，最大值会达到 99
             final int lastVisiblePosition
               = layoutManager.findLastCompletelyVisibleItemPosition();
-
             // itemCount-1 是 99，只有当lastVisiblePosition 达到最大时（99）才会加载下一页
             final boolean isBottom = (lastVisiblePosition >= itemCount - 1);
             if (isBottom) {
-              requestData(++mPage);
+                requestData(++mPage);
             }
       	}
     });
@@ -222,8 +220,8 @@
                   @Override public void onGlobalLayout() {
                       mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                       // 获取 RecyclerView 宽度
-                    	int width = mRecyclerView.getWidth();
-                    	// 计算网格个数
+                      int width = mRecyclerView.getWidth();
+                      // 计算网格个数
                       int cellNum = width / mCellWidth;
                       layoutManager = new GridLayoutManager(mContext, cellNum);
                       mRecyclerView.setLayoutManager(layoutManager);
@@ -236,4 +234,3 @@
   ```
 
   ​
-
