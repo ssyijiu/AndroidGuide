@@ -1,14 +1,19 @@
 package com.ssyijiu.beatbox;
 
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 import com.ssyijiu.beatbox.app.BaseFragment;
 import com.ssyijiu.beatbox.bean.BeatBox;
 import com.ssyijiu.beatbox.recycleradapter.SoundAdapter;
+import com.ssyijiu.common.handler.SafetyHandler;
 import com.ssyijiu.common.log.MLog;
+import com.ssyijiu.common.util.ToastUtil;
 
 /**
  * Created by ssyijiu on 2017/5/12.
@@ -18,9 +23,9 @@ import com.ssyijiu.common.log.MLog;
 
 public class BeatBoxFragment extends BaseFragment {
 
-    private RecyclerView mRecyclerView;
     private BeatBox mBeatBox;
 
+    BeatHandler handler = new BeatHandler(this);
 
     @Override protected int getFragLayoutId() {
         return R.layout.fragment_beat_box;
@@ -36,9 +41,11 @@ public class BeatBoxFragment extends BaseFragment {
 
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-        mRecyclerView = findView(R.id.rv_beat_box);
+        RecyclerView mRecyclerView = findView(R.id.rv_beat_box);
         mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
         mRecyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds(), mBeatBox));
+
+        handler.sendEmptyMessage(0);
     }
 
 
@@ -47,8 +54,24 @@ public class BeatBoxFragment extends BaseFragment {
         mBeatBox.release();
     }
 
-
     public static Fragment newInstance() {
         return new BeatBoxFragment();
+    }
+
+    private static class BeatHandler extends SafetyHandler<BeatBoxFragment> {
+
+        BeatHandler(BeatBoxFragment fragment) {
+            super(fragment);
+        }
+
+        @Override public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(getTarget() != null) {
+                BeatBoxFragment fragment = getTarget();
+                switch (msg.what) {
+                    // fragment
+                }
+            }
+        }
     }
 }

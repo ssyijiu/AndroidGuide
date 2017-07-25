@@ -1,6 +1,7 @@
 package com.ssyijiu.common.handler;
 
 import android.os.Handler;
+import android.os.Message;
 import java.lang.ref.WeakReference;
 
 /**
@@ -9,6 +10,12 @@ import java.lang.ref.WeakReference;
  * E-mail: lxmyijiu@163.com
  */
 
+
+/**
+ * 解决内存泄漏的 Handler，注意复写 {@link Handler#handleMessage(Message)}
+ * @param <T> 外部引用
+ *
+ */
 public class SafetyHandler<T> extends Handler {
 
     /**
@@ -26,7 +33,7 @@ public class SafetyHandler<T> extends Handler {
     }
 
 
-    protected T getTarget() {
+    public T getTarget() {
         if (isTargetAlive()) {
             return mTargetRef.get();
         } else {

@@ -2,12 +2,18 @@ package com.ssyijiu.ceoquiz;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.ssyijiu.common.util.ToastUtil;
+
+import static android.widget.Toast.makeText;
 
 public class QuizActivity extends BaseActivity {
 
