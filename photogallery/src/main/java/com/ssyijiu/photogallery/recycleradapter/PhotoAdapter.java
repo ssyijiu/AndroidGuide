@@ -22,12 +22,10 @@ import java.util.List;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
     private List<MeiZhi.Results> datas;
-    private ImageLoader<ImageView> imageLoader;
 
 
-    public PhotoAdapter(List<MeiZhi.Results> datas, ImageLoader<ImageView> imageLoader) {
+    public PhotoAdapter(List<MeiZhi.Results> datas) {
         this.datas = datas;
-        this.imageLoader = imageLoader;
     }
 
 
@@ -39,8 +37,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
 
     @Override public void onBindViewHolder(ViewHolder holder, int position) {
-        imageLoader.queueImage(holder.photoView, datas.get(position).url);
-        // Vinci.instance().loadImage(App.getContext(),datas.get(position).url,holder.photoView);
+        Vinci.instance().loadImage(App.getContext(),datas.get(position).url,holder.photoView);
 
     }
 

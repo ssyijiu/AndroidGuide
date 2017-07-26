@@ -34,7 +34,6 @@ public class PhotoGalleryFragment extends BaseFragment {
     private PhotoAdapter mAdapter;
     private List<MeiZhi.Results> mDatas = new ArrayList<>();
     private int mCellWidth;
-    private ImageLoader<ImageView> mImageLoader;
 
     private int mPage = 1;
     private MeiZhiTask mTask;
@@ -52,18 +51,6 @@ public class PhotoGalleryFragment extends BaseFragment {
         setRetainInstance(true);
         requestMeiZhi(mPage);
 
-        mImageLoader = new ImageLoader<>(new Handler(Looper.getMainLooper()));
-        mImageLoader.setImageLoadListener(
-            new ImageLoader.LoadFinishListener<ImageView>() {
-                @Override
-                public void onImageLoadFinish(ImageView target, Bitmap bitmap) {
-                    target.setImageBitmap(bitmap);
-                }
-            });
-
-        // 在子线程中准备 Looper
-        mImageLoader.start();
-        mImageLoader.getLooper();
     }
 
 
@@ -119,7 +106,7 @@ public class PhotoGalleryFragment extends BaseFragment {
     private void updateUI() {
         if (isActive()) {
             if (mAdapter == null) {
-                mAdapter = new PhotoAdapter(mDatas, mImageLoader);
+                mAdapter = new PhotoAdapter(mDatas);
                 mRecyclerView.setAdapter(mAdapter);
             } else {
                 mAdapter.notifyDataSetChanged();
@@ -135,7 +122,6 @@ public class PhotoGalleryFragment extends BaseFragment {
 
     @Override public void onDestroyView() {
         super.onDestroyView();
-        mImageLoader.clearQueue();
         mRecyclerView = null;
     }
 
@@ -143,7 +129,6 @@ public class PhotoGalleryFragment extends BaseFragment {
     @Override public void onDestroy() {
         super.onDestroy();
         mTask.cancel(false);
-        mImageLoader.quit();
     }
 
 }
