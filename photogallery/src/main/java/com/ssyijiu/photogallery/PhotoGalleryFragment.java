@@ -1,21 +1,17 @@
 package com.ssyijiu.photogallery;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.bean.MeiZhi;
-import com.ssyijiu.photogallery.http.ImageLoader;
 import com.ssyijiu.photogallery.http.MeiZhiTask;
+import com.ssyijiu.photogallery.http.SearchTask;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +32,9 @@ public class PhotoGalleryFragment extends BaseFragment {
     private int mCellWidth;
 
     private int mPage = 1;
-    private MeiZhiTask mTask;
+    private MeiZhiTask mMeizhiTask;
+    private SearchTask mSearchTask;
+    private String mQueryKey = "丝袜";
 
 
     @Override protected int getFragLayoutId() {
@@ -49,7 +47,8 @@ public class PhotoGalleryFragment extends BaseFragment {
 
         // 保留 fragment 横竖屏切换不去重复请求数据
         setRetainInstance(true);
-        requestMeiZhi(mPage);
+        // requestMeiZhi(mPage);
+        searchMeiZhi(mQueryKey, String.valueOf(mPage));
 
     }
 
@@ -66,7 +65,7 @@ public class PhotoGalleryFragment extends BaseFragment {
                     int cellNum = width / mCellWidth;
                     layoutManager = new GridLayoutManager(mContext, cellNum);
                     mRecyclerView.setLayoutManager(layoutManager);
-                    if(mRecyclerView.getAdapter() == null) {
+                    if (mRecyclerView.getAdapter() == null) {
                         updateUI();
                     }
 
@@ -84,7 +83,8 @@ public class PhotoGalleryFragment extends BaseFragment {
                     = layoutManager.findLastCompletelyVisibleItemPosition();
                 final boolean isBottom = (lastVisiblePosition >= itemCount - LAST_VISIBLE);
                 if (isBottom) {
-                    requestMeiZhi(++mPage);
+                    // requestMeiZhi(++mPage);
+                    searchMeiZhi(mQueryKey, String.valueOf(++mPage));
                 }
             }
         });
@@ -92,14 +92,26 @@ public class PhotoGalleryFragment extends BaseFragment {
 
 
     private void requestMeiZhi(int page) {
-        mTask = new MeiZhiTask() {
+        mMeizhiTask = new MeiZhiTask() {
             @Override protected void afterMeiZhi(MeiZhi meiZhi) {
                 mDatas.addAll(meiZhi.results);
                 updateUI();
             }
         };
 
-        mTask.execute(page);
+        mMeizhiTask.execute(page);
+    }
+
+
+    private void searchMeiZhi(String queryKey, String page) {
+        mSearchTask = new SearchTask() {
+            @Override protected void afterSearch(MeiZhi meiZhi) {
+                mDatas.addAll(meiZhi.results);
+                updateUI();
+            }
+        };
+
+        mSearchTask.execute(queryKey, page);
     }
 
 
@@ -128,7 +140,14 @@ public class PhotoGalleryFragment extends BaseFragment {
 
     @Override public void onDestroy() {
         super.onDestroy();
-        mTask.cancel(false);
+        if(mMeizhiTask != null && !mMeizhiTask.isCancelled()) {
+            mMeizhiTask.cancel(false);
+        }
+
+        if(mSearchTask != null && !mSearchTask.isCancelled()) {
+            mSearchTask.cancel(false);
+        }
+
     }
 
 }

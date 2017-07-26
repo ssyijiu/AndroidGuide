@@ -23,7 +23,7 @@ public abstract class MeiZhiTask extends AsyncTask<Integer, Void, MeiZhi> {
         MeiZhi meiZhi = null;
 
         try {
-            String result = new HttpUtil().getUrlString(Host.host + params[0]);
+            String result = new HttpUtil().getUrlString(Host.meizhi_url + params[0]);
             meiZhi = Gsons.json2Bean(result, MeiZhi.class);
         } catch (IOException e) {
             MLog.e("Failed to fetch URL: ", e);

@@ -7,5 +7,8 @@ package com.ssyijiu.photogallery.http;
  */
 
 public interface Host {
-    String host = "http://gank.io/api/data/福利/10/";
+    String host = "http://gank.io/api/";
+    String meizhi_url = host + "data/福利/10/";
+    String search_host = host + "search/query/";
+    String search_url = "/category/福利/count/10/page/";
 }

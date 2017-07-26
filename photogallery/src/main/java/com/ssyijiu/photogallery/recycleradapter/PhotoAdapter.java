@@ -1,6 +1,5 @@
 package com.ssyijiu.photogallery.recycleradapter;
 
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.widget.ImageView;
 import com.ssyijiu.photogallery.R;
 import com.ssyijiu.photogallery.app.App;
 import com.ssyijiu.photogallery.bean.MeiZhi;
-import com.ssyijiu.photogallery.http.ImageLoader;
 import com.ssyijiu.photogallery.image.Vinci;
 import java.util.List;
 
