@@ -25,8 +25,6 @@ public class BeatBoxFragment extends BaseFragment {
 
     private BeatBox mBeatBox;
 
-    BeatHandler handler = new BeatHandler(this);
-
     @Override protected int getFragLayoutId() {
         return R.layout.fragment_beat_box;
     }
@@ -44,8 +42,6 @@ public class BeatBoxFragment extends BaseFragment {
         RecyclerView mRecyclerView = findView(R.id.rv_beat_box);
         mRecyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
         mRecyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds(), mBeatBox));
-
-        handler.sendEmptyMessage(0);
     }
 
 
@@ -56,22 +52,5 @@ public class BeatBoxFragment extends BaseFragment {
 
     public static Fragment newInstance() {
         return new BeatBoxFragment();
-    }
-
-    private static class BeatHandler extends SafetyHandler<BeatBoxFragment> {
-
-        BeatHandler(BeatBoxFragment fragment) {
-            super(fragment);
-        }
-
-        @Override public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(getTarget() != null) {
-                BeatBoxFragment fragment = getTarget();
-                switch (msg.what) {
-                    // fragment
-                }
-            }
-        }
     }
 }
