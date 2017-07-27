@@ -4,9 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
-import android.view.View;
 import com.ssyijiu.photogallery.app.SimpleFragmentActivity;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
+
 
 public class PhotoGalleryActivity extends SimpleFragmentActivity
     implements PhotoAdapter.OnRecyclerClickListener {
@@ -25,6 +25,7 @@ public class PhotoGalleryActivity extends SimpleFragmentActivity
         FragmentTransaction ft = fm.beginTransaction();
         ft.hide(photoGalleryFragment)
             .addToBackStack(null)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addSharedElement(holder.imageView, ViewCompat.getTransitionName(holder.imageView));
 
         PhotoDetailFragment photoFragment =

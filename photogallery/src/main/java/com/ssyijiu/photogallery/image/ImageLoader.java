@@ -1,7 +1,6 @@
 package com.ssyijiu.photogallery.image;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
 import android.widget.ImageView;
 
 /**
@@ -11,6 +10,8 @@ import android.widget.ImageView;
  */
 
 public interface ImageLoader {
-    
-    void loadImage(Context context, String url, ImageView imageView);
+
+    void init(Context context);
+    void loadImage(String url, ImageView imageView);
+    void loadImage(String url, ImageView imageView, ImageOptions options);
 }

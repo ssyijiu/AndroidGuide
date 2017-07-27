@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.ssyijiu.photogallery.R;
-import com.ssyijiu.photogallery.app.App;
 import com.ssyijiu.photogallery.bean.MeiZhi;
+import com.ssyijiu.photogallery.image.ImageOptions;
 import com.ssyijiu.photogallery.image.Vinci;
 import java.util.List;
+
+import static com.ssyijiu.photogallery.image.ImageOptions.getOptions;
 
 /**
  * Created by ssyijiu on 2017/5/17.
@@ -38,7 +40,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
 
     @Override public void onBindViewHolder(ViewHolder holder, int position) {
-        Vinci.instance().loadImage(App.getContext(), datas.get(position).url, holder.imageView);
+        ImageOptions options = ImageOptions.getOptions();
+        options.error(android.R.color.darker_gray);
+        Vinci.instance().loadImage(datas.get(position).url, holder.imageView, options);
+
         holder.url = datas.get(position).url;
         ViewCompat.setTransitionName(holder.imageView, holder.url);
     }

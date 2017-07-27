@@ -1,6 +1,6 @@
 package com.ssyijiu.photogallery.image;
 
-import com.ssyijiu.photogallery.app.App;
+import android.content.Context;
 
 /**
  * Created by ssyijiu on 2016/12/27.
@@ -13,8 +13,8 @@ public class Vinci {
     private Vinci() {
     }
 
-    public static void init(App app) {
-        // Fresco.initialize(app);
+    public static void init(Context context) {
+        instance().init(context);
     }
 
     private static class Lazy {

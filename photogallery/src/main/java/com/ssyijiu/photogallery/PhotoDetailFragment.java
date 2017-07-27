@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.transition.TransitionInflater;
 import android.view.View;
+import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.image.Vinci;
@@ -31,13 +32,14 @@ public class PhotoDetailFragment extends BaseFragment {
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Fragment 共享元素
+        // http://blog.csdn.net/u012403246/article/details/49942679
         // 1. 上一个 fragment setTransitionName
         // 2. 这个 fragment setTransitionName
         // 3
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setSharedElementEnterTransition(
                 TransitionInflater.from(mContext)
-                    .inflateTransition(android.R.transition.slide_top));
+                    .inflateTransition(android.R.transition.fade));
         }
         // 4. FragmentTransaction.addSharedElement(view,transitionName);
     }
@@ -52,8 +54,8 @@ public class PhotoDetailFragment extends BaseFragment {
     @Override protected void initViewAndData(View rootView, Bundle savedInstanceState) {
         PhotoView mPhotoView = (PhotoView) rootView.findViewById(R.id.photoView);
         if (isActive()) {
+            Vinci.instance().loadImage(mUrl, mPhotoView);
             ViewCompat.setTransitionName(mPhotoView, mUrl);
-            Vinci.instance().loadImage(mContext, mUrl, mPhotoView);
         }
 
         rootView.findViewById(R.id.photoView_root).setOnClickListener(new View.OnClickListener() {
