@@ -26,8 +26,8 @@ class GlideLoader implements ImageLoader {
     public void loadImage(Context context, String url, ImageView imageView) {
         Glide.with(context)
             .load(url)
-            .error(R.color.colorPrimary)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .error(R.color.colorAccent)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imageView);
     }
 

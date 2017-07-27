@@ -18,27 +18,24 @@ public abstract class MeiZhiTask extends AsyncTask<Integer, Void, MeiZhi> {
     //         在 onProgressUpdate 接收进度更新 UI
     // MeiZhi doInBackground 的返回 onPostExecute 参数，后台线程的操作结果
 
+
     @Override protected MeiZhi doInBackground(Integer... params) {
 
         MeiZhi meiZhi = null;
 
-        try {
-            String result = new HttpUtil().getUrlString(Host.meizhi_url + params[0]);
-            meiZhi = Gsons.json2Bean(result, MeiZhi.class);
-        } catch (IOException e) {
-            MLog.e("Failed to fetch URL: ", e);
-        }
+        String result = new HttpUtil().getUrlString(Host.meizhi_url + params[0]);
+        meiZhi = Gsons.json2Bean(result, MeiZhi.class);
+
         return meiZhi;
     }
 
 
     @Override protected void onPostExecute(MeiZhi meiZhi) {
         super.onPostExecute(meiZhi);
-        if(meiZhi != null && !meiZhi.error) {
+        if (meiZhi != null && !meiZhi.error) {
             afterMeiZhi(meiZhi);
         }
     }
-
 
 
     protected abstract void afterMeiZhi(MeiZhi meiZhi);

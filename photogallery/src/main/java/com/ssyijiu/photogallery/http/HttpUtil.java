@@ -45,6 +45,7 @@ public class HttpUtil {
 
             return out.toByteArray();
         } catch (IOException e) {
+            MLog.e("Failed to fetch URL: ", e);
             return null;
         } finally {
             IOUtil.close(out);
@@ -55,7 +56,7 @@ public class HttpUtil {
     }
 
 
-    public String getUrlString(String urlSpec) throws IOException {
+    public String getUrlString(String urlSpec) {
 
         byte[] resultByte = getUrlBytes(urlSpec);
 

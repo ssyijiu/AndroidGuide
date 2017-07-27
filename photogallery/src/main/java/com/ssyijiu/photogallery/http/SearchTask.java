@@ -16,13 +16,9 @@ public abstract class SearchTask extends AsyncTask<String, Void, MeiZhi> {
 
         MeiZhi meiZhi = null;
 
-        try {
-            String url = Host.search_host + params[0] + Host.search_url + params[1];
-            String result = new HttpUtil().getUrlString(url);
-            meiZhi = Gsons.json2Bean(result, MeiZhi.class);
-        } catch (IOException e) {
-            MLog.e("Failed to fetch URL: ", e);
-        }
+        String url = Host.search_host + params[0] + Host.search_url + params[1];
+        String result = new HttpUtil().getUrlString(url);
+        meiZhi = Gsons.json2Bean(result, MeiZhi.class);
         return meiZhi;
     }
 

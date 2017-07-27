@@ -1,6 +1,5 @@
 package com.ssyijiu.photogallery.image;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.ssyijiu.photogallery.app.App;
 
 /**
@@ -15,11 +14,11 @@ public class Vinci {
     }
 
     public static void init(App app) {
-        Fresco.initialize(app);
+        // Fresco.initialize(app);
     }
 
     private static class Lazy {
-        static final ImageLoader INSTANCE = FrescoLoader.INSTANCE;
+        static final ImageLoader INSTANCE = GlideLoader.INSTANCE;
 
     }
 

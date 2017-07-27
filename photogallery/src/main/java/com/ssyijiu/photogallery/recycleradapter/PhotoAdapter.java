@@ -1,5 +1,6 @@
 package com.ssyijiu.photogallery.recycleradapter;
 
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,23 +21,26 @@ import java.util.List;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
     private List<MeiZhi.Results> datas;
+    private OnRecyclerClickListener onClickListener;
 
 
-    public PhotoAdapter(List<MeiZhi.Results> datas) {
+    public PhotoAdapter(List<MeiZhi.Results> datas, OnRecyclerClickListener onClickListener) {
         this.datas = datas;
+        this.onClickListener = onClickListener;
     }
 
 
     @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         return new ViewHolder(
-            inflater.inflate(R.layout.item_gallery, parent, false));
+            inflater.inflate(R.layout.item_gallery, parent, false), onClickListener);
     }
 
 
     @Override public void onBindViewHolder(ViewHolder holder, int position) {
-        Vinci.instance().loadImage(App.getContext(),datas.get(position).url,holder.photoView);
-
+        Vinci.instance().loadImage(App.getContext(), datas.get(position).url, holder.imageView);
+        holder.url = datas.get(position).url;
+        ViewCompat.setTransitionName(holder.imageView, holder.url);
     }
 
 
@@ -47,12 +51,25 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView photoView;
+        public ImageView imageView;
+        public String url;
 
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView, final OnRecyclerClickListener onRecyclerClickListener) {
             super(itemView);
-            photoView = (ImageView) itemView;
+            imageView = (ImageView) itemView;
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    if (onRecyclerClickListener != null) {
+                        onRecyclerClickListener.OnRecyclerClick(ViewHolder.this);
+                    }
+                }
+            });
         }
+    }
+
+
+    public interface OnRecyclerClickListener {
+        void OnRecyclerClick(ViewHolder holder);
     }
 }
