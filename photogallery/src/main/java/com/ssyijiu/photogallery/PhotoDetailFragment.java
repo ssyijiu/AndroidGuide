@@ -39,7 +39,7 @@ public class PhotoDetailFragment extends BaseFragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setSharedElementEnterTransition(
                 TransitionInflater.from(mContext)
-                    .inflateTransition(android.R.transition.fade));
+                    .inflateTransition(android.R.transition.explode));
         }
         // 4. FragmentTransaction.addSharedElement(view,transitionName);
     }

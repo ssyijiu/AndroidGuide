@@ -16,14 +16,12 @@ import com.ssyijiu.photogallery.R;
 
 class GlideLoader implements ImageLoader {
 
-    private GlideLoader() {
-    }
-
-
+    static final GlideLoader INSTANCE = new GlideLoader();
     private RequestOptions defaultOptions;
 
-    static final GlideLoader INSTANCE = new GlideLoader();
 
+    private GlideLoader() {
+    }
 
     @Override public void init(Context context) {
         defaultOptions = new RequestOptions()
@@ -44,7 +42,7 @@ class GlideLoader implements ImageLoader {
 
     @Override public void loadImage(String url, ImageView imageView, ImageOptions options) {
 
-        if(options.isHas(options.error())) {
+        if (options.isHas(options.error())) {
             defaultOptions.error(options.error());
         }
 
