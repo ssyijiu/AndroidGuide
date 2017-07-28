@@ -36,7 +36,7 @@ public class PicassoLoader implements ImageLoader {
 
     @Override public void loadImage(String url, ImageView imageView, ImageOptions options) {
         request = picasso(url);
-        if (options.isHas(options.error())) {
+        if (options.has(options.error())) {
             request.error(options.error());
         }
         request.into(imageView);

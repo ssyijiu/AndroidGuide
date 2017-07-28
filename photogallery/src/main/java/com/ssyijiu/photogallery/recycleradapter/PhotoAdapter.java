@@ -45,7 +45,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         Vinci.instance().loadImage(datas.get(position).url, holder.imageView, options);
 
         holder.url = datas.get(position).url;
-        ViewCompat.setTransitionName(holder.imageView, holder.url);
+
+        // 给 View 绑定一个 TransitionName
+        // 转场的时候会根据这个 TransitionName 来确定给哪个 View 设置动画
+        // ViewCompat.setTransitionName(holder.imageView, position + "_image");
     }
 
 

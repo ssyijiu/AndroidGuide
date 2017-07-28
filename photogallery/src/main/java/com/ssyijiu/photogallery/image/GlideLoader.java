@@ -27,6 +27,7 @@ class GlideLoader implements ImageLoader {
         defaultOptions = new RequestOptions()
             .centerCrop()
             .error(R.color.colorAccent)
+            .dontAnimate()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .priority(Priority.IMMEDIATE);
     }
@@ -42,7 +43,7 @@ class GlideLoader implements ImageLoader {
 
     @Override public void loadImage(String url, ImageView imageView, ImageOptions options) {
 
-        if (options.isHas(options.error())) {
+        if (options.has(options.error())) {
             defaultOptions.error(options.error());
         }
 
