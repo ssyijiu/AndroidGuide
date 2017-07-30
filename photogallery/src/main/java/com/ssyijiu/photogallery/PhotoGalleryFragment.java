@@ -61,6 +61,7 @@ public class PhotoGalleryFragment extends BaseFragment {
         setHasOptionsMenu(true);
         requestMeiZhi(mPage);
         PollService.start();
+        PollService.setServiceAlarm(mContext,true);
     }
 
 
@@ -189,6 +190,7 @@ public class PhotoGalleryFragment extends BaseFragment {
             case R.id.menu_item_clear:
                 if (search) {
                     mPage = PAGE_START;
+                    saveQueryKey("");
                     requestMeiZhi(mPage);
                 }
                 return true;

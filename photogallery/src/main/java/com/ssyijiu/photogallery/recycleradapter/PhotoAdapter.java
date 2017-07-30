@@ -48,7 +48,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
         // 给 View 绑定一个 TransitionName
         // 转场的时候会根据这个 TransitionName 来确定给哪个 View 设置动画
-        // ViewCompat.setTransitionName(holder.imageView, position + "_image");
+        ViewCompat.setTransitionName(holder.imageView, holder.url);
     }
 
 

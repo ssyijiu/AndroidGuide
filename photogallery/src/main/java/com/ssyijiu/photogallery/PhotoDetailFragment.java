@@ -1,12 +1,17 @@
 package com.ssyijiu.photogallery;
 
-import android.os.Build;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.transition.TransitionInflater;
 import android.view.View;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BaseTarget;
+import com.bumptech.glide.request.target.ImageViewTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.image.Vinci;
@@ -29,6 +34,7 @@ public class PhotoDetailFragment extends BaseFragment {
     }
 
 
+
     @Override protected void parseArguments(Bundle arguments) {
         super.parseArguments(arguments);
         mUrl = arguments.getString(ARG_URL);
@@ -36,10 +42,10 @@ public class PhotoDetailFragment extends BaseFragment {
 
 
     @Override protected void initViewAndData(View rootView, Bundle savedInstanceState) {
-        PhotoView mPhotoView = (PhotoView) rootView.findViewById(R.id.photoView);
+        final PhotoView mPhotoView = (PhotoView) rootView.findViewById(R.id.photoView);
+        ViewCompat.setTransitionName(mPhotoView, mUrl);
         if (isActive()) {
             Vinci.instance().loadImage(mUrl, mPhotoView);
-            // ViewCompat.setTransitionName(mPhotoView, mUrl);
         }
 
         rootView.findViewById(R.id.photoView_root).setOnClickListener(new View.OnClickListener() {

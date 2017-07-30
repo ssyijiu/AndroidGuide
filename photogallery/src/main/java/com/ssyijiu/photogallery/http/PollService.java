@@ -30,6 +30,7 @@ public class PollService extends IntentService {
 
 
     @Override protected void onHandleIntent(@Nullable Intent intent) {
+        MLog.i(System.currentTimeMillis());
         MLog.i(Thread.currentThread().getName() + intent);
 
         if(NetUtil.isAvailable()) {
@@ -74,7 +75,7 @@ public class PollService extends IntentService {
 
         if (isOn) {
             // 设置定时器
-            // type：时间类型 ELAPSED_REALTIME(系统时钟)
+            // type：时间类型 ELAPSED_REALTIME(从开机开始到现在经过的时间)
             // triggerAtMillis：触发事件，与上面类型对应
             // intervalMillis：时间间隔
             // PendingIntent

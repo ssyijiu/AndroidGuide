@@ -3,6 +3,8 @@ package com.ssyijiu.photogallery;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
+import android.transition.TransitionInflater;
 import com.ssyijiu.photogallery.app.SimpleFragmentActivity;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
 
@@ -33,9 +35,17 @@ public class PhotoGalleryActivity extends SimpleFragmentActivity
             ft.show(photoFragment);
         }
 
-        ft.addToBackStack(null)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+        photoFragment.setSharedElementEnterTransition(
+            TransitionInflater.from(mContext)
+                .inflateTransition(android.R.transition.slide_bottom));
+        photoFragment.setSharedElementReturnTransition(
+            TransitionInflater.from(mContext)
+                .inflateTransition(android.R.transition.slide_top));
+
+        String transitionName = ViewCompat.getTransitionName(holder.imageView);
+        ft.addSharedElement(holder.imageView,transitionName)
             .hide(photoGalleryFragment)
+            .addToBackStack(null)
             .commit();
 
     }
