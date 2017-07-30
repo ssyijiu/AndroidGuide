@@ -28,25 +28,22 @@ public class PhotoGalleryActivity extends SimpleFragmentActivity
             (PhotoDetailFragment) fm.findFragmentByTag(PhotoDetailFragment.TAG);
         if (photoFragment == null) {
             photoFragment = PhotoDetailFragment.newInstance(holder.url);
-            ft.add(R.id.fragment_container, photoFragment);
-        } else if (!photoFragment.isAdded()) {
-            ft.add(R.id.fragment_container, photoFragment);
-        } else {
-            ft.show(photoFragment);
+            photoFragment.setSharedElementEnterTransition(
+                TransitionInflater.from(mContext)
+                    .inflateTransition(android.R.transition.slide_bottom));
+            photoFragment.setSharedElementReturnTransition(
+                TransitionInflater.from(mContext)
+                    .inflateTransition(android.R.transition.slide_top));
+
+            String transitionName = ViewCompat.getTransitionName(holder.imageView);
+            ft.add(R.id.fragment_container, photoFragment)
+                .hide(photoGalleryFragment)
+                .addSharedElement(holder.imageView,transitionName)
+                .addToBackStack(null)
+                .commit();
         }
 
-        photoFragment.setSharedElementEnterTransition(
-            TransitionInflater.from(mContext)
-                .inflateTransition(android.R.transition.slide_bottom));
-        photoFragment.setSharedElementReturnTransition(
-            TransitionInflater.from(mContext)
-                .inflateTransition(android.R.transition.slide_top));
 
-        String transitionName = ViewCompat.getTransitionName(holder.imageView);
-        ft.addSharedElement(holder.imageView,transitionName)
-            .hide(photoGalleryFragment)
-            .addToBackStack(null)
-            .commit();
 
     }
 }

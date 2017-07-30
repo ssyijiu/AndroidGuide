@@ -26,6 +26,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if(getIntent() != null) {
             parseIntent(getIntent());
         }
+
         initFragment();
         initViewAndData(savedInstanceState);
     }

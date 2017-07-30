@@ -1,5 +1,6 @@
 package com.ssyijiu.photogallery.image;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
@@ -7,6 +8,7 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.ssyijiu.photogallery.R;
+import com.ssyijiu.photogallery.app.App;
 
 /**
  * Created by ssyijiu on 2016/12/26.
@@ -34,7 +36,8 @@ class GlideLoader implements ImageLoader {
 
 
     @Override public void loadImage(String url, ImageView imageView) {
-        Glide.with(imageView.getContext())
+
+        Glide.with(getContext(imageView))
             .load(url)
             .apply(defaultOptions)
             .into(imageView);
@@ -47,10 +50,20 @@ class GlideLoader implements ImageLoader {
             defaultOptions.error(options.error());
         }
 
-        Glide.with(imageView.getContext())
+        Glide.with(getContext(imageView))
             .load(url)
             .apply(defaultOptions)
             .into(imageView);
+    }
+
+    private Context getContext(ImageView imageView) {
+        Context context = imageView.getContext();
+        if(context instanceof Activity) {
+            if(!((Activity)context).isDestroyed()) {
+                return context;
+            }
+        }
+        return App.getContext();
     }
 
 }
