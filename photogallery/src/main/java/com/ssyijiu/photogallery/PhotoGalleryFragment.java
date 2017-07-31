@@ -1,23 +1,23 @@
 package com.ssyijiu.photogallery;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.bean.MeiZhi;
 import com.ssyijiu.photogallery.http.MeiZhiTask;
-import com.ssyijiu.photogallery.http.PollService;
 import com.ssyijiu.photogallery.http.SearchTask;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
 import java.util.ArrayList;
@@ -32,15 +32,16 @@ import static com.ssyijiu.photogallery.tools.Preferences.saveQueryKey;
  * E-mail: lxmyijiu@163.com
  */
 
-public class PhotoGalleryFragment extends BaseFragment {
+public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.OnItemClickListener {
 
     private static final int LAST_VISIBLE = 8;
     private static final int PAGE_START = 1;
+    private static final int LAND_SPANCOUNT = 8;
+    private static final int PORTRAIT_SPANCOUNT = 4;
     private RecyclerView mRecyclerView;
     private GridLayoutManager layoutManager;
     private PhotoAdapter mAdapter;
     private List<MeiZhi.Results> mDatas = new ArrayList<>();
-    private int mCellWidth;
 
     private int mPage = PAGE_START;
     private MeiZhiTask mMeizhiTask;
@@ -55,35 +56,25 @@ public class PhotoGalleryFragment extends BaseFragment {
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // 保留 fragment 横竖屏切换不去重复请求数据
         setRetainInstance(true);
         setHasOptionsMenu(true);
         requestMeiZhi(mPage);
-        PollService.start();
-        PollService.setServiceAlarm(mContext,true);
+        // PollService.start();
+        // PollService.setServiceAlarm(mContext,true);
     }
 
 
     @Override protected void initViewAndData(View view, Bundle savedInstanceState) {
-        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.rv_photogallery);
-        mCellWidth = DensityUtil.dp2px(77);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_photogallery);
 
-        mRecyclerView.getViewTreeObserver()
-            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override public void onGlobalLayout() {
-                    mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    int width = mRecyclerView.getWidth();
-                    int cellNum = width / mCellWidth;
-                    layoutManager = new GridLayoutManager(mContext, cellNum);
-                    mRecyclerView.setLayoutManager(layoutManager);
-                    if (mRecyclerView.getAdapter() == null) {
-                        updateUI();
-                    }
+        if(DensityUtil.isScreenLand()) {
+            layoutManager = new GridLayoutManager(mContext, LAND_SPANCOUNT);
+        } else {
+            layoutManager = new GridLayoutManager(mContext, PORTRAIT_SPANCOUNT);
+        }
 
-                }
-            });
-
+        mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -103,6 +94,10 @@ public class PhotoGalleryFragment extends BaseFragment {
                 }
             }
         });
+
+        if (mRecyclerView.getAdapter() == null) {
+            updateUI();
+        }
     }
 
 
@@ -143,11 +138,21 @@ public class PhotoGalleryFragment extends BaseFragment {
     private void updateUI() {
         if (isActive()) {
             if (mAdapter == null) {
-                mAdapter = new PhotoAdapter(mDatas, mOnRecyclerClickListener);
+                mAdapter = new PhotoAdapter(mDatas);
+            }
+
+            // 保留 fragment RecyclerView 重建，Adapter 不重建
+            // 如果使用 Activity attach 方式实现 mOnItemClickListener
+            // 别把 mOnItemClickListener 放在 Adapter 构造方法，那样 Activity 重新 Attach 不会更新 mOnItemClickListener
+
+            mAdapter.setOnItemClickListener(this);
+
+            if(mRecyclerView.getAdapter() == null) {
                 mRecyclerView.setAdapter(mAdapter);
             } else {
                 mAdapter.notifyDataSetChanged();
             }
+
         }
     }
 
@@ -233,24 +238,23 @@ public class PhotoGalleryFragment extends BaseFragment {
     }
 
 
+    @Override public void OnRecyclerClick(PhotoAdapter.ViewHolder holder) {
+        PhotoDetailFragment photoFragment = PhotoDetailFragment.newInstance(holder.url,holder.date);
+        photoFragment.setSharedElementEnterTransition(
+            TransitionInflater.from(mContext)
+                .inflateTransition(android.R.transition.slide_bottom));
+        photoFragment.setSharedElementReturnTransition(
+            TransitionInflater.from(mContext)
+                .inflateTransition(android.R.transition.slide_top));
 
+        String transitionName = ViewCompat.getTransitionName(holder.imageView);
 
-    private PhotoAdapter.OnRecyclerClickListener mOnRecyclerClickListener;
-
-
-    @Override public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (activity instanceof PhotoAdapter.OnRecyclerClickListener) {
-            mOnRecyclerClickListener = (PhotoAdapter.OnRecyclerClickListener) activity;
-        } else {
-            throw new RuntimeException(activity.toString()
-                + " must implement View.OnClickListener");
-        }
-    }
-
-
-    @Override public void onDetach() {
-        super.onDetach();
-        mOnRecyclerClickListener = null;
+        ((FragmentActivity)mContext).getSupportFragmentManager()
+            .beginTransaction()
+            .hide(this)   // Activity 这样写的时候，一定注意 Activity 内存重启，hide 的 Fragment 可能为 null
+            .add(R.id.fragment_container, photoFragment)
+            .addSharedElement(holder.imageView, transitionName)
+            .addToBackStack(null)
+            .commit();
     }
 }

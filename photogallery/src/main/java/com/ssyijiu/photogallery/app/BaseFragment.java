@@ -18,7 +18,6 @@ import com.ssyijiu.common.util.ToastUtil;
 
 public abstract class BaseFragment extends Fragment {
     protected Activity mContext;
-    protected View mRootView;
 
 
     @Override public void onAttach(Activity activity) {
@@ -41,10 +40,7 @@ public abstract class BaseFragment extends Fragment {
     @Nullable @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
-        if (mRootView == null) {
-            mRootView = inflater.inflate(getFragLayoutId(), container, false);
-        }
-        return mRootView;
+        return inflater.inflate(getFragLayoutId(), container, false);
     }
 
 
@@ -60,9 +56,6 @@ public abstract class BaseFragment extends Fragment {
 
 
     public boolean isActive() {
-        return mContext != null
-            && mRootView != null
-            && mRootView.getWindowToken() != null
-            && isAdded();
+        return mContext != null && isAdded();
     }
 }

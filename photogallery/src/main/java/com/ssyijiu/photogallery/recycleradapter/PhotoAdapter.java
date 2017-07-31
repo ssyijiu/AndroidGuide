@@ -12,8 +12,6 @@ import com.ssyijiu.photogallery.image.ImageOptions;
 import com.ssyijiu.photogallery.image.Vinci;
 import java.util.List;
 
-import static com.ssyijiu.photogallery.image.ImageOptions.getOptions;
-
 /**
  * Created by ssyijiu on 2017/5/17.
  * Github: ssyijiu
@@ -23,19 +21,22 @@ import static com.ssyijiu.photogallery.image.ImageOptions.getOptions;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
     private List<MeiZhi.Results> datas;
-    private OnRecyclerClickListener onClickListener;
+    private OnItemClickListener onItemClickListener;
 
 
-    public PhotoAdapter(List<MeiZhi.Results> datas, OnRecyclerClickListener onClickListener) {
+    public PhotoAdapter(List<MeiZhi.Results> datas) {
         this.datas = datas;
-        this.onClickListener = onClickListener;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
 
     @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         return new ViewHolder(
-            inflater.inflate(R.layout.item_gallery, parent, false), onClickListener);
+            inflater.inflate(R.layout.item_gallery, parent, false), onItemClickListener);
     }
 
 
@@ -45,6 +46,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         Vinci.instance().loadImage(datas.get(position).url, holder.imageView, options);
 
         holder.url = datas.get(position).url;
+        holder.date = datas.get(position).createdAt;
 
         // 给 View 绑定一个 TransitionName
         // 转场的时候会根据这个 TransitionName 来确定给哪个 View 设置动画
@@ -61,9 +63,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
         public ImageView imageView;
         public String url;
+        public String date;
 
 
-        ViewHolder(View itemView, final OnRecyclerClickListener onRecyclerClickListener) {
+        ViewHolder(View itemView, final OnItemClickListener onRecyclerClickListener) {
             super(itemView);
             imageView = (ImageView) itemView;
             imageView.setOnClickListener(new View.OnClickListener() {
@@ -77,7 +80,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     }
 
 
-    public interface OnRecyclerClickListener {
+    public interface OnItemClickListener {
         void OnRecyclerClick(ViewHolder holder);
     }
 }

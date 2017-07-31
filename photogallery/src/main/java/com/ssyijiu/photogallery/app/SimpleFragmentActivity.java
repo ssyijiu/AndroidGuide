@@ -12,9 +12,8 @@ import com.ssyijiu.photogallery.R;
 
 public abstract class SimpleFragmentActivity extends BaseActivity {
 
-
-
     protected abstract Fragment createFragment();
+
 
     @Override protected int getLayoutResId() {
         return R.layout.activity_fragment;
@@ -23,14 +22,9 @@ public abstract class SimpleFragmentActivity extends BaseActivity {
 
     @Override protected void initFragment() {
 
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-
-        if(fragment == null) {
-            fragment = createFragment();
-            fm.beginTransaction()
-                .add(R.id.fragment_container,fragment)
-                .commit();
-        }
+        getSupportFragmentManager()
+            .beginTransaction()
+            .add(R.id.fragment_container, createFragment())
+            .commit();
     }
 }
