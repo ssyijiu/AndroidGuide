@@ -1,12 +1,7 @@
 package com.ssyijiu.photogallery;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.ViewCompat;
-import android.transition.TransitionInflater;
-import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.photogallery.app.SimpleFragmentActivity;
-import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
 import java.util.List;
 
 public class PhotoGalleryActivity extends SimpleFragmentActivity {
