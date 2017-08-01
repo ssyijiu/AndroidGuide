@@ -18,6 +18,7 @@ import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
 import com.ssyijiu.photogallery.bean.MeiZhi;
 import com.ssyijiu.photogallery.http.MeiZhiTask;
+import com.ssyijiu.photogallery.http.PollService;
 import com.ssyijiu.photogallery.http.SearchTask;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
 import java.util.ArrayList;
@@ -60,8 +61,8 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
         setRetainInstance(true);
         setHasOptionsMenu(true);
         requestMeiZhi(mPage);
-        // PollService.start();
-        // PollService.setServiceAlarm(mContext,true);
+        PollService.start();
+        PollService.setServiceAlarm(true);
     }
 
 
@@ -101,6 +102,9 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     }
 
 
+    /**
+     * 请求数据
+     */
     private void requestMeiZhi(int page) {
         search = false;
         mMeizhiTask = new MeiZhiTask() {
@@ -114,6 +118,9 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     }
 
 
+    /**
+     * 搜索数据
+     */
     private void searchMeiZhi(String queryKey, String page) {
         search = true;
         mSearchTask = new SearchTask() {
@@ -225,9 +232,6 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
 
     /**
      * 开始搜索
-     *
-     * @param query 关键词
-     * @param searchView searchView
      */
     private void search(String query, SearchView searchView) {
         mPage = PAGE_START;
@@ -238,6 +242,9 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     }
 
 
+    /**
+     * RecyclerView item 点击事件
+     */
     @Override public void OnRecyclerClick(PhotoAdapter.ViewHolder holder) {
         PhotoDetailFragment photoFragment = PhotoDetailFragment.newInstance(holder.url,holder.date);
         photoFragment.setSharedElementEnterTransition(

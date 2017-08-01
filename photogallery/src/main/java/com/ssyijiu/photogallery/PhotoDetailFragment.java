@@ -66,4 +66,5 @@ public class PhotoDetailFragment extends BaseFragment {
         fragment.setArguments(args);
         return fragment;
     }
+
 }

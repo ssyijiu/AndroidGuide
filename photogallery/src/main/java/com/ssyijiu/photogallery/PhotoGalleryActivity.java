@@ -1,15 +1,40 @@
 package com.ssyijiu.photogallery;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
 import android.transition.TransitionInflater;
+import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.photogallery.app.SimpleFragmentActivity;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
+import java.util.List;
 
 public class PhotoGalleryActivity extends SimpleFragmentActivity {
 
+    private PhotoGalleryFragment photoGalleryFragment;
+
+
     @Override protected Fragment createFragment() {
-        return PhotoGalleryFragment.newInstance();
+        photoGalleryFragment = (PhotoGalleryFragment) PhotoGalleryFragment.newInstance();
+        return photoGalleryFragment;
+    }
+
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+        refreshTitle();
+
+    }
+
+
+    private void refreshTitle() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if(fragments != null && fragments.size() > 0) {
+            if (fragments.contains(photoGalleryFragment) && photoGalleryFragment.isVisible()) {
+                photoGalleryFragment.getActivity().setTitle("PhotoGallery");
+            }
+        }
+
     }
 }
 

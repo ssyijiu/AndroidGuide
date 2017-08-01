@@ -24,24 +24,26 @@ public class PollService extends IntentService {
 
     private static final int POLL_INTERVAL = 1000 * 60; // 60 s
 
+
     public PollService() {
         super("PollService");
     }
+
 
 
     @Override protected void onHandleIntent(@Nullable Intent intent) {
         MLog.i(System.currentTimeMillis());
         MLog.i(Thread.currentThread().getName() + intent);
 
-        if(NetUtil.isAvailable()) {
+        if (NetUtil.isAvailable()) {
             String result = new HttpUtil().getUrlString(Host.meizhi_url + "1");
-            MeiZhi meiZhi = Gsons.json2Bean(result,MeiZhi.class);
+            MeiZhi meiZhi = Gsons.json2Bean(result, MeiZhi.class);
 
             String lastUrl = Preferences.loadLastMeizhi();
 
-            if(meiZhi.results != null && meiZhi.results.size() > 0) {
+            if (meiZhi != null && meiZhi.results != null && meiZhi.results.size() > 0) {
                 String newUrl = meiZhi.results.get(0).url;
-                if(lastUrl.equals(newUrl)) {
+                if (lastUrl.equals(newUrl)) {
                     MLog.i("Get a old girl : " + lastUrl);
                 } else {
                     MLog.i("Get a new girl : " + newUrl);
@@ -51,27 +53,28 @@ public class PollService extends IntentService {
 
         }
 
-
-
     }
+
 
     public static Intent newIntent() {
         return new Intent(App.getContext(), PollService.class);
     }
 
+
     public static void start() {
         App.getContext().startService(newIntent());
     }
 
-    public static void setServiceAlarm(Context context, boolean isOn) {
+
+    public static void setServiceAlarm(boolean isOn) {
         Intent intent = PollService.newIntent();
 
         // Context context, int requestCode, Intent intent, int flags
-        PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
+        PendingIntent pi = PendingIntent.getService(App.getContext(), 0, intent, 0);
 
         // 获取定时管理器
         AlarmManager alarmManager = (AlarmManager)
-            context.getSystemService(Context.ALARM_SERVICE);
+            App.getContext().getSystemService(Context.ALARM_SERVICE);
 
         if (isOn) {
             // 设置定时器
