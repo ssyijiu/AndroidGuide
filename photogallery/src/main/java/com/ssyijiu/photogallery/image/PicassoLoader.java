@@ -17,7 +17,6 @@ public class PicassoLoader implements ImageLoader {
     static final PicassoLoader INSTANCE = new PicassoLoader();
 
     private Context context;
-    private RequestCreator request;
 
 
     private PicassoLoader() {
@@ -30,14 +29,16 @@ public class PicassoLoader implements ImageLoader {
 
 
     @Override public void loadImage(String url, ImageView imageView) {
-        picasso(url).into(imageView);
+        loadImage(url, imageView);
     }
 
 
     @Override public void loadImage(String url, ImageView imageView, ImageOptions options) {
-        request = picasso(url);
-        if (options.has(options.error())) {
-            request.error(options.error());
+        RequestCreator request = picasso(url);
+        if (options != null) {
+            if (options.isSet(options.error())) {
+                request.error(options.error());
+            }
         }
         request.into(imageView);
     }

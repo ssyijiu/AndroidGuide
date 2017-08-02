@@ -17,7 +17,7 @@ class FrescoLoader implements ImageLoader {
 
     static final FrescoLoader INSTANCE = new FrescoLoader();
 
-    private GenericDraweeHierarchyBuilder hierarchyBuilder;
+    private GenericDraweeHierarchyBuilder defaultHierarchyBuilder;
 
 
     private FrescoLoader() {
@@ -26,30 +26,40 @@ class FrescoLoader implements ImageLoader {
 
     @Override public void init(Context context) {
         Fresco.initialize(context);
-        hierarchyBuilder = GenericDraweeHierarchyBuilder.newInstance(context.getResources());
-        hierarchyBuilder.setFailureImage(R.color.colorAccent);
+        defaultHierarchyBuilder = GenericDraweeHierarchyBuilder.newInstance(context.getResources());
+        setHierarchyBuilder(defaultHierarchyBuilder);
+
     }
 
 
     @Override public void loadImage(String url, ImageView imageView) {
-        if (imageView instanceof SimpleDraweeView) {
-
-            SimpleDraweeView draweeView = (SimpleDraweeView) imageView;
-            draweeView.setHierarchy(hierarchyBuilder.build());
-            draweeView.setImageURI(url);
-        }
+        loadImage(url, imageView, null);
     }
 
 
     @Override public void loadImage(String url, ImageView imageView, ImageOptions options) {
         if (imageView instanceof SimpleDraweeView) {
-
             SimpleDraweeView draweeView = (SimpleDraweeView) imageView;
-            if (options.has(options.error())) {
-                hierarchyBuilder.setFailureImage(options.error());
+
+            if (options != null) {
+                if (options.isSet(options.error())) {
+                    defaultHierarchyBuilder.setFailureImage(options.error());
+                }
             }
-            draweeView.setHierarchy(hierarchyBuilder.build());
+
+            draweeView.setHierarchy(defaultHierarchyBuilder.build());
             draweeView.setImageURI(url);
+            resetHierarchyBuilder(defaultHierarchyBuilder);
         }
+    }
+
+
+    private void resetHierarchyBuilder(GenericDraweeHierarchyBuilder builder) {
+        builder.reset();
+        setHierarchyBuilder(builder);
+    }
+
+    private void setHierarchyBuilder(GenericDraweeHierarchyBuilder builder) {
+        builder.setFailureImage(R.color.colorAccent);
     }
 }

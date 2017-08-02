@@ -25,6 +25,7 @@ class GlideLoader implements ImageLoader {
     private GlideLoader() {
     }
 
+
     @Override public void init(Context context) {
         defaultOptions = new RequestOptions()
             .centerCrop()
@@ -36,34 +37,33 @@ class GlideLoader implements ImageLoader {
 
 
     @Override public void loadImage(String url, ImageView imageView) {
-
-        Glide.with(getContext(imageView))
-            .load(url)
-            .apply(defaultOptions)
-            .into(imageView);
+        loadImage(url, imageView, null);
     }
 
 
     @Override public void loadImage(String url, ImageView imageView, ImageOptions options) {
 
-        if (options.has(options.error())) {
-            defaultOptions.error(options.error());
+        RequestOptions requestOptions = new RequestOptions().apply(defaultOptions);
+        if (options != null) {
+            if (options.isSet(options.error())) {
+                requestOptions.error(options.error());
+            }
         }
 
         Glide.with(getContext(imageView))
             .load(url)
-            .apply(defaultOptions)
+            .apply(requestOptions)
             .into(imageView);
     }
 
+
     private Context getContext(ImageView imageView) {
         Context context = imageView.getContext();
-        if(context instanceof Activity) {
-            if(!((Activity)context).isDestroyed()) {
+        if (context instanceof Activity) {
+            if (!((Activity) context).isDestroyed()) {
                 return context;
             }
         }
         return App.getContext();
     }
-
 }
