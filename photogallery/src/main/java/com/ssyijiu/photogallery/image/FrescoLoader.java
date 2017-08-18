@@ -1,4 +1,4 @@
-package com.ssyijiu.photogallery.image;//package com.ssyijiu.picassof.imageloader;
+package com.ssyijiu.photogallery.image;
 
 import android.content.Context;
 import android.widget.ImageView;

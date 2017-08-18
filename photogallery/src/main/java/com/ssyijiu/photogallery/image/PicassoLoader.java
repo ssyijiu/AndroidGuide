@@ -29,7 +29,7 @@ public class PicassoLoader implements ImageLoader {
 
 
     @Override public void loadImage(String url, ImageView imageView) {
-        loadImage(url, imageView);
+        loadImage(url, imageView, null);
     }
 
 
