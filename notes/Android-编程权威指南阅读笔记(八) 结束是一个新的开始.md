@@ -84,36 +84,36 @@
   ```Java
   private static final int POLL_INTERVAL = 1000 * 60; // 60 s
   public static void setServiceAlarm(boolean isOn) {
-    Intent intent = PollService.newIntent();
-    // Context context, int requestCode, Intent intent, int flags
-    PendingIntent pi = PendingIntent.getService(App.getContext(), 0, intent, 0);
+  	Intent intent = PollService.newIntent();
+    	// Context context, int requestCode, Intent intent, int flags
+    	PendingIntent pi = PendingIntent.getService(App.getContext(), 0, intent, 0);
 
-    // 获取定时管理器
-    AlarmManager alarmManager = (AlarmManager)
-      App.getContext().getSystemService(Context.ALARM_SERVICE);
+    	// 获取定时管理器
+    	AlarmManager alarmManager = (AlarmManager)
+      	App.getContext().getSystemService(Context.ALARM_SERVICE);
 
-    if (isOn) {
-      // 设置定时器
-      // type：时间类型 ELAPSED_REALTIME(从开机开始到现在经过的时间)
-      // triggerAtMillis：触发事件，与上面类型对应
-      // intervalMillis：时间间隔
-      // PendingIntent 延迟任务
-      alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+    	if (isOn) {
+      	// 设置定时器
+      	// type：时间类型 ELAPSED_REALTIME(从开机开始到现在经过的时间)
+      	// triggerAtMillis：触发事件，与上面类型对应
+      	// intervalMillis：时间间隔
+      	// PendingIntent 延迟任务
+      	alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
                                        SystemClock.elapsedRealtime(), POLL_INTERVAL, pi);
-    } else {
-      // 取消定时器
-      alarmManager.cancel(pi);
-      pi.cancel();
-    }
+    	} else {
+      	// 取消定时器
+      	alarmManager.cancel(pi);
+      	pi.cancel();
+    	}
   }
 
   // 判断定时器是否存在
   // 定时器是通过 PendingIntent 开启的，定时器撤销后 PendingIntent 也会被撤销
   public static boolean isServiceAlarmOn() {
-    Intent intent = PollService.newIntent();
-    PendingIntent pendingIntent = PendingIntent
-      .getService(App.getContext(),0,intent,PendingIntent.FLAG_NO_CREATE);
-    return pendingIntent != null;
+    	Intent intent = PollService.newIntent();
+    	PendingIntent pendingIntent = PendingIntent
+      	.getService(App.getContext(),0,intent,PendingIntent.FLAG_NO_CREATE);
+    	return pendingIntent != null;
   }
   ```
 
@@ -124,15 +124,14 @@
 
   ```java
   Notification notification = new NotificationCompat.Builder(this)
-    .setSmallIcon(android.R.drawable.ic_menu_report_image)   // 小图标
-    .setContentTitle(ResourceUtil.getString(R.string.new_pictures_title))  // 标题
-    .setContentText(ResourceUtil.getString(R.string.new_pictures_text))    // 文字
-    .setContentIntent(pendingIntent)   // 点击的 Intent
-    .setAutoCancel(true)               // 点击后通知消失
-    .build();
+    	.setSmallIcon(android.R.drawable.ic_menu_report_image)   // 小图标
+    	.setContentTitle(ResourceUtil.getString(R.string.new_pictures_title))  // 标题
+    	.setContentText(ResourceUtil.getString(R.string.new_pictures_text))    // 文字
+    	.setContentIntent(pendingIntent)   // 点击的 Intent
+    	.setAutoCancel(true)               // 点击后通知消失
+    	.build();
 
-  NotificationManagerCompat notificationManager =
-    NotificationManagerCompat.from(this);
+  NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
   // 发送通知, id 相同下一条通知会顶掉上一条
   notificationManager.notify(0, notification);	
