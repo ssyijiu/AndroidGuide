@@ -44,9 +44,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         ImageOptions options = ImageOptions.getOptions();
         options.error(android.R.color.darker_gray);
         if(position % 2 == 0) {
-            Vinci.instance().loadImage(datas.get(position).url + 1, holder.imageView, options);
+            Vinci.instance().loadImage(datas.get(position).url, holder.imageView, options);
         } else {
-            Vinci.instance().loadImage(datas.get(position).url + 1, holder.imageView);
+            Vinci.instance().loadImage(datas.get(position).url, holder.imageView);
         }
 
 

@@ -61,15 +61,13 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
         setRetainInstance(true);
         setHasOptionsMenu(true);
         requestMeiZhi(mPage);
-        PollService.start();
-        PollService.setServiceAlarm(true);
     }
 
 
     @Override protected void initViewAndData(View view, Bundle savedInstanceState) {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_photogallery);
 
-        if(DensityUtil.isScreenLand()) {
+        if (DensityUtil.isScreenLand()) {
             layoutManager = new GridLayoutManager(mContext, LAND_SPANCOUNT);
         } else {
             layoutManager = new GridLayoutManager(mContext, PORTRAIT_SPANCOUNT);
@@ -154,7 +152,7 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
 
             mAdapter.setOnItemClickListener(this);
 
-            if(mRecyclerView.getAdapter() == null) {
+            if (mRecyclerView.getAdapter() == null) {
                 mRecyclerView.setAdapter(mAdapter);
             } else {
                 mAdapter.notifyDataSetChanged();
@@ -172,6 +170,8 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.meun_search, menu);
+
+        // 搜索
         MenuItem menuItem = menu.findItem(R.id.menu_item_search);
         final SearchView searchView = (SearchView) menuItem.getActionView();
 
@@ -205,6 +205,12 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
                     saveQueryKey("");
                     requestMeiZhi(mPage);
                 }
+                return true;
+            case R.id.menu_item_toggle_polling:
+                boolean isAlarmStart = PollService.isServiceAlarmOn();
+                PollService.setServiceAlarm(!isAlarmStart);
+                item.setTitle(
+                    PollService.isServiceAlarmOn() ? R.string.stop_polling : R.string.start_polling);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -246,7 +252,8 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
      * RecyclerView item 点击事件
      */
     @Override public void OnRecyclerClick(PhotoAdapter.ViewHolder holder) {
-        PhotoDetailFragment photoFragment = PhotoDetailFragment.newInstance(holder.url,holder.date);
+        PhotoDetailFragment photoFragment = PhotoDetailFragment.newInstance(holder.url,
+            holder.date);
         photoFragment.setSharedElementEnterTransition(
             TransitionInflater.from(mContext)
                 .inflateTransition(android.R.transition.slide_bottom));
@@ -256,7 +263,7 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
 
         String transitionName = ViewCompat.getTransitionName(holder.imageView);
 
-        ((FragmentActivity)mContext).getSupportFragmentManager()
+        ((FragmentActivity) mContext).getSupportFragmentManager()
             .beginTransaction()
             .hide(this)   // Activity 这样写的时候，一定注意 Activity 内存重启，hide 的 Fragment 可能为 null
             .add(R.id.fragment_container, photoFragment)

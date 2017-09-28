@@ -18,7 +18,7 @@ public class Vinci {
     }
 
     private static class Lazy {
-        static final ImageLoader INSTANCE = PicassoLoader.INSTANCE;
+        static final ImageLoader INSTANCE = GlideLoader.INSTANCE;
 
     }
 
