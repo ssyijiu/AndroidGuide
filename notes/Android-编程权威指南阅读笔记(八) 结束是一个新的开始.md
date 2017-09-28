@@ -90,7 +90,7 @@
 
     	// 获取定时管理器
     	AlarmManager alarmManager = (AlarmManager)
-      	App.getContext().getSystemService(Context.ALARM_SERVICE);
+        App.getContext().getSystemService(Context.ALARM_SERVICE);
 
     	if (isOn) {
       	// 设置定时器
