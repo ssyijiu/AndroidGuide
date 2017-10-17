@@ -9,7 +9,11 @@ package com.ssyijiu.beatbox.bean;
 public class Sound {
     private String assetPath;
     private String name;
-    private Integer soundId;  // 可以为 null
+
+    /**
+     * SoundPool 中 sound 的 id 可以为 null
+     */
+    private Integer soundId;
 
 
     public Sound(String assetPath) {

@@ -32,7 +32,8 @@ public class BeatBoxFragment extends BaseFragment {
 
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);  // 保留 fragment
+        // 保留 fragment
+        setRetainInstance(true);
         mBeatBox = new BeatBox();
         MLog.i("onCreate");
     }

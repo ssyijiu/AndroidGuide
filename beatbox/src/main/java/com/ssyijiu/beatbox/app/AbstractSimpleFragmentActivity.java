@@ -10,10 +10,12 @@ import com.ssyijiu.beatbox.R;
  * E-mail: lxmyijiu@163.com
  */
 
-public abstract class SimpleFragmentActivity extends BaseActivity {
+public abstract class AbstractSimpleFragmentActivity extends BaseActivity {
 
-
-
+    /**
+     * 创建 Activity 中的 Fragment
+     * @return fragment
+     */
     protected abstract Fragment createFragment();
 
     @Override protected int getLayoutResId() {

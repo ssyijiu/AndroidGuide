@@ -48,8 +48,15 @@ public abstract class BaseFragment extends Fragment {
     }
 
 
+    /**
+     * 返回 Fragment 的布局
+     * @return layoutId
+     */
     protected abstract int getFragLayoutId();
 
+    /**
+     * 初始化 View 和 数据
+     */
     protected abstract void initViewAndData(Bundle savedInstanceState);
 
 

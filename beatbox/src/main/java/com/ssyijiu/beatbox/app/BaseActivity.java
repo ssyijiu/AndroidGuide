@@ -34,6 +34,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void parseIntent(Intent intent) {}
 
 
+    /**
+     * setContentView(getLayoutResId)
+     * @return layoutId
+     */
     @LayoutRes
     protected abstract int getLayoutResId();
 
