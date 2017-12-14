@@ -23,6 +23,8 @@ public class ClipBoardUtil {
         ClipData clipData = ClipData.newPlainText("common_copy", text);
         ClipboardManager manager =
             (ClipboardManager) Common.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        manager.setPrimaryClip(clipData);
+        if (manager != null) {
+            manager.setPrimaryClip(clipData);
+        }
     }
 }
