@@ -2,7 +2,6 @@ package com.ssyijiu.photogallery.image;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
@@ -47,7 +46,7 @@ class GlideLoader implements ImageLoader {
 
         RequestOptions requestOptions = new RequestOptions().apply(defaultOptions);
         if (options != null) {
-            if (options.isSet(options.error())) {
+            if (options.set(options.error())) {
                 requestOptions.error(options.error());
             }
         }

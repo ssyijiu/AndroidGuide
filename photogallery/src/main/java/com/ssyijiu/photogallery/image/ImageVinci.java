@@ -3,8 +3,6 @@ package com.ssyijiu.photogallery.image;
 import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import com.facebook.drawee.generic.GenericDraweeHierarchy;
-import com.facebook.drawee.view.SimpleDraweeView;
 
 /**
  * Created by ssyijiu on 2016/12/24.

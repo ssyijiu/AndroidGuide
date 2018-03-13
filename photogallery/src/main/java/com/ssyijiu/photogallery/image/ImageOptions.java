@@ -23,7 +23,7 @@ public class ImageOptions {
     }
 
 
-    boolean isSet(int flag) {
+    boolean set(int flag) {
         return flag != UN_SET;
     }
 

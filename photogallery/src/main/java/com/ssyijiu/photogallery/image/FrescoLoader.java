@@ -42,7 +42,7 @@ class FrescoLoader implements ImageLoader {
             SimpleDraweeView draweeView = (SimpleDraweeView) imageView;
 
             if (options != null) {
-                if (options.isSet(options.error())) {
+                if (options.set(options.error())) {
                     defaultHierarchyBuilder.setFailureImage(options.error());
                 }
             }

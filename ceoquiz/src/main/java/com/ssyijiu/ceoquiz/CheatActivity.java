@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.OnClick;
+import java.util.Locale;
 
 public class CheatActivity extends BaseActivity {
 
@@ -36,15 +37,19 @@ public class CheatActivity extends BaseActivity {
 
 
     @Override protected void initViewAndData(Bundle savedInstanceState) {
-        if(null != savedInstanceState) {
+        if (null != savedInstanceState) {
             tvAnswer.setText(String.valueOf(answer));
             isCheat = savedInstanceState.getBoolean(IS_CHEAT);
             setCheatResult(isCheat);
         }
 
         // 手机型号、Android 版本、API 级别
-        tvBuildVersion.setText(Build.MODEL + ": Android " + Build.VERSION.RELEASE + " API " + Build.VERSION.SDK_INT);
+        tvBuildVersion.setText(
+            String.format(Locale.getDefault(), "%s: Android %s API %d", Build.MODEL,
+                Build.VERSION.RELEASE,
+                Build.VERSION.SDK_INT));
     }
+
 
     @OnClick(R.id.btn_show_answer) public void onClick() {
         tvAnswer.setText(String.valueOf(answer));
@@ -55,7 +60,7 @@ public class CheatActivity extends BaseActivity {
 
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(IS_CHEAT,isCheat);
+        outState.putBoolean(IS_CHEAT, isCheat);
     }
 
 
