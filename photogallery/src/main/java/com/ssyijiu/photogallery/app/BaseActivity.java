@@ -17,32 +17,29 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected Activity mContext;
 
-    @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResId());
-
         mContext = this;
-
-        if(getIntent() != null) {
+        if (getIntent() != null) {
             parseIntent(getIntent());
         }
-
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             initFragment();
         }
-
         initViewAndData(savedInstanceState);
     }
 
-
-    protected void parseIntent(Intent intent) {}
-
+    protected void parseIntent(Intent intent) {
+    }
 
     @LayoutRes
     protected abstract int getLayoutResId();
 
-    protected void initFragment(){}
+    protected void initFragment() {
+    }
 
-    protected void initViewAndData(Bundle savedInstanceState) {}
-
+    protected void initViewAndData(Bundle savedInstanceState) {
+    }
 }

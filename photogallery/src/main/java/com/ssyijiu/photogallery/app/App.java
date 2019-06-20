@@ -22,7 +22,6 @@ public class App extends Application {
         sApp = this;
         Common.init(this);
         Vinci.init(this);
-
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
             // You should not init your sApp in this process.

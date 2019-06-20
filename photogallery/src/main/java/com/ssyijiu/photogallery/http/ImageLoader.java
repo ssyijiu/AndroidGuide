@@ -102,7 +102,7 @@ public class ImageLoader<T> extends HandlerThread {
         }
 
         // 子线程下载图片
-        byte[] bitmapBytes = new HttpUtil().getUrlBytes(url);
+        byte[] bitmapBytes = new HttpGet().getUrlBytes(url);
 
         if(bitmapBytes == null) return;
         final Bitmap bitmap = BitmapFactory
@@ -124,7 +124,6 @@ public class ImageLoader<T> extends HandlerThread {
             }
         });
     }
-
 
     public void clearQueue() {
         mRequestHandler.removeMessages(MESSAGE_DOWNLOAD);

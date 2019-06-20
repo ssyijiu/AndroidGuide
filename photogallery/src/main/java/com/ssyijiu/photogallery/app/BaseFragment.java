@@ -8,6 +8,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.ssyijiu.common.util.ToastUtil;
 
 /**
@@ -19,41 +20,39 @@ import com.ssyijiu.common.util.ToastUtil;
 public abstract class BaseFragment extends Fragment {
     protected Activity mContext;
 
-
-    @Override public void onAttach(Activity activity) {
+    @Override
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
         mContext = activity;
     }
 
-
-    @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             parseArguments(getArguments());
         }
     }
 
+    protected void parseArguments(Bundle arguments) {
+    }
 
-    protected void parseArguments(Bundle arguments) {}
-
-
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(getFragLayoutId(), container, false);
     }
 
-
-    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initViewAndData(view, savedInstanceState);
     }
 
-
     protected abstract int getFragLayoutId();
 
     protected abstract void initViewAndData(View rootView, Bundle savedInstanceState);
-
 
     public boolean isActive() {
         return mContext != null && isAdded();

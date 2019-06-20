@@ -37,7 +37,7 @@ public class PollService extends IntentService {
         MLog.i(System.currentTimeMillis());
         MLog.i(Thread.currentThread().getName() + intent);
         if (NetUtil.isAvailable()) {
-            String result = new HttpUtil().getUrlString(Host.meizhi_url + "1");
+            String result = new HttpGet().getUrlString(Host.meizhi_url + "1");
             MeiZhi meiZhi = Gsons.json2Bean(result, MeiZhi.class);
             String lastUrl = Preferences.loadLastMeizhi();
             if (meiZhi != null && meiZhi.results != null && meiZhi.results.size() > 0) {

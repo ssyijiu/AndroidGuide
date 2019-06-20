@@ -1,9 +1,8 @@
 package com.ssyijiu.photogallery.http;
 
 import android.os.AsyncTask;
-import com.ssyijiu.common.log.MLog;
+
 import com.ssyijiu.photogallery.bean.MeiZhi;
-import java.io.IOException;
 
 /**
  * Created by ssyijiu on 2017/5/17.
@@ -23,7 +22,7 @@ public abstract class MeiZhiTask extends AsyncTask<Integer, Void, MeiZhi> {
 
         MeiZhi meiZhi = null;
 
-        String result = new HttpUtil().getUrlString(Host.meizhi_url + params[0]);
+        String result = new HttpGet().getUrlString(Host.meizhi_url + params[0]);
         meiZhi = Gsons.json2Bean(result, MeiZhi.class);
 
         return meiZhi;

@@ -1,6 +1,7 @@
 package com.ssyijiu.photogallery.http;
 
 import com.google.gson.Gson;
+
 import java.lang.reflect.Type;
 
 /**
@@ -16,9 +17,7 @@ public class Gsons {
         throw new UnsupportedOperationException("Gsons cannot be instantiated !");
     }
 
-
     private static final Gson GSON = new Gson();
-
 
     public static <T> T json2Bean(String json, Class<T> beanClass) {
         T bean = null;
@@ -30,7 +29,6 @@ public class Gsons {
         return bean;
     }
 
-
     public static <T> T json2Bean(String json, Type type) {
         T bean = null;
         try {
@@ -40,5 +38,4 @@ public class Gsons {
         }
         return bean;
     }
-
 }

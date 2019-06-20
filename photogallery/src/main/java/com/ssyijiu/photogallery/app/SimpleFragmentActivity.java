@@ -2,6 +2,7 @@ package com.ssyijiu.photogallery.app;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+
 import com.ssyijiu.photogallery.R;
 
 /**
@@ -14,17 +15,16 @@ public abstract class SimpleFragmentActivity extends BaseActivity {
 
     protected abstract Fragment createFragment();
 
-
-    @Override protected int getLayoutResId() {
+    @Override
+    protected int getLayoutResId() {
         return R.layout.activity_fragment;
     }
 
-
-    @Override protected void initFragment() {
-
+    @Override
+    protected void initFragment() {
         getSupportFragmentManager()
-            .beginTransaction()
-            .add(R.id.fragment_container, createFragment())
-            .commit();
+                .beginTransaction()
+                .add(R.id.fragment_container, createFragment())
+                .commit();
     }
 }

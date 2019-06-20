@@ -15,7 +15,7 @@ import java.net.URL;
  * E-mail: lxmyijiu@163.com
  */
 
-public class HttpUtil {
+public class HttpGet {
 
     @Nullable
     public byte[] getUrlBytes(String urlSpec) {
