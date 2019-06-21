@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
 import com.ssyijiu.common.log.MLog;
 import com.ssyijiu.common.util.DensityUtil;
 import com.ssyijiu.photogallery.app.BaseFragment;
@@ -21,6 +22,7 @@ import com.ssyijiu.photogallery.http.MeiZhiTask;
 import com.ssyijiu.photogallery.http.PollService;
 import com.ssyijiu.photogallery.http.SearchTask;
 import com.ssyijiu.photogallery.recycleradapter.PhotoAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,12 +52,14 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     private boolean search = false;
 
 
-    @Override protected int getFragLayoutId() {
+    @Override
+    protected int getFragLayoutId() {
         return R.layout.fragment_photo_gallery;
     }
 
 
-    @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 保留 fragment 横竖屏切换不去重复请求数据
         setRetainInstance(true);
@@ -64,25 +68,24 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     }
 
 
-    @Override protected void initViewAndData(View view, Bundle savedInstanceState) {
+    @Override
+    protected void initViewAndData(View view, Bundle savedInstanceState) {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_photogallery);
-
         if (DensityUtil.isScreenLand()) {
             layoutManager = new GridLayoutManager(mContext, LAND_SPANCOUNT);
         } else {
             layoutManager = new GridLayoutManager(mContext, PORTRAIT_SPANCOUNT);
         }
-
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-            @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dy < 0) return;
-
                 final int itemCount = layoutManager.getItemCount();
                 final int lastVisiblePosition
-                    = layoutManager.findLastCompletelyVisibleItemPosition();
+                        = layoutManager.findLastCompletelyVisibleItemPosition();
                 final boolean isBottom = (lastVisiblePosition >= itemCount - LAST_VISIBLE);
                 if (isBottom) {
                     if (search) {
@@ -93,12 +96,10 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
                 }
             }
         });
-
         if (mRecyclerView.getAdapter() == null) {
             updateUI();
         }
     }
-
 
     /**
      * 请求数据
@@ -106,7 +107,8 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     private void requestMeiZhi(int page) {
         search = false;
         mMeizhiTask = new MeiZhiTask() {
-            @Override protected void afterMeiZhi(MeiZhi meiZhi) {
+            @Override
+            protected void afterMeiZhi(MeiZhi meiZhi) {
                 updateData(meiZhi);
                 updateUI();
             }
@@ -122,7 +124,8 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     private void searchMeiZhi(String queryKey, String page) {
         search = true;
         mSearchTask = new SearchTask() {
-            @Override protected void afterSearch(MeiZhi meiZhi) {
+            @Override
+            protected void afterSearch(MeiZhi meiZhi) {
                 updateData(meiZhi);
                 updateUI();
             }
@@ -145,11 +148,9 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
             if (mAdapter == null) {
                 mAdapter = new PhotoAdapter(mDatas);
             }
-
             // 保留 fragment RecyclerView 重建，Adapter 不重建
             // 如果使用 Activity attach 方式实现 mOnItemClickListener
             // 别把 mOnItemClickListener 放在 Adapter 构造方法，那样 Activity 重新 Attach 不会更新 mOnItemClickListener
-
             mAdapter.setOnItemClickListener(this);
 
             if (mRecyclerView.getAdapter() == null) {
@@ -167,37 +168,37 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
     }
 
 
-    @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.meun_search, menu);
-
         // 搜索
         MenuItem menuItem = menu.findItem(R.id.menu_item_search);
         final SearchView searchView = (SearchView) menuItem.getActionView();
-
         searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 searchView.setQuery(loadQueryKey(), false);
             }
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
                 MLog.i("onQueryTextSubmit:" + query);
                 search(query, searchView);
                 return true;
             }
 
-
-            @Override public boolean onQueryTextChange(String newText) {
+            @Override
+            public boolean onQueryTextChange(String newText) {
                 MLog.i("onQueryTextChange:" + newText);
                 return false;
             }
         });
     }
 
-
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_clear:
                 if (search) {
@@ -209,30 +210,27 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
             case R.id.menu_item_toggle_polling:
                 boolean isAlarmStart = PollService.isServiceAlarmOn();
                 PollService.setServiceAlarm(!isAlarmStart);
-                item.setTitle(
-                    PollService.isServiceAlarmOn() ? R.string.stop_polling : R.string.start_polling);
+                item.setTitle(isAlarmStart ? R.string.stop_polling : R.string.start_polling);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         mRecyclerView = null;
     }
 
-
-    @Override public void onDestroy() {
+    @Override
+    public void onDestroy() {
         super.onDestroy();
         if (mMeizhiTask != null && !mMeizhiTask.isCancelled()) {
             mMeizhiTask.cancel(false);
         }
-
         if (mSearchTask != null && !mSearchTask.isCancelled()) {
             mSearchTask.cancel(false);
         }
-
     }
 
 
@@ -247,28 +245,28 @@ public class PhotoGalleryFragment extends BaseFragment implements PhotoAdapter.O
         searchView.setIconified(true);  // 再次点击 x 关闭 searchView 视图
     }
 
-
     /**
      * RecyclerView item 点击事件
      */
-    @Override public void OnRecyclerClick(PhotoAdapter.ViewHolder holder) {
+    @Override
+    public void OnRecyclerClick(PhotoAdapter.ViewHolder holder) {
         PhotoDetailFragment photoFragment = PhotoDetailFragment.newInstance(holder.url,
-            holder.date);
+                holder.date);
         photoFragment.setSharedElementEnterTransition(
-            TransitionInflater.from(mContext)
-                .inflateTransition(android.R.transition.slide_bottom));
+                TransitionInflater.from(mContext)
+                        .inflateTransition(android.R.transition.slide_bottom));
         photoFragment.setSharedElementReturnTransition(
-            TransitionInflater.from(mContext)
-                .inflateTransition(android.R.transition.slide_top));
+                TransitionInflater.from(mContext)
+                        .inflateTransition(android.R.transition.slide_top));
 
         String transitionName = ViewCompat.getTransitionName(holder.imageView);
 
         ((FragmentActivity) mContext).getSupportFragmentManager()
-            .beginTransaction()
-            .hide(this)   // Activity 这样写的时候，一定注意 Activity 内存重启，hide 的 Fragment 可能为 null
-            .add(R.id.fragment_container, photoFragment)
-            .addSharedElement(holder.imageView, transitionName)
-            .addToBackStack(null)
-            .commit();
+                .beginTransaction()
+                .hide(this)   // Activity 这样写的时候，一定注意 Activity 内存重启，hide 的 Fragment 可能为 null
+                .add(R.id.fragment_container, photoFragment)
+                .addSharedElement(holder.imageView, transitionName)
+                .addToBackStack(null)
+                .commit();
     }
 }

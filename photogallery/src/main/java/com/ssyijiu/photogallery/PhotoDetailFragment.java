@@ -15,18 +15,14 @@ import com.ssyijiu.photogallery.image.Vinci;
 
 public class PhotoDetailFragment extends BaseFragment {
 
-    public static final String TAG = "PhotoDetailFragment";
     private static final String ARG_URL = "arg_url";
     private static final String ARG_DATE = "arg_date";
     private String mUrl;
     private String mDate;
 
-
     @Override protected int getFragLayoutId() {
         return R.layout.fragment_photot_detail;
     }
-
-
 
     @Override protected void parseArguments(Bundle arguments) {
         super.parseArguments(arguments);
@@ -34,17 +30,13 @@ public class PhotoDetailFragment extends BaseFragment {
         mDate = arguments.getString(ARG_DATE);
     }
 
-
     @Override protected void initViewAndData(View rootView, Bundle savedInstanceState) {
-
         mContext.setTitle(mDate.split("T")[0]);
-
         final PhotoView mPhotoView = (PhotoView) rootView.findViewById(R.id.photoView);
         ViewCompat.setTransitionName(mPhotoView, mUrl);
         if (isActive()) {
             Vinci.instance().loadImage(mUrl, mPhotoView);
         }
-
 
         rootView.findViewById(R.id.photoView_root).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {

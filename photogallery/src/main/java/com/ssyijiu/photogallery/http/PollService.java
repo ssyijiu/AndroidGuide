@@ -73,22 +73,16 @@ public class PollService extends IntentService {
 
     public static void setServiceAlarm(boolean isOn) {
         Intent intent = PollService.newIntent();
-        PendingIntent pi = PendingIntent.getService(App.getContext(), 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getService(App.getContext(), 0, intent, 0);
         // 获取定时管理器
         AlarmManager alarmManager = (AlarmManager) App.getContext().getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
             if (isOn) {
-                // 设置定时器
-                // type：时间类型 ELAPSED_REALTIME(从开机开始到现在经过的时间)
-                // triggerAtMillis：触发事件，与上面类型对应
-                // intervalMillis：时间间隔
-                // PendingIntent
-                alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-                        SystemClock.elapsedRealtime(), POLL_INTERVAL, pi);
+                alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), POLL_INTERVAL, pendingIntent);
             } else {
                 // 取消定时器
-                alarmManager.cancel(pi);
-                pi.cancel();
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
             }
         }
     }
